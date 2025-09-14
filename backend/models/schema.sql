@@ -1,21 +1,23 @@
 /* roles table */
 CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY ,
     name VARCHAR(50) NOT NULL UNIQUE,
-    permissions TEXT[]
+    permissions TEXT[], 
+    is_deleted SMALLINT DEFAULT 0
 );
 
 /* users table */
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    firstname VARCHAR(100),
-    lastname VARCHAR(100),
-    country VARCHAR(100),
+    firstName VARCHAR(100)  NOT NULL,
+    lastName VARCHAR(100)  NOT NULL ,
+    country VARCHAR(100)  NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    age INT,
-    role_id INT,
+    age INT  NOT NULL,
+    role_id INT ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted SMALLINT DEFAULT 0 ,
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
@@ -27,27 +29,30 @@ CREATE TABLE user_locations (
     latitude NUMERIC(9,6),
     longitude NUMERIC(9,6),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted SMALLINT DEFAULT 0 ,
     FOREIGN KEY (user_id) REFERENCES users(id) 
 );
 /* category table */
 CREATE TABLE category (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
     description TEXT,
-    image_url TEXT
+    image_url TEXT,
+    is_deleted SMALLINT DEFAULT 0 
 );
 
 /* products table */
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(150),
+    title VARCHAR(150)  NOT NULL,
     description TEXT,
-    image_url TEXT NOT NULL,
+    image_url TEXT ,
     category_id INT,
     price NUMERIC(10,2) NOT NULL,
     user_id INT NOT NULL,
-    is_feature VARCHAR(50),
+    is_feature BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted SMALLINT DEFAULT 0 ,
     FOREIGN KEY (user_id) REFERENCES users(id) ,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
@@ -58,7 +63,8 @@ CREATE TABLE cart (
     user_id INT NOT NULL,
     products JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    is_deleted SMALLINT DEFAULT 0 ,
+    FOREIGN KEY (user_id) REFERENCES users(id) 
 );
 
 
@@ -69,7 +75,9 @@ CREATE TABLE orders (
     location_id INT,
     products JSONB NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
+    pay_method VARCHAR(50)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    is_deleted SMALLINT DEFAULT 0 ,
+    FOREIGN KEY (user_id) REFERENCES users(id) ,
     FOREIGN KEY (location_id) REFERENCES user_locations(id)
 );
