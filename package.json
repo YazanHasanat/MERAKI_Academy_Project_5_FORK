@@ -1,0 +1,34 @@
+{
+  "name": "meraki_academy_project_5_fork",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --watch . --exec ts-node index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YazanHasanat/MERAKI_Academy_Project_5_FORK.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YazanHasanat/MERAKI_Academy_Project_5_FORK/issues"
+  },
+  "homepage": "https://github.com/YazanHasanat/MERAKI_Academy_Project_5_FORK#readme",
+  "devDependencies": {
+    "@types/node": "^24.4.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}
