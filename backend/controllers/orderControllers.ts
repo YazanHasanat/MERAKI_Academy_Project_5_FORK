@@ -93,4 +93,28 @@ const softDeleteOrder = async (req: any, res: e.Response)=>{
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 }
-module.exports = { createOrder, getAllOrders,getOrdersByUser ,softDeleteOrder};
+const updateOrderStatus = async (req: any, res: e.Response) => {
+  const { order_id, status } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE orders SET status = $1 WHERE id = $2 RETURNING *`,
+      [status, order_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      order: result.rows[0],
+    });
+  } catch (err: any) {
+    console.error("Error updating order status:", err.message);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+module.exports = { createOrder, getAllOrders,getOrdersByUser ,softDeleteOrder,updateOrderStatus};
