@@ -1,5 +1,12 @@
 const express = require("express");
-const productRouter = express.Router();
+const router = express.Router();
+
+const productController = require("../controllers/ProductController");
+
+
+router.use("/", productController);
+
+module.exports = router;
 
 
 
@@ -24,17 +31,3 @@ const productRouter = express.Router();
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = productRouter;
