@@ -12,7 +12,7 @@ const rolesRouter = require("./routes/rolesRoute");
 const usersRouter = require("./routes/usersRoute");
 const cartRouter = require("./routes/cartRoute");
 const orderRouter = require("./routes/orderRoute");
-
+const locationRouter=require("./routes/userLocationRoute")
 
 require("./models/db")
 
@@ -29,7 +29,7 @@ app.use(express.json());
   app.use("/orders", orderRouter);
   app.use("/roles", rolesRouter);
   app.use("/users", usersRouter);
-
+  app.use("/location",locationRouter)
 // Handles any other endpoints [unassigned - endpoints]
 app.use((req:any, res:any) => res.status(404).json("NO content at this path"));
 
