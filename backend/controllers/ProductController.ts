@@ -88,4 +88,8 @@ const updateProduct = async (req: any, res: any): Promise<void> => {
 };
 
 
+
 module.exports ={ createProduct,getAllProduct,updateProduct};
+
+
+
