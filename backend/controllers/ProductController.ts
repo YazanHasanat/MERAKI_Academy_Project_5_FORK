@@ -49,4 +49,7 @@ catch (err:any){
 }
 };
 
-module.exports = { createProduct,getAllProduct };
+
+
+module.exports = { createProduct,getAllProduct};
+

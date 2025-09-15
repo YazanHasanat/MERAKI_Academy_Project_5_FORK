@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+require("./models/db")
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,7 +15,6 @@ const cartRouter = require("./routes/cartRoute");
 const orderRouter = require("./routes/orderRoute");
 const locationRouter=require("./routes/userLocationRoute")
 
-require("./models/db")
 
 //built-in middleware
 app.use(cors());

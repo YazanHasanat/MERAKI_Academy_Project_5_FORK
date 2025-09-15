@@ -15,4 +15,36 @@ const createCategory = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = {createCategory};
+
+const getCategoryById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM category WHERE id=$1 AND is_deleted=0",
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getAllCategory = async (req : Request, res : Response) =>{
+  try {
+    const result = await pool.query(
+      "SELECT * FROM category WHERE is_deleted=0"
+    );
+
+    res.json(result.rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = {createCategory,getCategoryById,getAllCategory};
