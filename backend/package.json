@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "ts-node-dev src/index.ts",
+=======
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "start": "ts-node src/index.ts"
   },
@@ -19,6 +21,7 @@
   "homepage": "https://github.com/RaghadAlFayoumi/MERAKI_Academy_Project_5_fork#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
