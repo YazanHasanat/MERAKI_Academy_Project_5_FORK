@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
-  "start": "ts-node src/index.ts"
-    
+    "start": "ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -20,6 +19,7 @@
   "homepage": "https://github.com/RaghadAlFayoumi/MERAKI_Academy_Project_5_fork#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
