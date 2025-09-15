@@ -48,3 +48,5 @@ catch (err:any){
     res.status(500).json({ success: false, error: "Internal server error" });
 }
 };
+
+module.exports = { createProduct,getAllProduct };

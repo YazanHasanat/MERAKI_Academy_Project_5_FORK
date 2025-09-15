@@ -92,9 +92,19 @@ type Register = {
       res.status(500).json({ error: 'Internal server error' });
     }
 }
-  
-
-
+const getAllUsers = async (req: any, res: Res): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT id, firstName, lastName, email, country, age, role_id, created_at 
+       FROM users 
+       WHERE is_deleted = 0`
+    );
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('GetAllUsers Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 
@@ -108,5 +118,6 @@ type Register = {
 module.exports = {
     register,
     login,
+    getAllUsers
   };
   
