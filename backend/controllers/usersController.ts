@@ -41,9 +41,9 @@ type Register = {
   
       const result = await pool.query(
         `INSERT INTO users (firstName, lastName, country, email, password, age, role_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING id, email, firstName, lastName`,
-        [firstName, lastName, country, email, hashedPassword, age, role_id]
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [firstName, lastName, country, email, hashedPassword, age, role_id]
       );
   
       res.status(201).json({ message: 'User registered successfully', user: result.rows[0] });
