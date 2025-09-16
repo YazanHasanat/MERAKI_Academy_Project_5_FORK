@@ -24,7 +24,7 @@ const createProduct = async (req: any, res: any): Promise<void> => {
     
     res.status(201).json({
       success: true,
-      message: "Product created successfully",
+      message: "Product created",
       product: result.rows, 
     });
   } catch (err: any) {
@@ -43,10 +43,10 @@ const result = await pool.query ('SELECT * FROM products WHERE is_deleted = 0;')
 }
 catch (err:any){
     console.error("Error fetching orders:", err.message);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    res.status(500).json({ success: false, error: " server error" });
 }};
 
-
+// 3- put /updateProducts 
 const updateProduct = async (req: any, res: any): Promise<void> => {
   const { id } = req.params; 
   const { title, description, image_url, category_id, price, user_id, is_feature, is_deleted }: {
@@ -78,7 +78,7 @@ const updateProduct = async (req: any, res: any): Promise<void> => {
     
     res.status(200).json({
       success: true,
-      message: "Product updated successfully",
+      message: "Product updated ",
       product: result.rows[0], 
     });
   } catch (err: any) {
@@ -86,10 +86,38 @@ const updateProduct = async (req: any, res: any): Promise<void> => {
     res.status(500).json({ success: false, error: " server error" });
   }
 };
+// 4. **Soft Delete**
+const softDeleteProduct = async (req: any, res: any): Promise<void> => {
+  const { id }: { id: number } = req.params;
+
+  try {
+    const result = await pool.query(
+      "UPDATE products SET is_deleted = 1 WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product Deleted",
+      product: result.rows[0], 
+    });
+  } catch (err: any) {
+    console.error("Error deleting product:", err.message);
+    res.status(500).json({ success: false, error: " server error" });
+  }
+};
+
+module.exports = { createProduct, getAllProduct, updateProduct, softDeleteProduct };
 
 
 
-module.exports ={ createProduct,getAllProduct,updateProduct};
 
 
 
