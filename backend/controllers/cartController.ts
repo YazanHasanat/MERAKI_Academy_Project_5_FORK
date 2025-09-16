@@ -102,5 +102,43 @@ const getCartByUser = async (
     });
   }
 };
+const softDeleteCartById = async (
+  req: e.Request<{ id: string }, {}, {}>,
+  res: e.Response
+) => {
+  const cartId = Number(req.params.id);
 
-module.exports = { addToCart, getCartByUser };
+  if (isNaN(cartId)) {
+    return res.status(400).json({
+      success: false,
+      message: "wrong cart id",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE cart SET is_deleted = 1 WHERE id = $1 RETURNING *`,
+      [cartId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Cart deleted successfully",
+    });
+  } catch (err) {
+    console.error("deleting failed:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed delete cart",
+    });
+  }
+};
+
+module.exports = { addToCart, getCartByUser , softDeleteCartById };
