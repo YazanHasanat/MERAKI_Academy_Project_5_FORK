@@ -3,7 +3,7 @@ import type { Request, Response,NextFunction } from "express";
 declare global {
   namespace Express {
     interface Request {
-      user?: string | object; // أو بتستعمل JwtPayload لو بدك تضيف التايب
+      user?: string | object;
     }
   }
 }
@@ -18,7 +18,7 @@ const authentication = (req:Request, res:Response, next:NextFunction) => {
     }
     const token = req.headers.authorization.split(" ").pop();
 
-    jwt.verify(token, process.env.SECRET, (err:any, result:any) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err:any, result:any) => {
       if (err) {
         res.status(403).json({
           success: false,

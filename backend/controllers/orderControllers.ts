@@ -1,23 +1,23 @@
 import type e = require("express");
+import type { Request, Response } from "express";
 
 const pool = require("../models/db");
-interface CreateOrderBody {
-  user_id: number;
-  location_id: number;
-  products: any[];
-  status?: string;
-  pay_method?: string;
-}
-
-interface TypedRequestBody<T> {
-  body: T;
+export interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role_id: number;
+  };
 }
 const createOrder = async (
-  req: TypedRequestBody<CreateOrderBody>,
-  res: e.Response
+  req: AuthenticatedRequest,
+  res: Response
 ) => {
+  const user_id=req.user.userId
   try {
-    const { user_id, location_id, products, status, pay_method } = req.body;
+    const { location_id, products, status, pay_method } = req.body;
 
     const result = await pool.query(
       `
@@ -54,7 +54,7 @@ const getAllOrders = async (req: any, res: e.Response) => {
   }
 };
 const getOrdersByUser = async (req: any, res: e.Response) => {
-  const { user_id } = req.body;
+  const user_id=req.user.userId
   try {
     const result = await pool.query(
       `SELECT * FROM orders WHERE user_id = $1 AND is_deleted = 0 `,
@@ -69,9 +69,9 @@ const getOrdersByUser = async (req: any, res: e.Response) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
-const softDeleteOrder = async (req: any, res: e.Response)=>{
-    const { order_id } = req.body;
-    try {
+const softDeleteOrder = async (req: any, res: e.Response) => {
+  const { order_id } = req.body;
+  try {
     const result = await pool.query(
       `UPDATE orders SET is_deleted = 1 WHERE id = $1 RETURNING *`,
       [order_id]
@@ -92,7 +92,7 @@ const softDeleteOrder = async (req: any, res: e.Response)=>{
     console.error("Error soft-deleting order:", err.message);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
-}
+};
 const updateOrderStatus = async (req: any, res: e.Response) => {
   const { order_id, status } = req.body;
 
@@ -103,7 +103,9 @@ const updateOrderStatus = async (req: any, res: e.Response) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     res.status(200).json({
@@ -117,4 +119,10 @@ const updateOrderStatus = async (req: any, res: e.Response) => {
   }
 };
 
-module.exports = { createOrder, getAllOrders,getOrdersByUser ,softDeleteOrder,updateOrderStatus};
+module.exports = {
+  createOrder,
+  getAllOrders,
+  getOrdersByUser,
+  softDeleteOrder,
+  updateOrderStatus,
+};
