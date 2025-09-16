@@ -141,4 +141,4 @@ const softDeleteCartById = async (
   }
 };
 
-module.exports = { addToCart, getCartByUser , softDeleteCartById };
+module.exports = { addToCart, getCartByUser, softDeleteCartById };
