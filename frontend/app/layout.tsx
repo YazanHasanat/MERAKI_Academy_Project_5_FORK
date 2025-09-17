@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ReduxProvider } from "./lip/stroeProvider";
 
 
 
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ReduxProvider>
         {children}
+        </ReduxProvider>
       </body>
     </html>
   );
