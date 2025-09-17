@@ -200,6 +200,21 @@ const getProductById = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+const getFeaturedProducts = async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM products WHERE is_feature = true AND is_deleted = 0"
+    );
+
+    res.status(200).json({
+      success: true,
+      products: result.rows,
+    });
+  } catch (err: any) {
+    console.error("Error fetching featured products:", err.message);
+    res.status(500).json({ success: false, error: "server error" });
+  }
+};
 module.exports = {
   createProduct,
   getAllProduct,
@@ -207,4 +222,5 @@ module.exports = {
   softDeleteProduct,
   getProductsByCategory,
   getProductById,
+  getFeaturedProducts,
 };

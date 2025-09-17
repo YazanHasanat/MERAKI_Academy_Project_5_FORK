@@ -7,6 +7,7 @@ const {
   softDeleteProduct,
   getProductsByCategory,
   getProductById,
+  getFeaturedProducts,
 } = require("../controllers/ProductController");
 
 // create path ===> POST http://localhost:5000/products
@@ -14,6 +15,9 @@ productRouter.post("/", createProduct);
 
 // get path ===> GET http://localhost:5000/products
 productRouter.get("/", getAllProduct);
+
+productRouter.get("/featured",getFeaturedProducts)
+// http://localhost:5000/products/featured
 
 // update  path ===> put http://localhost:5000/products/:id
 productRouter.put("/:id", updateProduct);
@@ -28,4 +32,6 @@ productRouter.get(
 );
 productRouter.get("/:id", getProductById);
 // http://localhost:5000/products/:id
+
+
 module.exports = productRouter;
