@@ -1,8 +1,9 @@
 const express = require("express");
 const pool = require("../models/db");
+import type { Request, Response } from "express";
 
 // 1. **Create*
-const createProduct = async (req: any, res: any): Promise<void> => {
+const createProduct = async (req: Request, res: Response): Promise<void> => {
   const {
     title,
     description,
@@ -46,7 +47,7 @@ const createProduct = async (req: any, res: any): Promise<void> => {
   }
 };
 //2 -GET /products  -> list all products
-const getAllProduct = async (req: any, res: any) => {
+const getAllProduct = async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       "SELECT * FROM products WHERE is_deleted = 0;"
@@ -62,7 +63,7 @@ const getAllProduct = async (req: any, res: any) => {
 };
 
 // 3- put /updateProducts
-const updateProduct = async (req: any, res: any): Promise<void> => {
+const updateProduct = async (req: Request, res: any): Promise<void> => {
   const { id } = req.params;
   const {
     title,
@@ -145,8 +146,8 @@ const softDeleteProduct = async (req: any, res: any): Promise<void> => {
   }
 };
 
-const getProductsByCategory = async (req: any, res: any) => {
-  const { categoryId } = req.params; 
+const getProductsByCategory = async (req: Request, res: Response) => {
+  const { categoryId } = req.params;
   try {
     const result = await pool.query(
       `
@@ -158,7 +159,7 @@ const getProductsByCategory = async (req: any, res: any) => {
       WHERE products.is_deleted = 0
         AND products.category_id = $1
       `,
-      [categoryId] 
+      [categoryId]
     );
 
     res.status(200).json({
@@ -170,11 +171,40 @@ const getProductsByCategory = async (req: any, res: any) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+const getProductById = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
+  try {
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM products
+      WHERE is_deleted = 0
+        AND id = $1
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Product not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      product: result.rows[0],
+    });
+  } catch (err: any) {
+    console.error("Error fetching product by id:", err.message);
+    res.status(500).json({ success: false, error: "server error" });
+  }
+};
 module.exports = {
   createProduct,
   getAllProduct,
   updateProduct,
   softDeleteProduct,
-  getProductsByCategory
+  getProductsByCategory,
+  getProductById,
 };
