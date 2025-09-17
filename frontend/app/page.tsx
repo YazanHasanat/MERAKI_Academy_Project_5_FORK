@@ -54,7 +54,6 @@ export default function HeroSection() {
     getAllCategory();
     getFeaturedProducts();
   }, []);
-  console.log(product);
   if (!categories || !product)
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   const sliderSettings = {
@@ -126,32 +125,37 @@ export default function HeroSection() {
         </Box>
       </Box>
       {/* Featured Products Section */}
-      <Box sx={{ py: 8, px: 2 }}>
+      <Box >
         <Typography variant="h4" gutterBottom textAlign="center">
           Featured Products
         </Typography>
         <Slider {...sliderSettings}>
           {product.map((prod) => (
-            <Box key={prod.id} px={1} display="flex" justifyContent="center">
+            <Box key={prod.id} sx={{ px: 1, display: "inline-block" }}>
               <Card
                 sx={{
-                  maxWidth: 250, // ← خلي البطاقة صغيرة بما يكفي
+                  width: 200,
+                  minWidth: 200,
+                  maxWidth: 200,
                   cursor: "pointer",
                   transition: "0.3s",
                   "&:hover": { transform: "scale(1.05)" },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
                 <CardMedia
                   component="img"
-                  height="200"
+                  height="160"
                   image={`/assets/${prod.image_url}`}
                   alt={prod.title}
                 />
-                <CardContent>
-                  <Typography variant="h6" textAlign="center">
+                <CardContent sx={{ p: 1 }}>
+                  <Typography variant="h6" textAlign="center" noWrap>
                     {prod.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" textAlign="center">
                     {prod.price} $
                   </Typography>
                 </CardContent>
