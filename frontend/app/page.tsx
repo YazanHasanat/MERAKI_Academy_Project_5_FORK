@@ -102,7 +102,7 @@ export default function HeroSection() {
                 <CardMedia
                   component="img"
                   height="150"
-                  image={cat.image_url} // لاحظ: اسم الحقل من الـ API
+                  image={cat.image_url}
                   alt={cat.name}
                 />
                 <CardContent>
