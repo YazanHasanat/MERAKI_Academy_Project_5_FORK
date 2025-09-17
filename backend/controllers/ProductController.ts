@@ -1,31 +1,44 @@
 const express = require("express");
 const pool = require("../models/db");
 
-
-
-
 // 1. **Create*
 const createProduct = async (req: any, res: any): Promise<void> => {
-  const { title, description, image_url, category_id, price, user_id, is_feature }: { 
-    title: string; 
-    description: string; 
-    image_url: string; 
-    category_id: number; 
-    price: number; 
-    user_id: number; 
-    is_feature?: boolean; 
+  const {
+    title,
+    description,
+    image_url,
+    category_id,
+    price,
+    user_id,
+    is_feature,
+  }: {
+    title: string;
+    description: string;
+    image_url: string;
+    category_id: number;
+    price: number;
+    user_id: number;
+    is_feature?: boolean;
   } = req.body;
 
   try {
     const result = await pool.query(
       "INSERT INTO products (title, description, image_url, category_id, price, user_id, is_feature) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [title, description, image_url, category_id, price, user_id, is_feature || false] // الافتراضي يكون false إذا لم يتم تحديده
+      [
+        title,
+        description,
+        image_url,
+        category_id,
+        price,
+        user_id,
+        is_feature || false,
+      ]
     );
-    
+
     res.status(201).json({
       success: true,
       message: "Product created",
-      product: result.rows, 
+      product: result.rows,
     });
   } catch (err: any) {
     console.error("Error creating product:", err.message);
@@ -34,23 +47,34 @@ const createProduct = async (req: any, res: any): Promise<void> => {
 };
 //2 -GET /products  -> list all products
 const getAllProduct = async (req: any, res: any) => {
-try{
-const result = await pool.query ('SELECT * FROM products WHERE is_deleted = 0;')
+  try {
+    const result = await pool.query(
+      "SELECT * FROM products WHERE is_deleted = 0;"
+    );
     res.status(200).json({
-    success: true,
-    products: result.rows,
+      success: true,
+      products: result.rows,
     });
-}
-catch (err:any){
+  } catch (err: any) {
     console.error("Error fetching orders:", err.message);
     res.status(500).json({ success: false, error: " server error" });
-}};
+  }
+};
 
-// 3- put /updateProducts 
+// 3- put /updateProducts
 const updateProduct = async (req: any, res: any): Promise<void> => {
-  const { id } = req.params; 
-  const { title, description, image_url, category_id, price, user_id, is_feature, is_deleted }: {
-    title?: string; 
+  const { id } = req.params;
+  const {
+    title,
+    description,
+    image_url,
+    category_id,
+    price,
+    user_id,
+    is_feature,
+    is_deleted,
+  }: {
+    title?: string;
     description?: string;
     image_url?: string;
     category_id?: number;
@@ -61,13 +85,21 @@ const updateProduct = async (req: any, res: any): Promise<void> => {
   } = req.body;
 
   try {
-
     const result = await pool.query(
       "UPDATE products SET title = $1, description = $2, image_url = $3, category_id = $4, price = $5, user_id = $6, is_feature = $7, is_deleted = $8 WHERE id = $9 RETURNING *",
-      [title, description, image_url, category_id, price, user_id, is_feature, is_deleted, id]
+      [
+        title,
+        description,
+        image_url,
+        category_id,
+        price,
+        user_id,
+        is_feature,
+        is_deleted,
+        id,
+      ]
     );
 
-  
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -75,11 +107,10 @@ const updateProduct = async (req: any, res: any): Promise<void> => {
       });
     }
 
-    
     res.status(200).json({
       success: true,
       message: "Product updated ",
-      product: result.rows[0], 
+      product: result.rows[0],
     });
   } catch (err: any) {
     console.error("Error updating product:", err.message);
@@ -106,7 +137,7 @@ const softDeleteProduct = async (req: any, res: any): Promise<void> => {
     res.status(200).json({
       success: true,
       message: "Product Deleted",
-      product: result.rows[0], 
+      product: result.rows[0],
     });
   } catch (err: any) {
     console.error("Error deleting product:", err.message);
@@ -114,10 +145,36 @@ const softDeleteProduct = async (req: any, res: any): Promise<void> => {
   }
 };
 
-module.exports = { createProduct, getAllProduct, updateProduct, softDeleteProduct };
+const getProductsByCategory = async (req: any, res: any) => {
+  const { categoryId } = req.params; 
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+        products.*,
+        category.name AS category_name
+      FROM products
+      INNER JOIN category ON products.category_id = category.id
+      WHERE products.is_deleted = 0
+        AND products.category_id = $1
+      `,
+      [categoryId] 
+    );
 
+    res.status(200).json({
+      success: true,
+      products: result.rows,
+    });
+  } catch (err: any) {
+    console.error("Error fetching products by category:", err.message);
+    res.status(500).json({ success: false, error: "server error" });
+  }
+};
 
-
-
-
-
+module.exports = {
+  createProduct,
+  getAllProduct,
+  updateProduct,
+  softDeleteProduct,
+  getProductsByCategory
+};
