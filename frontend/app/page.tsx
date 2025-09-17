@@ -10,18 +10,30 @@ import {
   CardMedia,
   CardContent,
 } from "@mui/material";
-import homapage from "./assets/home.png";
+import homapage from "../public/assets/home.png";
 import axios from "axios";
-
+import Slider from "react-slick";
 interface Category {
   id: string;
   name: string;
   image_url: string;
 }
+interface Product {
+  id: number;
+  title: string;
+  description?: string;
+  image_url?: string;
+  category_id?: number;
+  price: number;
+  user_id: number;
+  is_feature: boolean;
+  created_at: Date;
+  is_deleted: number;
+}
 
 export default function HeroSection() {
   const [categories, setCategories] = useState<Category[]>([]);
-
+  const [product, setProduct] = useState<Product[]>([]);
   const getAllCategory = async () => {
     try {
       const result = await axios.get("http://localhost:5000/categories");
@@ -30,10 +42,40 @@ export default function HeroSection() {
       console.log(error);
     }
   };
-
+  const getFeaturedProducts = async () => {
+    try {
+      const result = await axios.get("http://localhost:5000/products/featured");
+      setProduct(result.data.products);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     getAllCategory();
+    getFeaturedProducts();
   }, []);
+  console.log(product);
+  if (!categories || !product)
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 5,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 960,
+        settings: { slidesToShow: 2 },
+      },
+      {
+        breakpoint: 600,
+        settings: { slidesToShow: 1 },
+      },
+    ],
+  };
 
   return (
     <Box>
@@ -83,15 +125,49 @@ export default function HeroSection() {
           </Button>
         </Box>
       </Box>
-
+      {/* Featured Products Section */}
+      <Box sx={{ py: 8, px: 2 }}>
+        <Typography variant="h4" gutterBottom textAlign="center">
+          Featured Products
+        </Typography>
+        <Slider {...sliderSettings}>
+          {product.map((prod) => (
+            <Box key={prod.id} px={1} display="flex" justifyContent="center">
+              <Card
+                sx={{
+                  maxWidth: 250, // ← خلي البطاقة صغيرة بما يكفي
+                  cursor: "pointer",
+                  transition: "0.3s",
+                  "&:hover": { transform: "scale(1.05)" },
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={`/assets/${prod.image_url}`}
+                  alt={prod.title}
+                />
+                <CardContent>
+                  <Typography variant="h6" textAlign="center">
+                    {prod.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {prod.price} $
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          ))}
+        </Slider>
+      </Box>
       {/* Categories Section */}
-      <Box sx={{ py: 8, px: 2 }} >
+      <Box sx={{ py: 8, px: 2 }}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Categories
         </Typography>
         <Grid container spacing={4} justifyContent="center">
           {categories.map((cat) => (
-            <Grid  key={cat.id}>
+            <Grid key={cat.id}>
               <Card
                 sx={{
                   cursor: "pointer",
