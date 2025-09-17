@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ReduxProvider } from "./lip/stroeProvider";
+import Navbar from "./components/Navbar";
 
 
 
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ReduxProvider>
+          <Navbar/>
         {children}
         </ReduxProvider>
       </body>
