@@ -6,6 +6,7 @@ const {
   updateProduct,
   softDeleteProduct,
   getProductsByCategory,
+  getProductById,
 } = require("../controllers/ProductController");
 
 // create path ===> POST http://localhost:5000/products
@@ -21,8 +22,10 @@ productRouter.put("/:id", updateProduct);
 productRouter.delete("/:id", softDeleteProduct);
 
 productRouter.get(
-  "/:categoryId",
+  "/category/:categoryId",
   getProductsByCategory
- // http://localhost:5000/products/:categoryId
+  // http://localhost:5000/products/category/:categoryId
 );
+productRouter.get("/:id", getProductById);
+// http://localhost:5000/products/:id
 module.exports = productRouter;
