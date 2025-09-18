@@ -10,10 +10,10 @@ import {
   CardMedia,
   CardContent,
 } from "@mui/material";
-import homapage from "../public/assets/home.png";
+import homePage from "../public/assets/home.png";
 import axios from "axios";
 import Slider from "react-slick";
-interface Category {
+ export interface Category {
   id: string;
   name: string;
   image_url: string;
@@ -22,7 +22,7 @@ interface Product {
   id: number;
   title: string;
   description?: string;
-  image_url?: string;
+  image_urls: string[];
   category_id?: number;
   price: number;
   user_id: number;
@@ -75,14 +75,15 @@ export default function HeroSection() {
       },
     ],
   };
+console.log(product);
 
   return (
-    <Box>
+    <Box >
       <Box
         sx={{
           position: "relative",
           height: "80vh",
-          backgroundImage: `url(${homapage.src})`,
+          backgroundImage: `url(${homePage.src})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",
@@ -125,13 +126,13 @@ export default function HeroSection() {
         </Box>
       </Box>
       {/* Featured Products Section */}
-      <Box >
+      <Box sx={{marginTop:4,marginLeft:2}}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Featured Products
         </Typography>
         <Slider {...sliderSettings}>
           {product.map((prod) => (
-            <Box key={prod.id} sx={{ px: 1, display: "inline-block" }}>
+            <Box key={prod.id} sx={{ m: 0.5, display: "inline-block" }}>
               <Card
                 sx={{
                   width: 200,
@@ -142,17 +143,17 @@ export default function HeroSection() {
                   "&:hover": { transform: "scale(1.05)" },
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
+                  alignItems: "center", mx: "auto"
                 }}
               >
                 <CardMedia
                   component="img"
                   height="160"
-                  image={`/assets/${prod.image_url}`}
+                  image={`/assets/${prod.image_urls[0]}`}
                   alt={prod.title}
                 />
                 <CardContent sx={{ p: 1 }}>
-                  <Typography variant="h6" textAlign="center" noWrap>
+                  <Typography variant="body1" textAlign="center" noWrap>
                     {prod.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" textAlign="center">
