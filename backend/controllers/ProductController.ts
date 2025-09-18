@@ -7,31 +7,31 @@ const createProduct = async (req: Request, res: Response): Promise<void> => {
   const {
     title,
     description,
-    image_url,
+    image_urls,
     category_id,
     price,
-    user_id,
     is_feature,
   }: {
     title: string;
     description: string;
-    image_url: string;
+    image_urls: string[]; 
     category_id: number;
     price: number;
-    user_id: number;
     is_feature?: boolean;
   } = req.body;
 
   try {
     const result = await pool.query(
-      "INSERT INTO products (title, description, image_url, category_id, price, user_id, is_feature) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      `INSERT INTO products 
+        (title, description, image_urls, category_id, price, is_feature) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING *`,
       [
         title,
         description,
-        image_url,
+        image_urls, 
         category_id,
         price,
-        user_id,
         is_feature || false,
       ]
     );
@@ -46,6 +46,7 @@ const createProduct = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+
 //2 -GET /products  -> list all products
 const getAllProduct = async (req: Request, res: Response) => {
   try {

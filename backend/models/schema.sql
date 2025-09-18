@@ -44,16 +44,14 @@ CREATE TABLE category (
 /* products table */
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(150)  NOT NULL,
+    title VARCHAR(150) NOT NULL,
     description TEXT,
-    image_url TEXT ,
+    image_urls TEXT[] NOT NULL,  
     category_id INT,
     price NUMERIC(10,2) NOT NULL,
-    user_id INT NOT NULL,
     is_feature BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_deleted SMALLINT DEFAULT 0 ,
-    FOREIGN KEY (user_id) REFERENCES users(id) ,
+    is_deleted SMALLINT DEFAULT 0,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
