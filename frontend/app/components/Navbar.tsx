@@ -10,16 +10,17 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import axios from "axios";
+import { Category } from "../page";
 
 
 
 export default function Navbar() {
-  const [categories, setCategories] = React.useState<{ id: number; name: string }[]>([]);
+  const [categories, setCategories] = React.useState<Category[]>([]);
 
   React.useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await axios.get(`${"http://localhost:5000"}/api/categories`);
+        const response = await axios.get("http://localhost:5000/categories");
         setCategories(response.data.map((cat: any) => ({ id: cat.id, name: cat.name })));
       } catch (error) {
         console.error(error);
