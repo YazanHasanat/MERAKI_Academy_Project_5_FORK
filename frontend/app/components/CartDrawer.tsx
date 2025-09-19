@@ -9,6 +9,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import GetAddress from "./addres";
 
 interface CartDrawerProps {
   open: boolean;
@@ -66,14 +67,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       >
         <DialogTitle>Location</DialogTitle>
         <DialogContent dividers>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18..."
-            width="100%"
-            height="400"
-            style={{ border: 0 }}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+          {/* 👇 هون بظهر الكومبوننت تبع الخريطة */}
+          <GetAddress />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Close</Button>

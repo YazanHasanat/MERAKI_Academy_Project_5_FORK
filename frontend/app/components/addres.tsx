@@ -9,7 +9,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
-const Marker = () => (
+interface MarkerProps {
+  lat: number;
+  lng: number;
+}
+const Marker: React.FC<MarkerProps> = () => (
   <div
     style={{
       color: "white",
@@ -28,6 +32,7 @@ interface MarkerType {
   lng: number;
 }
 export default function GetAddress() {
+    
   const defaultProps = {
     center: { lat: 31.9539, lng: 35.9106 },
     zoom: 12,
@@ -53,4 +58,67 @@ export default function GetAddress() {
       setError("Please select your location on the map or write it.");
     }
   };
+  return (
+    <Box sx={{ padding: 3 }}>
+      <Paper sx={{ padding: 2, mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          Select Delivery Address
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Click on the map or write your location.
+        </Typography>
+      </Paper>
+
+      <Box
+        sx={{
+          height: "300px",
+          width: "100%",
+          borderRadius: "10px",
+          overflow: "hidden",
+          mb: 2,
+        }}
+      >
+        <GoogleMapReact
+          bootstrapURLKeys={{ key: "AIzaSyBMwLSriIi1nEkpz5YTX78wIPdhL8vE-d4" }}
+          defaultCenter={defaultProps.center}
+          defaultZoom={defaultProps.zoom}
+          onClick={handleMapClick}
+        >
+          {marker && <Marker lat={marker.lat} lng={marker.lng} />}
+        </GoogleMapReact>
+      </Box>
+
+      <InputLabel
+        sx={{ mb: 1, textAlign: "left", color: "black", fontSize: "18px" }}
+      >
+        Enter your nearest location:
+      </InputLabel>
+      <TextField
+        fullWidth
+        value={locationText}
+        onChange={(e) => setLocationText(e.target.value)}
+        placeholder="Like Mosque, Roundabout, School..."
+      />
+
+      {error && (
+        <Typography color="error" sx={{ mt: 1 }}>
+          {error}
+        </Typography>
+      )}
+
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{
+          mt: 2,
+          height: "50px",
+          fontSize: "16px",
+          borderRadius: "10px",
+        }}
+        onClick={handleConfirm}
+      >
+        Confirm Location
+      </Button>
+    </Box>
+  );
 }
