@@ -13,6 +13,7 @@ import {
 import homePage from "../public/assets/home.png";
 import axios from "axios";
 import Slider from "react-slick";
+import Loading from "./loading";
 
 export interface Category {
   id: string;
@@ -58,8 +59,8 @@ export default function HeroSection() {
     getFeaturedProducts();
   }, []);
 
-  if (!categories || !product)
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  if (categories.length === 0 || product.length === 0)
+    return <Loading />;
 
   const sliderSettings = {
     dots: true,
