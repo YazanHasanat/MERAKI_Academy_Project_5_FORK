@@ -1,7 +1,14 @@
-const productPage = () => {
-  return (
-    <div>productPage</div>
-  );
-};
+"use client";
 
-export default productPage;
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  CircularProgress,
+  Button,
+} from "@mui/material";
+import axios from "axios";
