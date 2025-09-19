@@ -1,5 +1,8 @@
 'use client'
-import axios from 'axios'
+import axios ,{AxiosError,AxiosResponse}from 'axios'
+import React,{ useState } from 'react'
+import { useRouter } from 'next/navigation';
+=======
 import React,{ useState } from 'react'
 // type Country = {
 //   firstName: string
@@ -10,6 +13,8 @@ import React,{ useState } from 'react'
 //   age: number
 
 // }
+const register =  () => {
+  const router=useRouter
 const register = async () => {
 
   const [firstName,setFirstName]=useState<string>("")
@@ -17,6 +22,21 @@ const register = async () => {
   const [country,setCountry]=useState<string>("")
   const [email,setEmail]=useState<string>("")
   const [password,setPassword]=useState<string>("")
+
+  const [age,setAge]=useState<number | String>("")
+  
+  const res = ()=> axios.post('http://localhost:5000/users/register',{firstName,lastName,country,email,password,age:typeof age ==='string'? parseInt(age) || 0:age})
+  .then((response:any)=>{
+console.log("register success", response.data);
+router.push("/login")
+  }).catch((err)=>{
+console.log("register error" , err.message);
+
+  })
+
+  
+  
+  
   const [age,setAge]=useState<number>()
 
   const res = await axios.post('http://localhost:5000/users/register',{firstName,lastName,country,email,password,age})
@@ -43,7 +63,8 @@ const register = async () => {
     <input type ="age"name="age" placeholder="Age" onChange={(e) => {
           setAge(e.target.value);
         }} />
-    <button >Sin Up</button>
+    <button  >Sin Up</button>
+
     
 
 
