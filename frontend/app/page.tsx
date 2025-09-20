@@ -49,6 +49,8 @@ export default function HeroSection() {
     try {
       const result = await axios.get("http://localhost:5000/products/featured");
       setProduct(result.data.products);
+      console.log(result);
+      
     } catch (error) {
       console.log(error);
     }
