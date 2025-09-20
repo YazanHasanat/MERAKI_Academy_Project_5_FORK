@@ -12,12 +12,9 @@ import {
   Typography,
   Container,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../lip/store";
-import { setLogin, setRole, setUserId, setUserName } from "../lip/userSlice";
+
 const Login = () => {
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -30,10 +27,6 @@ const Login = () => {
       });
 
       console.log("login success", response.data);
-      dispatch(setLogin(response.data.token));
-      dispatch(setUserId(response.data.user.id));
-      dispatch(setUserName(response.data.user.firstName));
-      dispatch(setRole(response.data.user.role_id));
 
       router.push("/");
     } catch (error: any) {
@@ -68,7 +61,7 @@ const Login = () => {
               gutterBottom
               sx={{ color: "#d63384" }}
             >
-              Welcome Back 👶
+              👶 Welcome Back
             </Typography>
 
             <Box component="form" noValidate autoComplete="off">
@@ -79,6 +72,19 @@ const Login = () => {
                 margin="normal"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#f48fb1" },
+                    "&:hover fieldset": { borderColor: "#f06292" },
+                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#f48fb1",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#ec407a",
+                  },
+                }}
               />
 
               <TextField
@@ -88,6 +94,19 @@ const Login = () => {
                 margin="normal"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#f48fb1" },
+                    "&:hover fieldset": { borderColor: "#f06292" },
+                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#f48fb1",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#ec407a",
+                  },
+                }}
               />
 
               <Button
