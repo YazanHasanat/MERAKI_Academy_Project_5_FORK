@@ -28,6 +28,9 @@ const Login = () => {
 
       console.log("login success", response.data);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.user.id);
+      localStorage.setItem("role_id", response.data.user.role_id);
+      localStorage.setItem("firstName", response.data.user.firstName);
       router.push("/");
     } catch (error: any) {
       console.error("login error", error.message);

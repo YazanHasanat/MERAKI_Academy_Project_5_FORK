@@ -9,8 +9,6 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { RootState } from "../lip/store";
 interface MarkerProps {
   lat: number;
   lng: number;
@@ -34,7 +32,6 @@ interface MarkerType {
   lng: number;
 }
 export default function GetAddress() {
-  const user_id = useSelector((state: RootState) => state.user.userId);
 const[myLocatin,setMyLocation]=useState([])
   const defaultProps = {
     center: { lat: 31.9539, lng: 35.9106 },
@@ -50,7 +47,7 @@ const[myLocatin,setMyLocation]=useState([])
   const handleConfirm = async () => {
     if (marker && locationText.trim() !== "") {
       const result = await axios.post("http://localhost:5000/location", {
-        user_id: user_id,
+        user_id: 1,
         address: locationText,
         latitude: marker.lat,
         longitude: marker.lng,
