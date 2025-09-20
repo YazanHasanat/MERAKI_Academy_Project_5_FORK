@@ -79,6 +79,19 @@ const Login = () => {
                 margin="normal"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#f48fb1" },
+                    "&:hover fieldset": { borderColor: "#f06292" },
+                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#f48fb1",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#ec407a",
+                  },
+                }}
               />
 
               <TextField
@@ -88,6 +101,19 @@ const Login = () => {
                 margin="normal"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#f48fb1" },
+                    "&:hover fieldset": { borderColor: "#f06292" },
+                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#f48fb1",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#ec407a",
+                  },
+                }}
               />
 
               <Button
