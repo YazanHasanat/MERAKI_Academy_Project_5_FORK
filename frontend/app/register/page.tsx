@@ -4,9 +4,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Box,
-  Button,
-  Card,
+  Bo,
+  Card,x,
+  Button
   CardContent,
   TextField,
   Typography,
@@ -15,7 +15,7 @@ import {
  function Register() {
   const router = useRouter();
 
-  // states
+
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [country, setCountry] = useState<string>("");
@@ -23,7 +23,7 @@ import {
   const [password, setPassword] = useState<string>("");
   const [age, setAge] = useState<number | string>("");
 
-  // submit handler
+  
   const handleRegister = async () => {
     try {
       const response = await axios.post("http://localhost:5000/users/register", {
@@ -44,7 +44,36 @@ import {
 
   return (
     <>
-      <h2>Register</h2>
+      <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "#fce4ec", // 🌸 زهري بارد
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 2,
+      }}
+    >
+      <Card
+        sx={{
+          maxWidth: 500,
+          width: "100%",
+          boxShadow: 4,
+          borderRadius: 3,
+          backgroundColor: "#fff",
+        }}
+      >
+        <CardContent>
+          <Typography
+            variant="h5"
+            component="h1"
+            align="center"
+            gutterBottom
+            sx={{ color: "#d63384", fontWeight: 600 }}
+          >
+            👶 Create Your Account
+          </Typography>
+
       <input
         type="text"
         name="firstName"
