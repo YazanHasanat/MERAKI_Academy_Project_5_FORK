@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { ReduxProvider } from "./lip/stroeProvider";
 import Navbar from "./components/Navbar";
 
 
@@ -21,10 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ReduxProvider>
           <Navbar/>
         {children}
-        </ReduxProvider>
       </body>
     </html>
   );
