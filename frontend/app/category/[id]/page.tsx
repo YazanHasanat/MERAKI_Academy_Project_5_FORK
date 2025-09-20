@@ -41,7 +41,7 @@ const CategoryPage = () => {
         gutterBottom
         sx={{ fontWeight: "bold", mb: 4, color: "#1976d2" }}
       >
-        Products in {categoryName}
+        {categoryName}
       </Typography>
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         {Array.isArray(products) && products.map((product: any) => (
@@ -66,10 +66,9 @@ const CategoryPage = () => {
               >
                 <CardMedia
                   component="img"
-                  height="200"
                   image={`/assets/${product.image_urls?.[0] || "home.png"}`}
                   alt={product.title}
-                  sx={{ objectFit: "contain", p: 2, bgcolor: "#f5f5f5" }}
+                  sx={{width: "100%", height: 220, objectFit: "cover", p: 0, bgcolor: "#f5f5f5" }}
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h6" sx={{ fontWeight: 600 }}>
