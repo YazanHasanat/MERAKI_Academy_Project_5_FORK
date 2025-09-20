@@ -106,8 +106,19 @@ const getAllUsers = async (req: any, res: Res): Promise<void> => {
   }
 };
 
+const getUserById = async (req: any, res: Res): Promise<void> => {
+ const user_id=req.user.userId
+  try {
+    const result = await pool.query("SELECT * FROM users where  users.id=$1",[user_id])
+    res.status(200).json(result.rows);
 
+  }
+  catch (err) {
+    console.error('GetAllUsers Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 
+}
 
 
 
@@ -118,6 +129,7 @@ const getAllUsers = async (req: any, res: Res): Promise<void> => {
 module.exports = {
     register,
     login,
-    getAllUsers
+    getAllUsers,getUserById
+
   };
   

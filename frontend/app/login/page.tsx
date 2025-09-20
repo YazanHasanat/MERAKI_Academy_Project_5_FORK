@@ -27,7 +27,7 @@ const Login = () => {
       });
 
       console.log("login success", response.data);
-
+      localStorage.setItem("token", response.data.token);
       router.push("/");
     } catch (error: any) {
       console.error("login error", error.message);
