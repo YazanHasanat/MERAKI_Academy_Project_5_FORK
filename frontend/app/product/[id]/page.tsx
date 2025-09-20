@@ -32,6 +32,42 @@ const ProductPage = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get<{ product: Product }>(
+          `http://localhost:5000/products/${id}`
+        );
+        setProduct(res.data.product);
+      } catch (error) {
+        console.error("Failed to fetch product", error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!product) {
+    return (
+      <Typography variant="h6" color="error" textAlign="center" mt={5}>
+        Product not found.
+      </Typography>
+    );
+  }}
 return (
     <div>productPage</div>
   );
