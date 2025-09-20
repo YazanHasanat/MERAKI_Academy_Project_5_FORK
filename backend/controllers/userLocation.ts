@@ -3,14 +3,14 @@ import type { Request, Response } from "express";
 
 const createLocation = async (req: Request, res: Response) => {
   try {
-    const { user_id, address, latitude, longitude, is_deleted } = req.body;
+    const { user_id, address, latitude, longitude } = req.body;
     const result = await pool.query(
       `
-      INSERT INTO user_locations (user_id, address, latitude, longitude, is_deleted)
-      VALUES ($1, $2, $3, $4,$5)
+      INSERT INTO user_locations (user_id, address, latitude, longitude)
+      VALUES ($1, $2, $3, $4)
       RETURNING *;
     `,
-      [user_id, address, latitude, longitude, is_deleted]
+      [user_id, address, latitude, longitude]
     );
     res.status(200).json({
       success: true,

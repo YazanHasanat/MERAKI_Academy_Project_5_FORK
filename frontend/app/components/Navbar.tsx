@@ -11,17 +11,18 @@ import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import axios from "axios";
 import { Category } from "../page";
-
-
+import CartDrawer from "./CartDrawer";
 
 export default function Navbar() {
   const [categories, setCategories] = React.useState<Category[]>([]);
-
+  const [openCart, setOpenCart] = React.useState(false);
   React.useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await axios.get("http://localhost:5000/categories");
-        setCategories(response.data.map((cat: any) => ({ id: cat.id, name: cat.name })));
+        setCategories(
+          response.data.map((cat: any) => ({ id: cat.id, name: cat.name }))
+        );
       } catch (error) {
         console.error(error);
       }
@@ -34,8 +35,17 @@ export default function Navbar() {
       <AppBar position="static" color="primary">
         <Container>
           <Toolbar sx={{ justifyContent: "space-between" }}>
-            <Box sx={{ display: "flex", justifyContent: "flex-start", minWidth: 120 }}>
-              <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                minWidth: 120,
+              }}
+            >
+              <Link
+                href="/"
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
                 <Typography variant="h6">Bebek Baby</Typography>
               </Link>
             </Box>
@@ -49,9 +59,15 @@ export default function Navbar() {
               />
             </Box>
             <Box sx={{ display: "flex", gap: 2 }}>
-              <Button color="inherit" component={Link} href="/login">Login</Button>
-              <Button color="inherit" component={Link} href="/register">Register</Button>
-              <Button color="inherit" component={Link} href="/cart">Cart</Button>
+              <Button color="inherit" component={Link} href="/login">
+                Login
+              </Button>
+              <Button color="inherit" component={Link} href="/register">
+                Register
+              </Button>
+              <Button color="inherit" onClick={() => setOpenCart(true)}>
+                Cart
+              </Button>
             </Box>
           </Toolbar>
         </Container>
@@ -65,6 +81,7 @@ export default function Navbar() {
           ))}
         </Container>
       </Box>
+      <CartDrawer open={openCart} onClose={() => setOpenCart(false)} />
     </>
   );
 }

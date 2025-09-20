@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -69,3 +68,8 @@ const ProductPage = () => {
       </Typography>
     );
   }}
+return (
+    <div>productPage</div>
+  );
+}
+export default productPage;
