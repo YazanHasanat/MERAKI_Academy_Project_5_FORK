@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -33,5 +32,8 @@ const ProductPage = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-
+return (
+    <div>productPage</div>
+  );
 }
+export default productPage;
