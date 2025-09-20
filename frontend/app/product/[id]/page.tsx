@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -67,9 +68,178 @@ const ProductPage = () => {
         Product not found.
       </Typography>
     );
-  }}
-return (
-    <div>productPage</div>
+  }
+
+  return (
+    <Box
+      sx={{
+        maxWidth: 900,
+        mx: "auto",
+        mt: 6,
+        p: 3,
+        boxShadow: "0 12px 24px rgba(0,0,0,0.12)",
+        borderRadius: 5,
+        bgcolor: "background.paper",
+        fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+      }}
+    >
+      <Card
+        sx={{
+          borderRadius: 5,
+          overflow: "hidden",
+          boxShadow: "0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.07)",
+          transition: "transform 0.3s ease",
+          "&:hover": {
+            transform: "translateY(-6px)",
+            boxShadow:
+              "0 16px 32px rgba(0,0,0,0.15), 0 12px 12px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            overflowX: "auto",
+            gap: 2,
+            p: 2,
+            bgcolor: "#f0f2f5",
+            borderRadius: 3,
+            mb: 4,
+            scrollbarWidth: "thin",
+            scrollbarColor: "#bbb transparent",
+            "&::-webkit-scrollbar": {
+              height: 8,
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bbb",
+              borderRadius: 4,
+            },
+          }}
+        >
+          {product.image_urls.map((img, index) => (
+            <Box
+              key={index}
+              component="img"
+              src={`/assets/${img}`}
+              alt={`${product.title} - ${index + 1}`}
+              sx={{
+                height: 250,
+                borderRadius: 3,
+                objectFit: "cover",
+                flexShrink: 0,
+                boxShadow:
+                  "0 4px 10px rgba(0,0,0,0.08), inset 0 0 8px rgba(255,255,255,0.3)",
+                cursor: "pointer",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  boxShadow:
+                    "0 8px 20px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.4)",
+                },
+              }}
+            />
+          ))}
+        </Box>
+
+        <CardContent sx={{ p: 6 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            mb={4}
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "-0.6px",
+                color: "text.primary",
+                textShadow:
+                  "1px 1px 2px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.05)",
+              }}
+            >
+              {product.title}
+            </Typography>
+            {product.is_feature && (
+              <Chip
+                label="Featured"
+                color="secondary"
+                size="small"
+                sx={{
+                  fontWeight: 700,
+                  background: "linear-gradient(45deg, #FF6B6B, #FFD93D)",
+                  color: "#fff",
+                  boxShadow:
+                    "0 4px 10px rgba(255, 107, 107, 0.5), 0 0 8px rgba(255, 217, 61, 0.6)",
+                }}
+              />
+            )}
+          </Box>
+
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            paragraph
+            sx={{
+              fontSize: "1.15rem",
+              lineHeight: 1.9,
+              letterSpacing: "0.02em",
+              color: "#444",
+            }}
+          >
+            {product.description || "No description available."}
+          </Typography>
+
+          <Divider sx={{ my: 4, borderColor: "#ddd" }} />
+
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mt={3}
+          >
+            <Typography
+              variant="h5"
+              color="primary"
+              sx={{
+                fontWeight: 700,
+                fontSize: "1.9rem",
+                letterSpacing: "-0.02em",
+                textShadow:
+                  "1px 1px 2px rgba(0,0,0,0.07), 0 0 2px rgba(0,0,0,0.04)",
+              }}
+            >
+              ${Number(product.price).toFixed(2)}
+            </Typography>
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{
+                px: 6,
+                py: 1.7,
+                fontWeight: 700,
+                fontSize: "1.05rem",
+                borderRadius: "40px",
+                textTransform: "none",
+                boxShadow:
+                  "0 6px 14px rgba(25, 118, 210, 0.35), 0 3px 6px rgba(25, 118, 210, 0.3)",
+                transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "#1565c0",
+                  boxShadow:
+                    "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
+                },
+              }}
+            >
+              Add to Cart
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
-}
-export default productPage;
+};
+
+export default ProductPage;
