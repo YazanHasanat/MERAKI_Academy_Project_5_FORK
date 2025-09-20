@@ -80,6 +80,19 @@ import {
               margin="normal"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
             <TextField
               label="Last Name"
@@ -87,6 +100,19 @@ import {
               margin="normal"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
             <TextField
               label="Country"
@@ -94,6 +120,19 @@ import {
               margin="normal"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
             <TextField
               label="Email"
@@ -102,6 +141,19 @@ import {
               margin="normal"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
             <TextField
               label="Password"
@@ -110,6 +162,19 @@ import {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
             <TextField
               label="Age"
@@ -118,6 +183,19 @@ import {
               margin="normal"
               value={age}
               onChange={(e) => setAge(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#f48fb1" },
+                  "&:hover fieldset": { borderColor: "#f06292" },
+                  "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#f48fb1",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#ec407a",
+                },
+              }}
             />
 
             <Button
