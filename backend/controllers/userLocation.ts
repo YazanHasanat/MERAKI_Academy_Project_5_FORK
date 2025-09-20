@@ -1,9 +1,11 @@
 const pool = require("../models/db");
 import type { Request, Response } from "express";
+import type orderControllers = require("./orderControllers");
 
-const createLocation = async (req: Request, res: Response) => {
+const createLocation = async (req: orderControllers.AuthenticatedRequest, res: Response) => {
   try {
-    const { user_id, address, latitude, longitude } = req.body;
+    const user_id=req.user.userId
+    const { address, latitude, longitude } = req.body;
     const result = await pool.query(
       `
       INSERT INTO user_locations (user_id, address, latitude, longitude)
@@ -22,8 +24,8 @@ const createLocation = async (req: Request, res: Response) => {
   }
 };
 
-const getLocationById=async(req:Request,res:Response)=>{
-  const {user_id}=req.body
+const getLocationById=async(req: orderControllers.AuthenticatedRequest,res:Response)=>{
+      const user_id=req.user.userId
   try{
     const result=await pool.query("SELECT * FROM user_locations WHERE user_id=$1",[user_id])
     res.status(200).json({

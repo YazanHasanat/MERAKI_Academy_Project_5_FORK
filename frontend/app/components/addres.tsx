@@ -7,8 +7,10 @@ import {
   InputLabel,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { RootState } from "../lip/store";
 interface MarkerProps {
   lat: number;
   lng: number;
@@ -32,7 +34,8 @@ interface MarkerType {
   lng: number;
 }
 export default function GetAddress() {
-    
+  const user_id = useSelector((state: RootState) => state.user.userId);
+const[myLocatin,setMyLocation]=useState([])
   const defaultProps = {
     center: { lat: 31.9539, lng: 35.9106 },
     zoom: 12,
@@ -47,7 +50,7 @@ export default function GetAddress() {
   const handleConfirm = async () => {
     if (marker && locationText.trim() !== "") {
       const result = await axios.post("http://localhost:5000/location", {
-        user_id: 1,
+        user_id: user_id,
         address: locationText,
         latitude: marker.lat,
         longitude: marker.lng,
@@ -58,6 +61,15 @@ export default function GetAddress() {
       setError("Please select your location on the map or write it.");
     }
   };
+
+  const getUser = async () => {
+    const result = await axios.get("http://localhost:5000/location");
+    console.log("user location:", result.data);
+    setMyLocation(result.data)
+  };
+  useEffect(()=>{
+    getUser()
+  })
   return (
     <Box sx={{ padding: 3 }}>
       <Paper sx={{ padding: 2, mb: 2 }}>
