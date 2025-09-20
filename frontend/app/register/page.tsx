@@ -3,6 +3,15 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+} from "@mui/material";
+
  function Register() {
   const router = useRouter();
 
