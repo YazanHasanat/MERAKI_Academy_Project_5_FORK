@@ -30,6 +30,7 @@ const ProductPage = () => {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const [message, setMessage] = useState<string | null>(null);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +70,31 @@ const ProductPage = () => {
       </Typography>
     );
   }
+  const handleAddToCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setMessage("⚠️ You must log in first");
+        return;
+      }
+
+      await axios.post(
+        "http://localhost:5000/cart/add",
+        {
+          product_id: product?.id,
+          quantity: 1,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setMessage(" Product added to cart");
+    } catch (error) {
+      console.error("Error adding to cart", error);
+      setMessage(" Failed to add product to cart");
+    }
+  };
 
   return (
     <Box
@@ -232,9 +258,18 @@ const ProductPage = () => {
                     "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
                 },
               }}
+              onClick={handleAddToCart}
             >
               Add to Cart
             </Button>
+            {message && (
+              <Typography
+                variant="body2"
+                sx={{ mt: 2, color: message.includes("added") ? "green" : "red" }}
+              >
+                {message}
+              </Typography>
+            )}
           </Box>
         </CardContent>
       </Card>

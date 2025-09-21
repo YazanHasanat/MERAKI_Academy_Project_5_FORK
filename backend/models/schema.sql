@@ -59,12 +59,19 @@ CREATE TABLE products (
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    products JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_deleted SMALLINT DEFAULT 0 ,
-    FOREIGN KEY (user_id) REFERENCES users(id) 
+    is_deleted SMALLINT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE cart_items (
+    id SERIAL PRIMARY KEY,
+    cart_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    FOREIGN KEY (cart_id) REFERENCES cart(id) ,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
 
 /* orders table */
 CREATE TABLE orders (
