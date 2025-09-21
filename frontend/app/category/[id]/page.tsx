@@ -9,28 +9,31 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
+import Button from "@mui/material/Button";
 
 const CategoryPage = () => {
   const { id } = useParams();
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
 
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/products/category/${id}`)
-      .then((res) => {
-        const data = res.data.products || res.data;
-        setProducts(data);
-        if (Array.isArray(data) && data.length > 0) {
-          setCategoryName(data[0].category_name || "");
-        } else {
-          setCategoryName("");
-        }
-      })
-      .catch((err) => {
+  const CategoryData = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/products/category/${id}`);
+      const data = res.data.products || res.data;
+      setProducts(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setCategoryName(data[0].category_name || "");
+      } else {
         setCategoryName("");
-        console.error(err);
-      });
+      }
+    } catch (err) {
+      setCategoryName("");
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    CategoryData();
   }, [id]);
 
   return (
@@ -44,47 +47,82 @@ const CategoryPage = () => {
         {categoryName}
       </Typography>
       <Grid container spacing={4} justifyContent="center" alignItems="center">
-        {Array.isArray(products) && products.map((product: any) => (
-          <Grid  key={product.id} display="flex" justifyContent="center">
-            <Link href={`/product/${product.id}`} style={{ textDecoration: "none", width: "100%" }}>
-              <Card
-                sx={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  boxShadow: 4,
-                  borderRadius: 3,
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "translateY(-8px) scale(1.03)",
-                    boxShadow: 8,
-                  },
-                  bgcolor: "#fff",
-                  mx: "auto",
-                  maxWidth: 320,
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={`/assets/${product.image_urls?.[0] || "home.png"}`}
-                  alt={product.title}
-                  sx={{width: "100%", height: 220, objectFit: "cover", p: 0, bgcolor: "#f5f5f5" }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h6" sx={{ fontWeight: 600 }}>
-                    {product.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {product.description?.slice(0, 60)}...
-                  </Typography>
-                  <Typography variant="subtitle1" color="primary" sx={{ fontWeight: "bold" }}>
-                    {product.price ? `${product.price} JD` : ""}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Link>
-          </Grid>
-        ))}
+        {Array.isArray(products) &&
+          products.map((product: any) => (
+            <Grid key={product.id} display="flex" justifyContent="center">
+              <Link href={`/product/${product.id}`} style={{ textDecoration: "none", width: "100%" }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: 6,
+                    borderRadius: 4,
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "translateY(-10px) scale(1.05)",
+                      boxShadow: 10,
+                    },
+                    bgcolor: "#fff",
+                    mx: "auto",
+                    maxWidth: 350,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image={`/assets/${product.image_urls?.[0] || "home.png"}`}
+                    alt={product.title}
+                    sx={{
+                      width: "100%",
+                      height: 200,
+                      objectFit: "cover",
+                      borderTopLeftRadius: 4,
+                      borderTopRightRadius: 4,
+                    }}
+                  />
+                  <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                    <Typography
+                      gutterBottom
+                      variant="h6"
+                      sx={{ fontWeight: 700, color: "#333", textAlign: "center" }}
+                    >
+                      {product.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2, textAlign: "center" }}
+                    >
+                      {product.description?.slice(0, 60)}...
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      color="primary"
+                      sx={{ fontWeight: "bold", textAlign: "center" }}
+                    >
+                      {product.price ? `${product.price} JD` : ""}
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ p: 2, textAlign: "center" }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        textTransform: "none",
+                        borderRadius: 20,
+                        px: 3,
+                        py: 1,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      View Details
+                    </Button>
+                  </Box>
+                </Card>
+              </Link>
+            </Grid>
+          ))}
       </Grid>
     </Box>
   );
