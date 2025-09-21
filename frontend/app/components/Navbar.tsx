@@ -68,12 +68,10 @@ export default function Navbar() {
               >
            <Typography
               variant="h4"
-              sx={{ fontWeight: 'bold', position: 'relative', left: '-100px' }}
+              sx={{ fontWeight: "bold", ml: -8, fontSize: "2rem" }}
             >
               Bebek Baby
             </Typography>
-
-
 
               </Link>
             </Box>
@@ -100,12 +98,26 @@ export default function Navbar() {
           </Toolbar>
         </Container>
       </AppBar>
-      <Box sx={{ bgcolor: "grey.100", py: 1 }}>
+      <Box sx={{ mt: 8.1, bgcolor: "#ffffffff", py: 1 }}>
         <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
           {categories.map((cat) => (
-            <Button key={cat.id} component={Link} href={`/category/${cat.id}`}>
+            <Button
+              key={cat.id}
+              component={Link}
+              href={`/category/${cat.id}`}
+              variant="contained"
+              sx={{
+                bgcolor: "#F48FB1", 
+                color: "white",
+                borderRadius: "20px",
+                textTransform: "none",
+                "&:hover": { bgcolor: "#EC407A" },
+              }}
+            >
               {cat.name}
             </Button>
+
+
           ))}
         </Container>
       </Box>
