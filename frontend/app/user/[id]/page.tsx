@@ -3,6 +3,15 @@
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+type UserType = {
+  firstname: string;
+  lastname: string;
+  country: string;
+  email: string;
+  password: string;
+  age: number;
+  role_id?: number;
+};
 
 type UserType = {
   firstname: string;
@@ -16,6 +25,8 @@ type UserType = {
 
 const user = () => {
   
+=======
+  const { id } = useParams();
   const [user, setUser] = useState<UserType[]>([]);
   const getInformation=async()=>{
     const res=await axios.get("http://localhost:5000/users/mypage",{

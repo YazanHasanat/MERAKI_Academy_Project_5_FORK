@@ -1,118 +1,119 @@
-import type e = require("express");
+import type { Request, Response } from "express";
 const pool = require("../models/db");
 
-interface TheProduct {
-  product_id: number;
-  quantity: number;
+interface AuthRequest extends Request {
+  user?: { userId: number };
 }
 
-interface AddToCartBody {
-  user_id: number;
-  product_id: number;
-  quantity: number;
-}
+const addToCart = async (req: AuthRequest, res: Response) => {
+  const user_id = req.user?.userId;
+  const { product_id, quantity } = req.body as {
+    product_id: number;
+    quantity: number;
+  };
 
-const addToCart = async (
-  req: e.Request<{}, {}, AddToCartBody>,
-  res: e.Response
-) => {
-  const { user_id, product_id, quantity } = req.body;
+  if (!user_id) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You have to login" });
+  }
+
+  if (quantity <= 0) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Quantity must be > 0" });
+  }
 
   try {
-    const result = await pool.query(
+    let cart = await pool.query(
       `SELECT * FROM cart WHERE user_id = $1 AND is_deleted = 0`,
       [user_id]
     );
 
-    let updatedProducts: TheProduct[] = [];
-
-    if (result.rows.length > 0) {
-      const cart = result.rows[0];
-      const products: TheProduct[] = JSON.parse(cart.products);
-
-      const existingProduct = products.find((p) => p.product_id === product_id);
-      if (existingProduct) {
-        existingProduct.quantity += quantity;
-      } else {
-        products.push({ product_id, quantity });
-      }
-
-      updatedProducts = products;
-
-      await pool.query(`UPDATE cart SET products = $1 WHERE user_id = $2`, [
-        JSON.stringify(updatedProducts),
-        user_id,
-      ]);
+    let cart_id: number;
+    if (cart.rows.length === 0) {
+      const newCart = await pool.query(
+        `INSERT INTO cart (user_id) VALUES ($1) RETURNING id`,
+        [user_id]
+      );
+      cart_id = newCart.rows[0].id;
     } else {
-      updatedProducts = [{ product_id, quantity }];
-      await pool.query(`INSERT INTO cart (user_id, products) VALUES ($1, $2)`, [
-        user_id,
-        JSON.stringify(updatedProducts),
-      ]);
+      cart_id = cart.rows[0].id;
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Item added to cart",
-      products: updatedProducts,
-    });
+    const existingItem = await pool.query(
+      `SELECT * FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
+      [cart_id, product_id]
+    );
+
+    if (existingItem.rows.length > 0) {
+      await pool.query(
+        `UPDATE cart_items SET quantity = quantity + $1 WHERE cart_id = $2 AND product_id = $3`,
+        [quantity, cart_id, product_id]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO cart_items (cart_id, product_id, quantity) VALUES ($1, $2, $3)`,
+        [cart_id, product_id, quantity]
+      );
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Item added to cart" });
   } catch (err) {
-    console.error("adding to cart failed", err);
-    res.status(500).json({ success: false, error: "failed to add to cart" });
+    console.error("Error adding to cart:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to add to cart" });
   }
 };
 
-const getCartByUser = async (
-  req: e.Request<{}, {}, {}, { user_id: string }>,
-  res: e.Response
-) => {
-  const user_id = Number(req.query.user_id);
+const getCartByUser = async (req: AuthRequest, res: Response) => {
+  const user_id = req.user?.userId;
 
-  if (isNaN(user_id)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid user_id",
-    });
+  if (!user_id) {
+    return res.status(401).json({ success: false, message: "Invalid user_id" });
   }
 
   try {
     const result = await pool.query(
-      `SELECT products FROM cart WHERE user_id = $1 AND is_deleted = 0`,
+      `SELECT cart_items.product_id,
+              cart_items.quantity,
+              products.title,
+              products.price,
+              products.image_urls
+       FROM cart
+       JOIN cart_items ON cart.id = cart_items.cart_id
+       JOIN products ON cart_items.product_id = products.id
+       WHERE cart.user_id = $1
+         AND cart.is_deleted = 0`,
       [user_id]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Cart not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found or empty" });
     }
 
-    const products: TheProduct[] = JSON.parse(result.rows[0].products);
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      products,
+      products: result.rows,
     });
   } catch (err) {
     console.error("Error fetching cart:", err);
-    res.status(500).json({
-      success: false,
-      error: "Failed",
-    });
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to fetch cart" });
   }
 };
-const softDeleteCartById = async (
-  req: e.Request<{ id: string }, {}, {}>,
-  res: e.Response
-) => {
+
+const softDeleteCartById = async (req: Request, res: Response) => {
   const cartId = Number(req.params.id);
 
   if (isNaN(cartId)) {
-    return res.status(400).json({
-      success: false,
-      message: "wrong cart id",
-    });
+    return res.status(400).json({ success: false, message: "Wrong cart id" });
   }
 
   try {
@@ -122,23 +123,98 @@ const softDeleteCartById = async (
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Cart not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Cart deleted successfully",
     });
   } catch (err) {
-    console.error("deleting failed:", err);
-    res.status(500).json({
-      success: false,
-      error: "Failed delete cart",
-    });
+    console.error("Error deleting cart:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed delete cart" });
   }
 };
+const updateCartItemQuantity = async (req: AuthRequest, res: Response) => {
+  const user_id = req.user?.userId;
+  const { product_id, quantity } = req.body as {
+    product_id: number;
+    quantity: number;
+  };
 
-module.exports = { addToCart, getCartByUser, softDeleteCartById };
+  if (!user_id) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You have to login" });
+  }
+
+  if (!product_id || quantity == null) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "product_id and quantity are required",
+      });
+  }
+
+  try {
+    const cartResult = await pool.query(
+      `SELECT id FROM cart WHERE user_id = $1 AND is_deleted = 0`,
+      [user_id]
+    );
+
+    if (cartResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
+    }
+
+    const cart_id = cartResult.rows[0].id;
+
+    if (quantity <= 0) {
+      await pool.query(
+        `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
+        [cart_id, product_id]
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Product removed from cart",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE cart_items 
+       SET quantity = $1 
+       WHERE cart_id = $2 AND product_id = $3
+       RETURNING *`,
+      [quantity, cart_id, product_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found in cart" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Quantity updated successfully",
+      item: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error updating quantity:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to update quantity" });
+  }
+};
+module.exports = {
+  addToCart,
+  getCartByUser,
+  softDeleteCartById,
+  updateCartItemQuantity,
+};
