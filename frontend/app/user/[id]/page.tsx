@@ -13,7 +13,19 @@ type UserType = {
   role_id?: number;
 };
 
+type UserType = {
+  firstname: string;
+  lastname: string;
+  country: string;
+  email: string;
+  password: string;
+  age: number;
+  role_id?: number;
+};
+
 const user = () => {
+  
+=======
   const { id } = useParams();
   const [user, setUser] = useState<UserType[]>([]);
   const getInformation=async()=>{
