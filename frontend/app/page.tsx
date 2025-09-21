@@ -14,6 +14,7 @@ import homePage from "../public/assets/home.png";
 import axios from "axios";
 import Slider from "react-slick";
 import Loading from "./loading";
+import { useRouter } from "next/navigation";
 
 export interface Category {
   id: string;
@@ -34,6 +35,7 @@ interface Product {
 }
 
 export default function HeroSection() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [product, setProduct] = useState<Product[]>([]);
 
@@ -236,6 +238,7 @@ export default function HeroSection() {
           {categories.map((cat) => (
             <Grid key={cat.id}>
               <Card
+              onClick={() => router.push(`/category/${cat.id}`)}
                 sx={{
                   borderRadius: 3,
                   cursor: "pointer",

@@ -3,30 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@fontsource/poppins": "^5.2.7",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
-    "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
+    "framer-motion": "^12.23.16",
     "google-map-react": "^2.2.5",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-redux": "^9.2.0",
     "react-slick": "^0.31.0",
     "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
     "@types/google-map-react": "^2.1.10",
     "@types/node": "^20",
     "@types/react": "^19.1.13",
