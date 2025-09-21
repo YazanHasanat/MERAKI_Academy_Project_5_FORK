@@ -114,7 +114,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     variant="body1"
                     sx={{ fontWeight: "bold", minWidth: 60, textAlign: "right" }}
                   >
-                    ${(item.quantity * item.price).toFixed(2)}
+                    ${(item.quantity * item.price)}
                   </Typography>
                 </Box>
               ))
