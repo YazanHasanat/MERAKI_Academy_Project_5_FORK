@@ -58,7 +58,6 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         </Box>
       </Drawer>
 
-      {/* Dialog location*/}
       <Dialog
         open={openDialog}
         onClose={handleDialogClose}
@@ -67,8 +66,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       >
         <DialogTitle>Location</DialogTitle>
         <DialogContent dividers>
-          {/* 👇 هون بظهر الكومبوننت تبع الخريطة */}
-          <GetAddress />
+          
+          <GetAddress onClose={handleDialogClose} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Close</Button>
