@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import {
   Box,
   Button,
@@ -48,6 +49,35 @@ const Login = () => {
         setErrorMsg(error.response.data.error);
       } else {
         setErrorMsg("Login failed, please try again.");
+      }
+    }
+  };
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse
+  ) => {
+    try {
+      const token = credentialResponse.credential;
+      if (!token) return;
+
+      const response = await axios.post(
+        "http://localhost:5000/users/google-login",
+        { token },
+        { withCredentials: true }
+      );
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.user.id);
+      localStorage.setItem("role_id", response.data.user.role_id);
+      localStorage.setItem("firstName", response.data.user.firstName);
+
+      setErrorMsg("");
+      router.push("/");
+    } catch (error: any) {
+      console.error("Google login error", error);
+      if (error.response?.data?.error) {
+        setErrorMsg(error.response.data.error);
+      } else {
+        setErrorMsg("Google login failed, please try again.");
       }
     }
   };
@@ -182,8 +212,25 @@ const Login = () => {
                   Sign In
                 </Button>
               </motion.div>
+              <Typography
+                align="center"
+                sx={{ my: 2, fontWeight: "bold", color: "gray" }}
+              >
+                OR
+              </Typography>
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setErrorMsg("Google login failed")}
+                  useOneTap
+                  theme="outline" 
+                  size="large" 
+                  shape="rectangular" 
+                  text="continue_with" 
+                  width="300" 
+                />
+              </Box>
 
-              {/* 👇 error message from backend (at the bottom) */}
               {errorMsg && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                   {errorMsg}
