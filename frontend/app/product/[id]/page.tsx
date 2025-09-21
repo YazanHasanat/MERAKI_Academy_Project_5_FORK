@@ -237,39 +237,46 @@ const ProductPage = () => {
             >
               ${Number(product.price).toFixed(2)}
             </Typography>
-
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{
-                px: 6,
-                py: 1.7,
-                fontWeight: 700,
-                fontSize: "1.05rem",
-                borderRadius: "40px",
-                textTransform: "none",
-                boxShadow:
-                  "0 6px 14px rgba(25, 118, 210, 0.35), 0 3px 6px rgba(25, 118, 210, 0.3)",
-                transition: "background-color 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  backgroundColor: "#1565c0",
+            <Box display="flex" flexDirection="column" alignItems="center">
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleAddToCart}
+                sx={{
+                  px: 6,
+                  py: 1.7,
+                  fontWeight: 700,
+                  fontSize: "1.05rem",
+                  borderRadius: "40px",
+                  textTransform: "none",
                   boxShadow:
-                    "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
-                },
-              }}
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
-            {message && (
-              <Typography
-                variant="body2"
-                sx={{ mt: 2, color: message.includes("added") ? "green" : "red" }}
+                    "0 6px 14px rgba(25, 118, 210, 0.35), 0 3px 6px rgba(25, 118, 210, 0.3)",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
+                    boxShadow:
+                      "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
+                  },
+                }}
               >
-                {message}
-              </Typography>
-            )}
+                Add to Cart
+              </Button>
+
+              {message && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: 1,
+                    color: message.includes("added") ? "green" : "red",
+                    fontWeight: 500,
+                  }}
+                >
+                  {message}
+                </Typography>
+              )}
+            </Box>
           </Box>
         </CardContent>
       </Card>
