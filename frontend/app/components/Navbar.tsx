@@ -68,7 +68,7 @@ export default function Navbar() {
               >
            <Typography
               variant="h4"
-              sx={{ fontWeight: 'bold', position: 'relative', left: '-300px' }}
+              sx={{ fontWeight: 'bold', position: 'relative', left: '-100px' }}
             >
               Bebek Baby
             </Typography>
