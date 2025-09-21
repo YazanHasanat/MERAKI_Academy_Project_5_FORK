@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";  
+import { motion } from "framer-motion";
 import {
   Box,
   Button,
@@ -12,6 +12,7 @@ import {
   CardContent,
   TextField,
   Typography,
+  Alert,
 } from "@mui/material";
 
 const Login = () => {
@@ -19,6 +20,8 @@ const Login = () => {
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const [errorMsg, setErrorMsg] = useState<string>(""); // 👈 error message state
 
   const handleLogin = async () => {
     try {
@@ -32,9 +35,20 @@ const Login = () => {
       localStorage.setItem("userId", response.data.user.id);
       localStorage.setItem("role_id", response.data.user.role_id);
       localStorage.setItem("firstName", response.data.user.firstName);
+
+      // clear error if login is successful
+      setErrorMsg("");
+
       router.push("/");
     } catch (error: any) {
-      console.error("login error", error.message);
+      console.error("login error", error);
+
+      // 👇 show error message coming from backend
+      if (error.response?.data?.error) {
+        setErrorMsg(error.response.data.error);
+      } else {
+        setErrorMsg("Login failed, please try again.");
+      }
     }
   };
 
@@ -93,12 +107,18 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "#f48fb1" },
-                      "&:hover fieldset": { borderColor: "#f06292" },
-                      "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                      "& fieldset": {
+                        borderColor: "rgba(0,0,0,0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#f06292",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ec407a",
+                      },
                     },
                     "& .MuiInputLabel-root": {
-                      color: "#f48fb1",
+                      color: "rgba(0,0,0,0.6)",
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
                       color: "#ec407a",
@@ -121,12 +141,18 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "#f48fb1" },
-                      "&:hover fieldset": { borderColor: "#f06292" },
-                      "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                      "& fieldset": {
+                        borderColor: "rgba(0,0,0,0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#f06292",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ec407a",
+                      },
                     },
                     "& .MuiInputLabel-root": {
-                      color: "#f48fb1",
+                      color: "rgba(0,0,0,0.6)",
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
                       color: "#ec407a",
@@ -156,6 +182,13 @@ const Login = () => {
                   Sign In
                 </Button>
               </motion.div>
+
+              {/* 👇 error message from backend (at the bottom) */}
+              {errorMsg && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {errorMsg}
+                </Alert>
+              )}
             </Box>
 
             <motion.div
