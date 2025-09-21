@@ -3,6 +3,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";  
 import {
   Box,
   Button,
@@ -10,7 +12,6 @@ import {
   CardContent,
   TextField,
   Typography,
-  Container,
 } from "@mui/material";
 
 const Login = () => {
@@ -38,100 +39,152 @@ const Login = () => {
   };
 
   return (
-    <>
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 2,
-        }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 2,
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        style={{ width: "100%", maxWidth: 400 }}
       >
         <Card
           sx={{
-            maxWidth: 400,
             width: "100%",
             boxShadow: 4,
             borderRadius: 3,
           }}
         >
           <CardContent>
-            <Typography
-              variant="h5"
-              component="h1"
-              align="center"
-              gutterBottom
-              sx={{ color: "#d63384" }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
             >
-              👶 Welcome Back
-            </Typography>
+              <Typography
+                variant="h5"
+                component="h1"
+                align="center"
+                gutterBottom
+                sx={{ color: "#d63384" }}
+              >
+                👶 Welcome Back
+              </Typography>
+            </motion.div>
 
             <Box component="form" noValidate autoComplete="off">
-              <TextField
-                label="Email"
-                type="email"
-                fullWidth
-                margin="normal"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#f48fb1" },
-                    "&:hover fieldset": { borderColor: "#f06292" },
-                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "#f48fb1",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#ec407a",
-                  },
-                }}
-              />
-
-              <TextField
-                label="Password"
-                type="password"
-                fullWidth
-                margin="normal"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#f48fb1" },
-                    "&:hover fieldset": { borderColor: "#f06292" },
-                    "&.Mui-focused fieldset": { borderColor: "#ec407a" },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "#f48fb1",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#ec407a",
-                  },
-                }}
-              />
-
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                onClick={handleLogin}
-                sx={{
-                  mt: 3,
-                  backgroundColor: "#ec407a",
-                  "&:hover": {
-                    backgroundColor: "#c02677",
-                  },
-                }}
+              <motion.div
+                initial={{ opacity: 0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
               >
-                Sign In
-              </Button>
+                <TextField
+                  label="Email"
+                  type="email"
+                  fullWidth
+                  margin="normal"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#f48fb1" },
+                      "&:hover fieldset": { borderColor: "#f06292" },
+                      "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "#f48fb1",
+                    },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: "#ec407a",
+                    },
+                  }}
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7, duration: 0.6 }}
+              >
+                <TextField
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  margin="normal"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#f48fb1" },
+                      "&:hover fieldset": { borderColor: "#f06292" },
+                      "&.Mui-focused fieldset": { borderColor: "#ec407a" },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "#f48fb1",
+                    },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: "#ec407a",
+                    },
+                  }}
+                />
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  onClick={handleLogin}
+                  sx={{
+                    mt: 3,
+                    backgroundColor: "#ec407a",
+                    "&:hover": {
+                      backgroundColor: "#c02677",
+                    },
+                  }}
+                >
+                  Sign In
+                </Button>
+              </motion.div>
             </Box>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.8 }}
+            >
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{ mt: 2, color: "gray" }}
+              >
+                Don’t have an account?{" "}
+                <Link
+                  href="/register"
+                  style={{
+                    color: "#ec407a",
+                    fontWeight: "bold",
+                    textDecoration: "none",
+                  }}
+                >
+                  Register Now
+                </Link>
+              </Typography>
+            </motion.div>
           </CardContent>
         </Card>
-      </Box>
-    </>
+      </motion.div>
+    </Box>
   );
 };
 
