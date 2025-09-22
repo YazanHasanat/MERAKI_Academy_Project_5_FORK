@@ -86,3 +86,13 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ,
     FOREIGN KEY (location_id) REFERENCES user_locations(id)
 );
+/* ratings table */
+CREATE TABLE ratings (
+  id SERIAL PRIMARY KEY,
+  product_id INT NOT NULL,
+  user_id INT,  
+  rating DECIMAL(2, 1) CHECK (rating >= 0 AND rating <= 5),
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE 
+);
