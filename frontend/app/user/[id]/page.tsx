@@ -26,9 +26,6 @@ type UserType = {
 
 
 const user = () => {
-  
-
-  const { id } = useParams();
   const [user, setUser] = useState<UserType[]>([]);
   const getInformation=async()=>{
     const res=await axios.get("http://localhost:5000/users/mypage",{
