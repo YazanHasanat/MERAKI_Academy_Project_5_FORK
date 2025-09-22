@@ -10,6 +10,9 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import Button from "@mui/material/Button";
+import StarIcon from "@mui/icons-material/Star";
+import StarHalfIcon from "@mui/icons-material/StarHalf";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 
 const CategoryPage = () => {
   const { id } = useParams();
@@ -47,6 +50,7 @@ const CategoryPage = () => {
         acc[id] = rating;
         return acc;
       }, {});
+
       setRatings(ratingsObj);
     } catch (err) {
       setCategoryName("");
@@ -60,13 +64,48 @@ const CategoryPage = () => {
     CategoryData();
   }, [id]);
 
-  const Rate = async (productId: string, newRating: number) => {
-    setRatings((prev) => ({ ...prev, [productId]: newRating }));
-    try {
-      await axios.post(`http://localhost:5000/products/${productId}/rate`, { rating: newRating });
-    } catch (err) {
-      console.error("Error saving rating:", err);
-    }
+  const renderStars = (
+    rating: number,
+    onRate?: (newRating: number) => void
+  ) => {
+    rating = Math.min(5, Math.max(0, rating));
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+
+    const handleClick = (index: number) => {
+      if (onRate) {
+        onRate(index + 1); 
+      }
+    };
+
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center">
+        {[...Array(fullStars)].map((_, i) => (
+          <StarIcon
+            key={`full-${i}`}
+            color="primary"
+            sx={{ cursor: onRate ? "pointer" : "default" }}
+            onClick={() => handleClick(i)}
+          />
+        ))}
+        {halfStar === 1 && (
+          <StarHalfIcon
+            color="primary"
+            sx={{ cursor: onRate ? "pointer" : "default" }}
+            onClick={() => handleClick(fullStars)}
+          />
+        )}
+        {[...Array(emptyStars)].map((_, i) => (
+          <StarBorderIcon
+            key={`empty-${i}`}
+            color="primary"
+            sx={{ cursor: onRate ? "pointer" : "default" }}
+            onClick={() => handleClick(fullStars + halfStar + i)}
+          />
+        ))}
+      </Box>
+    );
   };
 
   if (loading) {
@@ -138,23 +177,23 @@ const CategoryPage = () => {
                   >
                     {product.price ? `${product.price} JD` : ""}
                   </Typography>
-                  <Box sx={{ mt: 2, textAlign: "center" }}>
-                    <Typography variant="body2">
-                      Rating: {ratings[product.id] || 0} / 5
-                    </Typography>
-                    <Box sx={{ mt: 1 }}>
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <Button
-                          key={num}
-                          size="small"
-                          variant={ratings[product.id] >= num ? "contained" : "outlined"}
-                          sx={{ minWidth: 30, mx: 0.5, py: 0 }}
-                          onClick={() => Rate(product.id, num)}
-                        >
-                          {num}
-                        </Button>
-                      ))}
-                    </Box>
+                  <Box sx={{ mt: 1 }}>
+                    {renderStars(ratings[product.id] || 0, async (newRating) => {
+                      // تحديث التقييم محلياً فوراً
+                      setRatings((prev) => ({
+                        ...prev,
+                        [product.id]: newRating,
+                      }));
+
+                      try {
+                        await axios.post(
+                          `http://localhost:5000/products/${product.id}/rate`,
+                          { rating: newRating }
+                        );
+                      } catch (err) {
+                        console.error("Error saving rating:", err);
+                      }
+                    })}
                   </Box>
                 </CardContent>
                 <Box sx={{ p: 2, textAlign: "center" }}>
@@ -183,4 +222,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default CategoryPage; 
