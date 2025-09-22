@@ -9,30 +9,36 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
 import axios from "axios";
 import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
+import { useRouter } from "next/navigation";
 
-
-//====================icons================
-
-const CartIcon = ({ size = 24, color = "white" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill={color} viewBox="0 0 24 24" width={size} height={size}>
-    <path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zM7.3 14h9.4c.5 0 .9-.36.99-.85l1.57-8.53H5.21l-.94-2H0v2h2l3.6 7.59-1.35 2.45C3.52 15.37 4.48 17 6 17h12v-2H6.42c-.14 0-.25-.11-.25-.25l.03-.12L7.3 14z"/>
-  </svg>
-);
-
-const AccountIcon = ({ size = 24, color = "white" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill={color} viewBox="0 0 24 24" width={size} height={size}>
-    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-  </svg>
-);
-//=======================icons=================
+// ==== MUI Icons ====
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export default function Navbar() {
+  const router = useRouter();
+
+  // 👇 useState instead of reading directly from localStorage
+  const [firstName, setFirstName] = React.useState<string | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
+
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [openCart, setOpenCart] = React.useState(false);
+
   React.useEffect(() => {
+    // Load from localStorage when component mounts
+    const storedFirstName = localStorage.getItem("firstName");
+    const storedUserId = localStorage.getItem("userId");
+    setFirstName(storedFirstName);
+    setUserId(storedUserId);
+
+    // Fetch categories
     async function fetchCategories() {
       try {
         const response = await axios.get("http://localhost:5000/categories");
@@ -45,36 +51,49 @@ export default function Navbar() {
     }
     fetchCategories();
   }, []);
+React.useEffect(() => {
+  const loadUser = () => {
+    setFirstName(localStorage.getItem("firstName"));
+    setUserId(localStorage.getItem("userId"));
+  };
+
+  loadUser();
+
+  window.addEventListener("storageUpdate", loadUser);
+
+  return () => {
+    window.removeEventListener("storageUpdate", loadUser);
+  };
+}, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role_id");
+    setFirstName(null);
+    setUserId(null);
+    router.push("/"); // redirect to home page
+  };
 
   return (
     <>
-         <AppBar
-            position="fixed"
-            sx={{ bgcolor: "#F8BBD0" }} 
-          >
-
+      <AppBar position="fixed" sx={{ bgcolor: "#F8BBD0" }}>
         <Container>
           <Toolbar sx={{ justifyContent: "space-between" }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-start",
-                minWidth: 120,
-              }}
-            >
-              <Link
-                href="/"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-           <Typography
-              variant="h4"
-              sx={{ fontWeight: "bold", ml: -8, fontSize: "2rem" }}
-            >
-              Bebek Baby
-            </Typography>
-
+            {/* Logo */}
+            <Box sx={{ display: "flex", justifyContent: "flex-start", minWidth: 120 }}>
+              <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", ml: -8, fontSize: "2rem" }}
+                >
+                  Bebek Baby
+                </Typography>
               </Link>
             </Box>
+
+            {/* Search bar */}
             <Box sx={{ flexGrow: 1, maxWidth: 400, mx: 4 }}>
               <TextField
                 fullWidth
@@ -84,20 +103,46 @@ export default function Navbar() {
                 sx={{ bgcolor: "white", borderRadius: 1 }}
               />
             </Box>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button color="inherit" component={Link} href="/login">
-              <AccountIcon size={28} color="white" />
-            </Button>
 
-            <Button color="inherit" onClick={() => setOpenCart(true)}>
-              <CartIcon size={28} color="white" />
-            </Button>
+            {/* User section */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {firstName ? (
+                <>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      flexGrow: 0,
+                      fontSize: "1rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => router.push(`/user/${userId}`)}
+                  >
+                    <AccountCircleIcon />
+                    Hi, {firstName}
+                  </Typography>
+                  <IconButton color="inherit" onClick={handleLogout}>
+                    <LogoutIcon />
+                  </IconButton>
+                </>
+              ) : (
+                <IconButton color="inherit" component={Link} href="/login">
+                  <LoginIcon />
+                </IconButton>
+              )}
 
-
+              {/* Cart */}
+              <IconButton color="inherit" onClick={() => setOpenCart(true)}>
+                <ShoppingCartIcon />
+              </IconButton>
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
+
+      {/* Categories */}
       <Box sx={{ mt: 8.1, bgcolor: "#ffffffff", py: 1 }}>
         <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
           {categories.map((cat) => (
@@ -107,7 +152,7 @@ export default function Navbar() {
               href={`/category/${cat.id}`}
               variant="contained"
               sx={{
-                bgcolor: "#F48FB1", 
+                bgcolor: "#F48FB1",
                 color: "white",
                 borderRadius: "20px",
                 textTransform: "none",
@@ -116,11 +161,11 @@ export default function Navbar() {
             >
               {cat.name}
             </Button>
-
-
           ))}
         </Container>
       </Box>
+
+      {/* Cart Drawer */}
       <CartDrawer open={openCart} onClose={() => setOpenCart(false)} />
     </>
   );

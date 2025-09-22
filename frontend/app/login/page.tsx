@@ -41,6 +41,9 @@ const Login = () => {
       setErrorMsg("");
 
       router.push("/");
+
+      window.dispatchEvent(new Event("storageUpdate"));
+
     } catch (error: any) {
       console.error("login error", error);
 
