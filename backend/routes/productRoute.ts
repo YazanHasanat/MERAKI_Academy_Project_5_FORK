@@ -8,6 +8,7 @@ const {
   getProductsByCategory,
   getProductById,
   getFeaturedProducts,
+  createRating,
   
 } = require("../controllers/ProductController");
 
@@ -33,6 +34,9 @@ productRouter.get( "/category/:categoryId",getProductsByCategory);
 
 // http://localhost:5000/products/:id
 productRouter.get("/:id", getProductById);
+
+// http://localhost:5000/products/:id/ratings
+productRouter.post("/products/:id/rating", createRating);
 
 
 

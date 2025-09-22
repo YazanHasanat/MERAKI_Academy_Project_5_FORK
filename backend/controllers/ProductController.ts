@@ -218,6 +218,50 @@ const getFeaturedProducts = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+// 8. ** Create Rating **
+const createRating = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { rating, userId }: { rating: number; userId: number } = req.body;
+
+ 
+  if (rating < 0 || rating > 5) {
+    return res.status(400).json({
+      success: false,
+      message: "Rating must be between 0 and 5",
+    });
+  }
+
+  try {
+    const existingRating = await pool.query(
+      "SELECT * FROM ratings WHERE product_id = $1 AND user_id = $2",
+      [id, userId]
+    );
+
+    if (existingRating.rows.length > 0) {
+   
+      await pool.query(
+        "UPDATE ratings SET rating = $1, created_at = CURRENT_TIMESTAMP WHERE product_id = $2 AND user_id = $3",
+        [rating, id, userId]
+      );
+    } else {
+   
+      await pool.query(
+        "INSERT INTO ratings (product_id, user_id, rating) VALUES ($1, $2, $3)",
+        [id, userId, rating]
+      );
+    }
+
+    res.status(201).json({
+      success: true,
+      message: " submitted successfully",
+    });
+  } catch (err: any) {
+    console.error("Error creating rating:", err.message);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+
 
 module.exports = {
   createProduct,
@@ -227,4 +271,5 @@ module.exports = {
   getProductsByCategory,
   getProductById,
   getFeaturedProducts,
+  createRating,
 };
