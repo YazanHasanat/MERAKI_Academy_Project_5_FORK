@@ -146,7 +146,7 @@ const softDeleteProduct = async (req: any, res: any): Promise<void> => {
     res.status(500).json({ success: false, error: " server error" });
   }
 };
-
+// 5. **getProductsByCategory **
 const getProductsByCategory = async (req: Request, res: Response) => {
   const { categoryId } = req.params;
   try {
@@ -172,6 +172,7 @@ const getProductsByCategory = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+// 6. **getProductById **
 const getProductById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -201,6 +202,7 @@ const getProductById = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+// 7. **getFeaturedProducts **
 const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
@@ -216,6 +218,7 @@ const getFeaturedProducts = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
+
 module.exports = {
   createProduct,
   getAllProduct,
