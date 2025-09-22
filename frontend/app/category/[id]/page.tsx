@@ -15,9 +15,9 @@ const CategoryPage = () => {
   const { id } = useParams();
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
+  const [ratings, setRatings] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
 
-  // جلب بيانات المنتجات
   const CategoryData = async () => {
     setLoading(true);
     try {
@@ -30,6 +30,24 @@ const CategoryPage = () => {
       } else {
         setCategoryName("");
       }
+
+      const ratingsPromises = data.map(async (product: any) => {
+        try {
+          const ratingRes = await axios.get(
+            `http://localhost:5000/products/${product.id}/user-rating`
+          );
+          return { id: product.id, rating: ratingRes.data.rating || 0 };
+        } catch {
+          return { id: product.id, rating: 0 };
+        }
+      });
+
+      const ratingsResults = await Promise.all(ratingsPromises);
+      const ratingsObj = ratingsResults.reduce((acc, { id, rating }) => {
+        acc[id] = rating;
+        return acc;
+      }, {});
+      setRatings(ratingsObj);
     } catch (err) {
       setCategoryName("");
       console.error(err);
@@ -41,6 +59,15 @@ const CategoryPage = () => {
   useEffect(() => {
     CategoryData();
   }, [id]);
+
+  const Rate = async (productId: string, newRating: number) => {
+    setRatings((prev) => ({ ...prev, [productId]: newRating }));
+    try {
+      await axios.post(`http://localhost:5000/products/${productId}/rate`, { rating: newRating });
+    } catch (err) {
+      console.error("Error saving rating:", err);
+    }
+  };
 
   if (loading) {
     return <Typography variant="h6" align="center">Loading...</Typography>;
@@ -111,6 +138,24 @@ const CategoryPage = () => {
                   >
                     {product.price ? `${product.price} JD` : ""}
                   </Typography>
+                  <Box sx={{ mt: 2, textAlign: "center" }}>
+                    <Typography variant="body2">
+                      Rating: {ratings[product.id] || 0} / 5
+                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <Button
+                          key={num}
+                          size="small"
+                          variant={ratings[product.id] >= num ? "contained" : "outlined"}
+                          sx={{ minWidth: 30, mx: 0.5, py: 0 }}
+                          onClick={() => Rate(product.id, num)}
+                        >
+                          {num}
+                        </Button>
+                      ))}
+                    </Box>
+                  </Box>
                 </CardContent>
                 <Box sx={{ p: 2, textAlign: "center" }}>
                   <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
