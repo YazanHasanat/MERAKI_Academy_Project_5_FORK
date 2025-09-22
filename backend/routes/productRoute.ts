@@ -9,7 +9,7 @@ const {
   getProductById,
   getFeaturedProducts,
   createRating,
-  
+  getProductRatings,
 } = require("../controllers/ProductController");
 
 
@@ -29,15 +29,16 @@ productRouter.put("/:id", updateProduct);
 // softDeleted path ===> delete http://localhost:5000/products/:id
 productRouter.delete("/:id", softDeleteProduct);
 
- // http://localhost:5000/products/category/:categoryId
+//getProductsByCategory path ===>get http://localhost:5000/products/category/:categoryId
 productRouter.get( "/category/:categoryId",getProductsByCategory);
 
-// http://localhost:5000/products/:id
+// getProductById path ===> get http://localhost:5000/products/:id
 productRouter.get("/:id", getProductById);
 
-// http://localhost:5000/products/:id/ratings
+//createRating path ===> post http://localhost:5000/products/:id/ratings
 productRouter.post("/products/:id/rating", createRating);
 
-
+//getProductRatings path ===> get http://localhost:5000/products/:id/ratings
+productRouter.get("/products/:id/ratings", getProductRatings);
 
 module.exports = productRouter;
