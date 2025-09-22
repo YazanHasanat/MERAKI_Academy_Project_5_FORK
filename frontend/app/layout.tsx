@@ -4,6 +4,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Navbar from "./components/Navbar";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import Footer from "../app/components/Footer";
+
 
 
 
@@ -23,6 +25,7 @@ export default function RootLayout({
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
           <Navbar/>
         {children}
+        <Footer/>
         </GoogleOAuthProvider>
       </body>
     </html>
