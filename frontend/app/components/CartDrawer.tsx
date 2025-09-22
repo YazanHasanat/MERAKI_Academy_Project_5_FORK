@@ -72,6 +72,22 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       console.error("Error deleting item:", err.message);
     }
   };
+  const handleUpdateQuantity = async (product_id: number, quantity: number) => {
+    try {
+      await axios.put(
+        "http://localhost:5000/cart/update",
+        { product_id, quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      await getcart();
+    } catch (err: any) {
+      console.error("Error updating quantity:", err.message);
+    }
+  };
 
   return (
     <>
@@ -85,15 +101,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             height: "100%",
           }}
         >
-          {/* Header */}
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Typography variant="h6">Your Cart</Typography>
             <Button onClick={onClose} sx={{ textTransform: "none" }}>
               Close
             </Button>
           </Box>
-
-          {/* Cart Items */}
           <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
             {loading ? (
               <Typography>Loading...</Typography>
@@ -104,49 +117,96 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <Box
                   key={item.product_id}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
                     mb: 2,
                     p: 1,
                     borderBottom: "1px solid #eee",
                   }}
                 >
-                  <Box
-                    component="img"
-                    src={`/assets/${item.image_urls[0]}`}
-                    alt={item.title}
-                    sx={{ width: 60, height: 60, borderRadius: 2, mr: 2 }}
-                  />
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle1">{item.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {item.quantity} × ${item.price}
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Box
+                      component="img"
+                      src={`/assets/${item.image_urls[0]}`}
+                      alt={item.title}
+                      sx={{ width: 60, height: 60, borderRadius: 2, mr: 2 }}
+                    />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle1">{item.title}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {item.quantity} × ${item.price}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: "bold",
+                        minWidth: 60,
+                        textAlign: "right",
+                      }}
+                    >
+                      ${(item.quantity * item.price).toFixed(2)}
                     </Typography>
                   </Box>
-                  <Typography
-                    variant="body1"
+
+                  <Box
                     sx={{
-                      fontWeight: "bold",
-                      minWidth: 60,
-                      textAlign: "right",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 1,
                     }}
                   >
-                    ${item.quantity * item.price}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => handleDeleteItem(item.product_id)}
-                  >
-                    Delete
-                  </Button>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        border: "1px solid #ccc",
+                        borderRadius: "50px",
+                        px: 1.5,
+                        py: 0.5,
+                        gap: 1.5,
+                      }}
+                    >
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() =>
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity - 1
+                          )
+                        }
+                      >
+                        −
+                      </Button>
+                      <Typography>{item.quantity}</Typography>
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() =>
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity + 1
+                          )
+                        }
+                      >
+                        +
+                      </Button>
+                    </Box>
+
+                    <Button
+                      variant="text"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDeleteItem(item.product_id)}
+                    >
+                      🗑️
+                    </Button>
+                  </Box>
                 </Box>
               ))
             )}
           </Box>
 
-          {/* Footer */}
           {cart.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography
