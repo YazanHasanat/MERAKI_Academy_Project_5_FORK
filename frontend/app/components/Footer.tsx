@@ -1,7 +1,9 @@
 "use client";
 
 import { Box, Container, Typography, Link, IconButton } from "@mui/material";
-
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 
 export default function Footer() {
   return (
@@ -26,9 +28,23 @@ export default function Footer() {
             <Link href="/category/5" underline="hover" color="inherit">Baby Gear</Link>
           </Box>
         </Box>
-
+        <Box sx={{ borderTop: "1px solid #e0e0e0", pt: 2, textAlign: "center" }}>
+          <Box sx={{ mb: 1 }}>
+            <IconButton href="https://facebook.com" target="_blank" color="inherit">
+              <FacebookIcon />
+            </IconButton>
+            <IconButton href="https://instagram.com" target="_blank" color="inherit">
+              <InstagramIcon />
+            </IconButton>
+            <IconButton href="https://twitter.com" target="_blank" color="inherit">
+              <TwitterIcon />
+            </IconButton>
+          </Box>
+          <Typography variant="body2">
+            © 2025 Bebek Baby - All Rights Reserved
+          </Typography>
+        </Box>
         
-
       </Container>
     </Box>
   );
