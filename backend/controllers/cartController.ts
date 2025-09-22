@@ -212,9 +212,58 @@ const updateCartItemQuantity = async (req: AuthRequest, res: Response) => {
       .json({ success: false, error: "Failed to update quantity" });
   }
 };
+const deleteCartItem = async (req: AuthRequest, res: Response) => {
+  const user_id = req.user?.userId;
+  const { product_id } = req.params; // product id from URL
+
+  if (!user_id) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You have to login" });
+  }
+
+  try {
+    // Get cart id for this user
+    const cartResult = await pool.query(
+      `SELECT id FROM cart WHERE user_id = $1 AND is_deleted = 0`,
+      [user_id]
+    );
+
+    if (cartResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
+    }
+
+    const cart_id = cartResult.rows[0].id;
+
+    // Delete the item from cart_items
+    const result = await pool.query(
+      `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2 RETURNING *`,
+      [cart_id, product_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found in cart" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Product removed from cart",
+    });
+  } catch (err) {
+    console.error("Error deleting product from cart:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to delete product from cart" });
+  }
+};
+
 module.exports = {
   addToCart,
   getCartByUser,
   softDeleteCartById,
-  updateCartItemQuantity,
+  updateCartItemQuantity,deleteCartItem
 };

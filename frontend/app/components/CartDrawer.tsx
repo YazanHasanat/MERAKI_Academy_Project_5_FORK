@@ -59,6 +59,19 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   }, [open]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const handleDeleteItem = async (product_id: number) => {
+    try {
+      await axios.delete(`http://localhost:5000/cart/item/${product_id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      await getcart();
+    } catch (err: any) {
+      console.error("Error deleting item:", err.message);
+    }
+  };
 
   return (
     <>
@@ -112,10 +125,22 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   </Box>
                   <Typography
                     variant="body1"
-                    sx={{ fontWeight: "bold", minWidth: 60, textAlign: "right" }}
+                    sx={{
+                      fontWeight: "bold",
+                      minWidth: 60,
+                      textAlign: "right",
+                    }}
                   >
-                    ${(item.quantity * item.price)}
+                    ${item.quantity * item.price}
                   </Typography>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => handleDeleteItem(item.product_id)}
+                  >
+                    Delete
+                  </Button>
                 </Box>
               ))
             )}
