@@ -75,6 +75,7 @@ const Login = () => {
 
       setErrorMsg("");
       router.push("/");
+      window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
       console.error("Google login error", error);
       if (error.response?.data?.error) {
