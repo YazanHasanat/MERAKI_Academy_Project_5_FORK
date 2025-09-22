@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 interface Product {
   id: number;
@@ -34,6 +36,13 @@ const ProductPage = () => {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<
+    "success" | "error"
+  >("success");
+
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -74,7 +83,9 @@ const ProductPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setMessage("⚠️ You must log in first");
+        setSnackbarMessage("⚠️ You must log in first");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
         return;
       }
 
@@ -89,10 +100,14 @@ const ProductPage = () => {
         }
       );
 
-      setMessage(" Product added to cart");
+      setSnackbarMessage("Product added to cart!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
     } catch (error) {
       console.error("Error adding to cart", error);
-      setMessage(" Failed to add product to cart");
+      setSnackbarMessage("Something went wrong. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
@@ -263,22 +278,23 @@ const ProductPage = () => {
               >
                 Add to Cart
               </Button>
-
-              {message && (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    mt: 1,
-                    color: message.includes("added") ? "green" : "red",
-                    fontWeight: 500,
-                  }}
-                >
-                  {message}
-                </Typography>
-              )}
             </Box>
           </Box>
         </CardContent>
+        <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       </Card>
     </Box>
   );
