@@ -146,7 +146,7 @@ const softDeleteProduct = async (req: any, res: any): Promise<void> => {
     res.status(500).json({ success: false, error: " server error" });
   }
 };
-// 5. **getProductsByCategory **
+// 5. **Get Products by Category**
 const getProductsByCategory = async (req: Request, res: Response) => {
   const { categoryId } = req.params;
   try {
@@ -172,7 +172,7 @@ const getProductsByCategory = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
-// 6. **getProductById **
+// 6. **Get Product by ID**
 const getProductById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -202,7 +202,7 @@ const getProductById = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "server error" });
   }
 };
-// 7. **getFeaturedProducts **
+// 7. **Get Featured Products**
 const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
@@ -223,7 +223,6 @@ const createRating = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { rating, userId }: { rating: number; userId: number } = req.body;
 
- 
   if (rating < 0 || rating > 5) {
     return res.status(400).json({
       success: false,
@@ -261,7 +260,32 @@ const createRating = async (req: Request, res: Response) => {
   }
 };
 
+// 9. **Get product ratings**
+const getProductRatings = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
+  try {
+    const result = await pool.query(
+      "SELECT rating FROM ratings WHERE product_id = $1",
+      [id]
+    );
+
+const ratings = result.rows;
+const averageRating = ratings.length
+  ? ratings.reduce((acc: number, curr: { rating: string }) => acc + parseFloat(curr.rating), 0) / ratings.length
+  : 0;
+
+res.status(200).json({
+  success: true,
+  averageRating,
+  ratings,
+});
+
+  } catch (err: any) {
+    console.error("Error ratings:", err.message);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -272,4 +296,5 @@ module.exports = {
   getProductById,
   getFeaturedProducts,
   createRating,
+  getProductRatings
 };
