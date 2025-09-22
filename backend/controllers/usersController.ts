@@ -185,6 +185,48 @@ const googleLogin = async (req: any, res: Res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+const updateUser = async (req:any, res: Res) => {
+  const { id } = req.params;
+  const { firstName, lastName, country, email } = req.body;
+
+  try {
+    
+    const existingUser = await pool.query(
+      "SELECT * FROM users WHERE id = $1",
+      [id]
+    );
+
+    if (existingUser.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const emailExists = await pool.query(
+      "SELECT * FROM users WHERE email = $1 AND id != $2",
+      [email, id]
+    );
+
+    if (emailExists.rows.length > 0) {
+      return res.status(400).json({ error: "Email is already in use by another user" });
+    }
+
+    
+    const result = await pool.query(
+      `UPDATE users
+       SET firstName = $1, lastName = $2, country = $3, email = $4
+       WHERE id = $5
+       RETURNING *`,
+      [firstName, lastName, country, email, id]
+    );
+
+    res.status(200).json({ message: "User updated successfully", user: result.rows[0] });
+
+  } catch (err) {
+    console.error("Update Error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 module.exports = {
   register,
@@ -192,4 +234,5 @@ module.exports = {
   getAllUsers,
   getUserById,
   googleLogin,
+  updateUser
 };
