@@ -26,7 +26,6 @@ const CategoryPage = () => {
 
   const user = { id: 1 };
 
-  // category descriptions
   const categoryDescriptions: { [key: string]: string } = {
     Clothing:
       "Discover the latest clothing collections that combine comfort and style to suit all tastes and occasions.",
@@ -94,8 +93,6 @@ const CategoryPage = () => {
   useEffect(() => {
     CategoryData();
   }, [id]);
-
-  // render stars function
   const renderStars = (
     rating: number,
     onRate?: (newRating: number) => void
@@ -105,11 +102,17 @@ const CategoryPage = () => {
     const halfStar = rating % 1 >= 0.5 ? 1 : 0;
     const emptyStars = 5 - fullStars - halfStar;
 
-    const handleClick = (index: number) => {
-      if (onRate) {
-        onRate(index + 1);
-      }
-    };
+ const handleClick = (index: number) => {
+  if (onRate) {
+    const clickedRating = index + 1;
+    if (clickedRating === rating) {
+      onRate(0);
+    } else {
+      onRate(clickedRating);
+    }
+  }
+};
+
 
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -155,7 +158,6 @@ const CategoryPage = () => {
         {categoryName}
       </Typography>
 
-      {/* Category description */}
       <Typography
         variant="body1"
         align="center"
@@ -220,8 +222,6 @@ const CategoryPage = () => {
                   >
                     {product.price ? `${product.price} JD` : ""}
                   </Typography>
-
-                  {/* rating */}
                   <Box sx={{ mt: 1, textAlign: "center" }}>
                     {renderStars(
                       ratings[product.id]?.user || 0,
@@ -233,7 +233,6 @@ const CategoryPage = () => {
                             user: newRating,
                           },
                         }));
-
                         try {
                           await axios.post(
                             `http://localhost:5000/products/${product.id}/rating`,
