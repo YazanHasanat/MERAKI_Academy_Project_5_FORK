@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+
 import {
   Box,
   Button,
@@ -43,7 +45,6 @@ const Login = () => {
       router.push("/");
 
       window.dispatchEvent(new Event("storageUpdate"));
-
     } catch (error: any) {
       console.error("login error", error);
 
@@ -61,7 +62,7 @@ const Login = () => {
     try {
       const token = credentialResponse.credential;
       if (!token) return;
-
+     const decoded: { picture?: string; [key: string]: any } = jwtDecode(token as string);
       const response = await axios.post(
         "http://localhost:5000/users/google-login",
         { token },
@@ -72,6 +73,7 @@ const Login = () => {
       localStorage.setItem("userId", response.data.user.id);
       localStorage.setItem("role_id", response.data.user.role_id);
       localStorage.setItem("firstName", response.data.user.firstName);
+      localStorage.setItem("avatar", decoded.picture || "");
 
       setErrorMsg("");
       router.push("/");
@@ -227,11 +229,11 @@ const Login = () => {
                   onSuccess={handleGoogleSuccess}
                   onError={() => setErrorMsg("Google login failed")}
                   useOneTap
-                  theme="outline" 
-                  size="large" 
-                  shape="rectangular" 
-                  text="continue_with" 
-                  width="300" 
+                  theme="outline"
+                  size="large"
+                  shape="rectangular"
+                  text="continue_with"
+                  width="300"
                 />
               </Box>
 
