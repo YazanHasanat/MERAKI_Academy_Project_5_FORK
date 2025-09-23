@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Navbar from "./components/Navbar";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Footer from "../app/components/Footer";
+import ThemeRegistry from "./components/Theme";
 
 
 
