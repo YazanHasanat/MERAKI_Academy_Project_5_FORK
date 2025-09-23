@@ -237,7 +237,7 @@ const createRating = async (req: Request, res: Response) => {
     );
 
     if (existingRating.rows.length > 0) {
-   
+
       await pool.query(
         "UPDATE ratings SET rating = $1, created_at = CURRENT_TIMESTAMP WHERE product_id = $2 AND user_id = $3",
         [rating, id, userId]
@@ -270,7 +270,6 @@ const getProductRatings = async (req: Request, res: Response) => {
       "SELECT rating FROM ratings WHERE product_id = $1",
       [id]
     );
-
     const ratings = result.rows;
     const averageRating = ratings.length
       ? ratings.reduce((acc: number, curr: { rating: string }) => acc + parseFloat(curr.rating), 0) / ratings.length
