@@ -253,7 +253,7 @@ export default function HeroSection() {
                 <CardMedia
                   component="img"
                   height="160"
-                  image={cat.image_url}
+                  image={`/assets/${cat.image_url}`}
                   alt={cat.name}
                   sx={{ objectFit: "cover" }}
                 />
