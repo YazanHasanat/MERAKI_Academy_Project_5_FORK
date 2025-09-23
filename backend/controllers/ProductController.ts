@@ -263,6 +263,7 @@ const createRating = async (req: Request, res: Response) => {
 // 9. **Get product ratings**
 const getProductRatings = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { userId } = req.query; 
 
   try {
     const result = await pool.query(
@@ -270,22 +271,35 @@ const getProductRatings = async (req: Request, res: Response) => {
       [id]
     );
 
-const ratings = result.rows;
-const averageRating = ratings.length
-  ? ratings.reduce((acc: number, curr: { rating: string }) => acc + parseFloat(curr.rating), 0) / ratings.length
-  : 0;
+    const ratings = result.rows;
+    const averageRating = ratings.length
+      ? ratings.reduce((acc: number, curr: { rating: string }) => acc + parseFloat(curr.rating), 0) / ratings.length
+      : 0;
 
-res.status(200).json({
-  success: true,
-  averageRating,
-  ratings,
-});
+    let userRating = null;
+    if (userId) {
+      const userRes = await pool.query(
+        "SELECT rating FROM ratings WHERE product_id = $1 AND user_id = $2",
+        [id, userId]
+      );
+      if (userRes.rows.length > 0) {
+        userRating = userRes.rows[0].rating;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      averageRating,
+      userRating,
+      ratingsCount: ratings.length
+    });
 
   } catch (err: any) {
     console.error("Error ratings:", err.message);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
+
 
 module.exports = {
   createProduct,
