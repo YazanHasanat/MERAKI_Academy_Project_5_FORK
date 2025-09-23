@@ -24,8 +24,21 @@ const CategoryPage = () => {
   }>({});
   const [loading, setLoading] = useState(true);
 
-
   const user = { id: 1 };
+
+  // category descriptions
+  const categoryDescriptions: { [key: string]: string } = {
+    Clothing:
+      "Discover the latest clothing collections that combine comfort and style to suit all tastes and occasions.",
+    "Toys & Games":
+      "Endless fun with the best educational and entertaining toys that help children develop creativity and imagination.",
+    Nutrition:
+      "A wide variety of food products and supplements to help you maintain a healthy and balanced lifestyle.",
+    Furniture:
+      "Modern and comfortable furniture with unique designs to give your home a stylish touch that blends beauty and function.",
+    "Baby Gear":
+      "Everything your baby needs with special care to ensure comfort and safety at all times.",
+  };
 
   const CategoryData = async () => {
     setLoading(true);
@@ -42,7 +55,6 @@ const CategoryPage = () => {
         setCategoryName("");
       }
 
- 
       const ratingsPromises = data.map(async (product: any) => {
         try {
           const ratingRes = await axios.get(
@@ -83,7 +95,7 @@ const CategoryPage = () => {
     CategoryData();
   }, [id]);
 
-  // دالة عرض النجوم
+  // render stars function
   const renderStars = (
     rating: number,
     onRate?: (newRating: number) => void
@@ -138,10 +150,21 @@ const CategoryPage = () => {
         variant="h4"
         align="center"
         gutterBottom
-        sx={{ fontWeight: "bold", mb: 4, color: "#1976d2" }}
+        sx={{ fontWeight: "bold", mb: 2, color: "#1976d2" }}
       >
         {categoryName}
       </Typography>
+
+      {/* Category description */}
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{ mb: 4, color: "#555", maxWidth: "700px", mx: "auto" }}
+      >
+        {categoryDescriptions[categoryName] ||
+          "Shop the best products in this category."}
+      </Typography>
+
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         {Array.isArray(products) &&
           products.map((product: any) => (
@@ -198,7 +221,7 @@ const CategoryPage = () => {
                     {product.price ? `${product.price} JD` : ""}
                   </Typography>
 
-                  {/* عرض التقييم */}
+                  {/* rating */}
                   <Box sx={{ mt: 1, textAlign: "center" }}>
                     {renderStars(
                       ratings[product.id]?.user || 0,
