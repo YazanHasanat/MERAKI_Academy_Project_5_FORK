@@ -36,9 +36,9 @@ productRouter.get( "/category/:categoryId",getProductsByCategory);
 productRouter.get("/:id", getProductById);
 
 //createRating path ===> post http://localhost:5000/products/:id/ratings
-productRouter.post("/products/:id/rating", createRating);
+productRouter.post("/:id/rating", createRating);
 
 //getProductRatings path ===> get http://localhost:5000/products/:id/ratings
-productRouter.get("/products/:id/ratings", getProductRatings);
+productRouter.get("/:id/ratings", getProductRatings);
 
 module.exports = productRouter;

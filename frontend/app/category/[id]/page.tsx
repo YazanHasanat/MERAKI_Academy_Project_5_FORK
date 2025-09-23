@@ -10,21 +10,29 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import Button from "@mui/material/Button";
+
 import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
 const CategoryPage = () => {
   const { id } = useParams();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
-  const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+  const [ratings, setRatings] = useState<{
+    [key: string]: { average: number; user: number | null; count: number };
+  }>({});
   const [loading, setLoading] = useState(true);
+
+
+  const user = { id: 1 };
 
   const CategoryData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/products/category/${id}`);
+      const res = await axios.get(
+        `http://localhost:5000/products/category/${id}`
+      );
       const data = res.data.products || res.data;
       setProducts(data);
 
@@ -34,22 +42,33 @@ const CategoryPage = () => {
         setCategoryName("");
       }
 
+ 
       const ratingsPromises = data.map(async (product: any) => {
         try {
           const ratingRes = await axios.get(
-            `http://localhost:5000/products/${product.id}/user-rating`
+            `http://localhost:5000/products/${product.id}/ratings`,
+            { params: { userId: user.id } }
           );
-          return { id: product.id, rating: ratingRes.data.rating || 0 };
+          return {
+            id: product.id,
+            average: ratingRes.data.averageRating || 0,
+            user: ratingRes.data.userRating ?? null,
+            count: ratingRes.data.ratingsCount || 0,
+          };
         } catch {
-          return { id: product.id, rating: 0 };
+          return { id: product.id, average: 0, user: null, count: 0 };
         }
       });
 
       const ratingsResults = await Promise.all(ratingsPromises);
-      const ratingsObj = ratingsResults.reduce((acc, { id, rating }) => {
-        acc[id] = rating;
+      const ratingsObj = ratingsResults.reduce((acc, item) => {
+        acc[item.id] = {
+          average: item.average,
+          user: item.user,
+          count: item.count,
+        };
         return acc;
-      }, {});
+      }, {} as any);
 
       setRatings(ratingsObj);
     } catch (err) {
@@ -64,6 +83,7 @@ const CategoryPage = () => {
     CategoryData();
   }, [id]);
 
+  // دالة عرض النجوم
   const renderStars = (
     rating: number,
     onRate?: (newRating: number) => void
@@ -75,7 +95,7 @@ const CategoryPage = () => {
 
     const handleClick = (index: number) => {
       if (onRate) {
-        onRate(index + 1); 
+        onRate(index + 1);
       }
     };
 
@@ -177,27 +197,45 @@ const CategoryPage = () => {
                   >
                     {product.price ? `${product.price} JD` : ""}
                   </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    {renderStars(ratings[product.id] || 0, async (newRating) => {
-                      // تحديث التقييم محلياً فوراً
-                      setRatings((prev) => ({
-                        ...prev,
-                        [product.id]: newRating,
-                      }));
 
-                      try {
-                        await axios.post(
-                          `http://localhost:5000/products/${product.id}/rate`,
-                          { rating: newRating }
-                        );
-                      } catch (err) {
-                        console.error("Error saving rating:", err);
+                  {/* عرض التقييم */}
+                  <Box sx={{ mt: 1, textAlign: "center" }}>
+                    {renderStars(
+                      ratings[product.id]?.user || 0,
+                      async (newRating) => {
+                        setRatings((prev) => ({
+                          ...prev,
+                          [product.id]: {
+                            ...prev[product.id],
+                            user: newRating,
+                          },
+                        }));
+
+                        try {
+                          await axios.post(
+                            `http://localhost:5000/products/${product.id}/rating`,
+                            { rating: newRating, userId: user.id }
+                          );
+                        } catch (err) {
+                          console.error("Error saving rating:", err);
+                        }
                       }
-                    })}
+                    )}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      {ratings[product.id]?.average || 0} ⭐ (
+                      {ratings[product.id]?.count || 0} )
+                    </Typography>
                   </Box>
                 </CardContent>
                 <Box sx={{ p: 2, textAlign: "center" }}>
-                  <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                  <Link
+                    href={`/product/${product.id}`}
+                    style={{ textDecoration: "none" }}
+                  >
                     <Button
                       variant="contained"
                       color="primary"
@@ -222,4 +260,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage; 
+export default CategoryPage;
