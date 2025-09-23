@@ -15,22 +15,29 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
       createTheme({
         palette: {
           mode,
-          primary: {
-            main: "#EC407A",
-          },
+          primary: { main: "#EC407A" },
         },
       }),
     [mode]
   );
 
+  const toggleTheme = () => setMode(mode === "light" ? "dark" : "light");
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div style={{ textAlign: "right", padding: "10px" }}>
-        <IconButton
-          onClick={() => setMode(mode === "light" ? "dark" : "light")}
-          color="inherit"
-        >
+      <div
+        style={{
+          position: "fixed",
+          top: 10,
+          right: 10,
+          zIndex: 1300, 
+          background: mode === "light" ? "#fff" : "#333",
+          borderRadius: "50%",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+        }}
+      >
+        <IconButton onClick={toggleTheme} color="inherit">
           {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
       </div>
