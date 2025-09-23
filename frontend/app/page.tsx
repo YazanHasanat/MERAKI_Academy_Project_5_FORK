@@ -216,7 +216,7 @@ export default function HeroSection() {
                     {prod.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    ${prod.price}
+                    {prod.price} JD
                   </Typography>
                   <Button
                     variant="outlined"

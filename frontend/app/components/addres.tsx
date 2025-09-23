@@ -49,11 +49,31 @@ export default function GetAddress({ onClose }: GetAddressProps) {
 
   const defaultProps = {
     center: { lat: 31.9539, lng: 35.9106 },
-    zoom: 12,
+    zoom: 11,
   };
 
-  const handleMapClick = ({ lat, lng }: { lat: number; lng: number }) => {
+  const getAddressFromCoords = async (lat: number, lng: number) => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyBMwLSriIi1nEkpz5YTX78wIPdhL8vE-d4`
+      );
+
+      if (response.data.status === "OK") {
+        return response.data.results[0].formatted_address;
+      } else {
+        console.error("Geocoding error:", response.data.status);
+        return "";
+      }
+    } catch (err) {
+      console.error("Error in geocoding:", err);
+      return "";
+    }
+  };
+
+  const handleMapClick = async ({ lat, lng }: { lat: number; lng: number }) => {
     setMarker({ lat, lng });
+    const address = await getAddressFromCoords(lat, lng);
+    setLocationText(address);
     setError("");
   };
 
@@ -76,7 +96,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
               },
             }
           );
-          console.log("Location updated:", result.data);
         } else {
           result = await axios.post(
             "http://localhost:5000/location",
@@ -112,19 +131,37 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     }
   };
 
-  const getUserLocation = async () => {
-    const result = await axios.get("http://localhost:5000/location", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    console.log("user location:", result.data.location);
-    setMyLocation(result.data.location);
-  };
-
   useEffect(() => {
-    getUserLocation();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          const address = await getAddressFromCoords(latitude, longitude);
+
+          setMarker({ lat: latitude, lng: longitude });
+          setMyLocation({ latitude, longitude, address });
+          setLocationText(address);
+
+          axios
+            .post(
+              "http://localhost:5000/location",
+              { latitude, longitude, address },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            )
+            .catch((err) => console.error(err));
+        },
+        (error) => {
+          console.error("Cannot get location:", error);
+          setError("Unable to get your current location");
+        },
+        { enableHighAccuracy: true }
+      );
+    }
   }, []);
 
   const hasLocation =
