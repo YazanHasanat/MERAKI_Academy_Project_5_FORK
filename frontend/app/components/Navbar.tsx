@@ -78,7 +78,12 @@ React.useEffect(() => {
 
   return (
     <>
-      <AppBar position="fixed" sx={{ bgcolor: "#F8BBD0" }}>
+      <AppBar
+  position="fixed"
+  sx={(theme) => ({
+    bgcolor: theme.palette.mode === "light" ? "#F8BBD0" : "#6a1b9a",
+  })}
+>
         <Container>
           <Toolbar sx={{ justifyContent: "space-between" }}>
             {/* Logo */}
@@ -100,7 +105,11 @@ React.useEffect(() => {
                 size="small"
                 placeholder="Search products..."
                 variant="outlined"
-                sx={{ bgcolor: "white", borderRadius: 1 }}
+                sx={(theme) => ({
+  bgcolor: theme.palette.mode === "light" ? "white" : "#424242",
+  borderRadius: 1,
+})}
+
               />
             </Box>
 
@@ -143,7 +152,14 @@ React.useEffect(() => {
       </AppBar>
 
       {/* Categories */}
-      <Box sx={{ mt: 8.1, bgcolor: "#ffffffff", py: 1 }}>
+      <Box
+  sx={(theme) => ({
+    mt: 8.1,
+    bgcolor: theme.palette.mode === "light" ? "#ffffffff" : "#424242",
+    py: 1,
+  })}
+>
+
         <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
           {categories.map((cat) => (
             <Button
@@ -151,13 +167,16 @@ React.useEffect(() => {
               component={Link}
               href={`/category/${cat.id}`}
               variant="contained"
-              sx={{
-                bgcolor: "#F48FB1",
-                color: "white",
-                borderRadius: "20px",
-                textTransform: "none",
-                "&:hover": { bgcolor: "#EC407A" },
-              }}
+              sx={(theme) => ({
+  bgcolor: theme.palette.mode === "light" ? "#F48FB1" : "#AD1457",
+  color: "white",
+  borderRadius: "20px",
+  textTransform: "none",
+  "&:hover": {
+    bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#880E4F",
+  },
+})}
+
             >
               {cat.name}
             </Button>
