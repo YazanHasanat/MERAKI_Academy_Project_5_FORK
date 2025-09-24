@@ -54,7 +54,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     zoom: 11,
   };
 
-  // 🔹 جلب الموقع الحالي للجهاز
   const getDeviceLocation = () => {
     setLoading(true);
     if (navigator.geolocation) {
@@ -88,14 +87,12 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     }
   };
 
-  // 🔹 تأكيد الموقع
   const handleConfirm = async () => {
     if (marker && locationText.trim() !== "") {
       try {
         let result;
 
         if (myLocation) {
-          // Update
           result = await axios.put(
             "http://localhost:5000/location",
             {
@@ -110,7 +107,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
             }
           );
         } else {
-          // Create
           result = await axios.post(
             "http://localhost:5000/location",
             {
@@ -144,7 +140,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     }
   };
 
-  // 🔹 تحويل Lat/Lng لعنوان نصي (Geocode)
   const getAddressFromCoords = async (lat: number, lng: number) => {
     try {
       const response = await axios.get(
@@ -163,7 +158,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     }
   };
 
-  // 🔹 جلب الموقع من الباك عند أول فتح
   const getLocationById = async () => {
     try {
       const result = await axios.get("http://localhost:5000/location", {
@@ -193,7 +187,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     <Box sx={{ padding: 3 }}>
       <Typography>Welcome {localStorage.getItem("firstName")}</Typography>
 
-      {/* 🔹 لو ما عنده Location */}
       {!hasLocation && !isEditing && (
         <Paper sx={{ padding: 2, mb: 2 }}>
           <Typography variant="h6" gutterBottom>
@@ -207,7 +200,7 @@ export default function GetAddress({ onClose }: GetAddressProps) {
             variant="contained"
             onClick={() => {
               setIsEditing(true);
-              getDeviceLocation(); // يجيب الموقع الحالي للجهاز
+              getDeviceLocation(); 
             }}
           >
             Choose Location
@@ -215,7 +208,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
         </Paper>
       )}
 
-      {/* 🔹 لو عنده Location محفوظة */}
       {hasLocation && !isEditing && (
         <Paper sx={{ padding: 2, mb: 2 }}>
           <Typography variant="h6" gutterBottom>
@@ -254,7 +246,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
         </Paper>
       )}
 
-      {/* 🔹 وضع التعديل / اختيار الموقع */}
       {isEditing && (
         <>
           <Box
@@ -275,7 +266,7 @@ export default function GetAddress({ onClose }: GetAddressProps) {
                   alignItems: "center",
                   justifyContent: "center",
                   zIndex: 2,
-                  backgroundColor: "rgba(255,255,255,0.7)", // شفاف فوق الخريطة
+                  backgroundColor: "rgba(255,255,255,0.7)", 
                 }}
               >
                 <CircularProgress />
