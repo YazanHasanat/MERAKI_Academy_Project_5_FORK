@@ -103,7 +103,6 @@ export default function HeroSection() {
           color: "#fff",
         }}
       >
-        {/* Gradient overlay */}
         <Box
           sx={{
             position: "absolute",
@@ -114,7 +113,6 @@ export default function HeroSection() {
         />
 
         <Box sx={{ position: "relative", textAlign: "center", zIndex: 1 }}>
-          {/* الأنيميشن على العنوان والنصوص */}
           <motion.div
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,6 +164,7 @@ export default function HeroSection() {
                   boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
                 },
               }}
+              onClick={() => router.push("/offers")}  
             >
               Shop Now
             </Button>
@@ -216,7 +215,7 @@ export default function HeroSection() {
                     {prod.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    ${prod.price}
+                    {prod.price} JD
                   </Typography>
                   <Button
                     variant="outlined"

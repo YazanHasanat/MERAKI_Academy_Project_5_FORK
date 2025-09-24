@@ -9,7 +9,7 @@ const {
   getProductById,
   getFeaturedProducts,
   createRating,
-  getProductRatings,
+  getProductRatings,getAllOffers
 } = require("../controllers/ProductController");
 
 
@@ -41,4 +41,6 @@ productRouter.post("/:id/rating", createRating);
 //getProductRatings path ===> get http://localhost:5000/products/:id/ratings
 productRouter.get("/:id/ratings", getProductRatings);
 
+
+productRouter.get("/offers/all",getAllOffers)
 module.exports = productRouter;

@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
@@ -14,14 +13,11 @@ import axios from "axios";
 import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
 import { useRouter } from "next/navigation";
-
-
 // ==== MUI Icons ====
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
 interface Product {
   id: number;
   title: string;
@@ -34,27 +30,22 @@ interface Product {
   created_at: Date;
   is_deleted: number;
 }
-
 export default function Navbar() {
   const router = useRouter();
 //search
   const [product, setProducts] = React.useState <Product[]>([])
   const [search, setSearch] = React.useState("")
-
   //  useState instead of reading directly from localStorage
   const [firstName, setFirstName] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
-
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [openCart, setOpenCart] = React.useState(false);
-
   React.useEffect(() => {
     // Load from localStorage when component mounts
     const storedFirstName = localStorage.getItem("firstName");
     const storedUserId = localStorage.getItem("userId");
     setFirstName(storedFirstName);
     setUserId(storedUserId);
-  
     // Fetch categories
     async function fetchCategories() {
       try {
@@ -73,11 +64,8 @@ React.useEffect(() => {
     setFirstName(localStorage.getItem("firstName"));
     setUserId(localStorage.getItem("userId"));
   };
-
   loadUser();
-
   window.addEventListener("storageUpdate", loadUser);
-
   return () => {
     window.removeEventListener("storageUpdate", loadUser);
   };
@@ -89,11 +77,9 @@ React.useEffect(() => {
   React.useEffect(()=>{
     getPrcucts()
   },[])
-  
  const filteredProducts = product.filter((pro) =>
   pro.title.toLowerCase().includes(search.toLowerCase())
 );
-
   const handleLogout = () => {
     localStorage.removeItem("firstName");
     localStorage.removeItem("userId");
@@ -103,7 +89,6 @@ React.useEffect(() => {
     setUserId(null);
     router.push("/"); // redirect to home page
   };
-
   return (
     <>
       <AppBar position="fixed" sx={{ bgcolor: "#F8BBD0" }}>
@@ -120,7 +105,6 @@ React.useEffect(() => {
                 </Typography>
               </Link>
             </Box>
-
             {/* Search bar */}
            <Box sx={{ position: "relative", flexGrow: 1, maxWidth: 400, mx: 4 }}>
             <TextField
@@ -132,7 +116,6 @@ React.useEffect(() => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-
             {/* Dropdown */}
             {search && filteredProducts.length > 0 && (
               <Box
@@ -141,14 +124,14 @@ React.useEffect(() => {
                   top: "100%",
                   left: 0,
                   right: 0,
-                  bgcolor: "white",          
+                  bgcolor: "white",
                   border: "1px solid #ccc",
                   borderRadius: 1,
                   mt: 0.5,
                   zIndex: 10,
                   maxHeight: 250,
                   overflowY: "auto",
-                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)", 
+                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
                 }}
               >
                 {filteredProducts.map((pro) => (
@@ -158,7 +141,7 @@ React.useEffect(() => {
                       px: 2,
                       py: 1,
                       cursor: "pointer",
-                      "&:hover": { bgcolor: "#fce4ec" }, 
+                      "&:hover": { bgcolor: "#FCE4EC" },
                     }}
                     onClick={() => {
                       router.push(`/product/${pro.id}`);
@@ -173,7 +156,6 @@ React.useEffect(() => {
               </Box>
             )}
           </Box>
-          
             {/* User section */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {firstName ? (
@@ -202,7 +184,6 @@ React.useEffect(() => {
                   <LoginIcon />
                 </IconButton>
               )}
-
               {/* Cart */}
               <IconButton color="inherit" onClick={() => setOpenCart(true)}>
                 <ShoppingCartIcon />
@@ -211,7 +192,6 @@ React.useEffect(() => {
           </Toolbar>
         </Container>
       </AppBar>
-
       {/* Categories */}
       <Box sx={{ mt: 8.1, bgcolor: "#ffffffff", py: 1 }}>
         <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
@@ -234,7 +214,6 @@ React.useEffect(() => {
           ))}
         </Container>
       </Box>
-
       {/* Cart Drawer */}
       <CartDrawer open={openCart} onClose={() => setOpenCart(false)} />
     </>

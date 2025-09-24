@@ -108,6 +108,7 @@ const user = () => {
       console.error("Error updating user:", err);
     }
   };
+const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
 
   return (
     <Box
@@ -138,7 +139,7 @@ const user = () => {
                 <Stack spacing={2}>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Avatar
-                      src="/avatar.png"
+                      src={userAvatar}
                       alt="Profile"
                       sx={{ width: 64, height: 64 }}
                     />
