@@ -144,7 +144,13 @@ const CategoryPage = () => {
   }
 
   return (
-    <Box sx={{ p: 4, minHeight: "100vh", bgcolor: "#f7f7fa" }}>
+<Box
+  sx={(theme) => ({
+    p: 4,
+    minHeight: "100vh",
+    bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212", 
+  })}
+>
       <Typography
         variant="h4"
         align="center"
@@ -168,18 +174,19 @@ const CategoryPage = () => {
         {products.map((product: any) => (
           <Grid key={product.id} display="flex" justifyContent="center">
             <Card
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                boxShadow: 6,
-                borderRadius: 4,
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": { transform: "translateY(-10px) scale(1.05)", boxShadow: 10 },
-                bgcolor: "#fff",
-                mx: "auto",
-                maxWidth: 350,
-              }}
+              sx={(theme) => ({
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  boxShadow: 6,
+  borderRadius: 4,
+  transition: "transform 0.3s, box-shadow 0.3s",
+  "&:hover": { transform: "translateY(-10px) scale(1.05)", boxShadow: 10 },
+  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+  mx: "auto",
+  maxWidth: 350,
+})}
+
             >
               <CardMedia
                 component="img"
@@ -230,15 +237,18 @@ const CategoryPage = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    sx={{
-                      textTransform: "none",
-                      borderRadius: 20,
-                      px: 3,
-                      py: 1,
-                      fontWeight: "bold",
-                      bgcolor: "#EC407A",
-                      "&:hover": { bgcolor: "#d53972" },
-                    }}
+                  sx={(theme) => ({
+  textTransform: "none",
+  borderRadius: 20,
+  px: 3,
+  py: 1,
+  fontWeight: "bold",
+  bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#d81b60", 
+  "&:hover": {
+    bgcolor: theme.palette.mode === "light" ? "#d53972" : "#ad1457",
+  },
+})}
+
                   >
                     View Details
                   </Button>
