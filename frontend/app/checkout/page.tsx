@@ -33,7 +33,9 @@ const CheckoutPage = () => {
       setLoading(true);
       try {
         const res = await axios.get("http://localhost:5000/cart", {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
         if (res.data.success && res.data.products) {
           setCartItems(res.data.products);
@@ -53,11 +55,12 @@ const CheckoutPage = () => {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
+console.log(totalPrice);
 
   const handlePlaceOrder = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/orders",
+        "http://localhost:5000/orders", 
         {
           products: cartItems.map(({ product_id, quantity }) => ({
             product_id,
@@ -65,8 +68,14 @@ const CheckoutPage = () => {
           })),
           status: "pending",
           pay_method: paymentMethod,
+          total_price: totalPrice,
         },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          withCredentials: true, 
+        }
       );
       alert("Order placed successfully!");
       setCartItems([]);
@@ -140,7 +149,11 @@ const CheckoutPage = () => {
           sx={{ gap: 3 }}
         >
           <FormControlLabel value="cash" control={<Radio />} label="Cash" />
-          <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+          <FormControlLabel
+            value="card"
+            control={<Radio />}
+            label="Credit Card"
+          />
         </RadioGroup>
         <Button
           variant="contained"
@@ -189,7 +202,7 @@ const CheckoutPage = () => {
               >
                 <Typography>{item.title}</Typography>
                 <Typography>
-                  {item.quantity} × ${item.price.toFixed(2)}
+                  {item.quantity} × ${item.price}
                 </Typography>
               </Box>
             ))
@@ -210,5 +223,3 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
-
-

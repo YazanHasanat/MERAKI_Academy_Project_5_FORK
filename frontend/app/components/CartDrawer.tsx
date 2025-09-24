@@ -43,6 +43,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+      console.log(result.data.products);
+      
       setCart(result.data.products || []);
     } catch (err: any) {
       console.error("Error fetching cart:", err.message);

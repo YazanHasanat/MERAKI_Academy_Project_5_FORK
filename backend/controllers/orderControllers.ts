@@ -17,15 +17,15 @@ const createOrder = async (
 ) => {
   const user_id=req.user.userId
   try {
-    const { location_id, products, status, pay_method } = req.body;
+    const { location_id, products, status, pay_method,total_price } = req.body;
 
     const result = await pool.query(
       `
-      INSERT INTO orders (user_id,location_id, products, status, pay_method)
-      VALUES ($1, $2, $3, $4,$5)
+      INSERT INTO orders (user_id,location_id, products, status, pay_method,total_price)
+      VALUES ($1, $2, $3, $4,$5,$6)
       RETURNING *;
     `,
-      [user_id, location_id, JSON.stringify(products), status, pay_method]
+      [user_id, location_id, JSON.stringify(products), status, pay_method,total_price]
     );
 
     res.status(201).json({
