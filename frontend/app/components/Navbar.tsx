@@ -15,16 +15,33 @@ import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
 import { useRouter } from "next/navigation";
 
+
 // ==== MUI Icons ====
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
+interface Product {
+  id: number;
+  title: string;
+  description?: string;
+  image_urls: string[];
+  category_id?: number;
+  price: number;
+  user_id: number;
+  is_feature: boolean;
+  created_at: Date;
+  is_deleted: number;
+}
+
 export default function Navbar() {
   const router = useRouter();
+//search
+  const [product, setProducts] = React.useState <Product[]>([])
+  const [search, setSearch] = React.useState("")
 
-  // 👇 useState instead of reading directly from localStorage
+  //  useState instead of reading directly from localStorage
   const [firstName, setFirstName] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
@@ -37,7 +54,7 @@ export default function Navbar() {
     const storedUserId = localStorage.getItem("userId");
     setFirstName(storedFirstName);
     setUserId(storedUserId);
-
+  
     // Fetch categories
     async function fetchCategories() {
       try {
@@ -65,6 +82,17 @@ React.useEffect(() => {
     window.removeEventListener("storageUpdate", loadUser);
   };
 }, []);
+  const getPrcucts = async () => {
+    const results = await axios.get("http://localhost:5000/products");
+    setProducts(results.data.products)
+  }
+  React.useEffect(()=>{
+    getPrcucts()
+  },[])
+  
+ const filteredProducts = product.filter((pro) =>
+  pro.title.toLowerCase().includes(search.toLowerCase())
+);
 
   const handleLogout = () => {
     localStorage.removeItem("firstName");
@@ -94,16 +122,58 @@ React.useEffect(() => {
             </Box>
 
             {/* Search bar */}
-            <Box sx={{ flexGrow: 1, maxWidth: 400, mx: 4 }}>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search products..."
-                variant="outlined"
-                sx={{ bgcolor: "white", borderRadius: 1 }}
-              />
-            </Box>
+           <Box sx={{ position: "relative", flexGrow: 1, maxWidth: 400, mx: 4 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search products..."
+              variant="outlined"
+              sx={{ bgcolor: "white", borderRadius: 1 }}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
+            {/* Dropdown */}
+            {search && filteredProducts.length > 0 && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  bgcolor: "white",          
+                  border: "1px solid #ccc",
+                  borderRadius: 1,
+                  mt: 0.5,
+                  zIndex: 10,
+                  maxHeight: 250,
+                  overflowY: "auto",
+                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)", 
+                }}
+              >
+                {filteredProducts.map((pro) => (
+                  <Box
+                    key={pro.id}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      cursor: "pointer",
+                      "&:hover": { bgcolor: "#fce4ec" }, 
+                    }}
+                    onClick={() => {
+                      router.push(`/product/${pro.id}`);
+                      setSearch("");
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: "black" }}>
+                      {pro.title}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
+          
             {/* User section */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {firstName ? (
