@@ -7,7 +7,15 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 
 export default function Footer() {
   return (
-    <Box sx={{ bgcolor: "#F8BBD0", color: "black", mt: 0, py: 4 }}>
+   <Box
+  sx={(theme) => ({
+    bgcolor: theme.palette.mode === "light" ? "#F8BBD0" : "#7b1fa2",
+    color: theme.palette.mode === "light" ? "black" : "white",
+    mt: 0,
+    py: 4,
+  })}
+>
+
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", mb: 3 }}>
           <Box>

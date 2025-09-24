@@ -1,11 +1,16 @@
 "use client";
 
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme, useTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { useState, useMemo } from "react";
+import { useState, useMemo, createContext, useContext } from "react";
 import IconButton from "@mui/material/IconButton";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+
+// Theme Context for global toggle
+const ThemeToggleContext = createContext<() => void>(() => {});
+
+export const useThemeToggle = () => useContext(ThemeToggleContext);
 
 export default function ThemeRegistry({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<"light" | "dark">("light");
@@ -16,32 +21,43 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
         palette: {
           mode,
           primary: { main: "#EC407A" },
+          background: {
+            default: mode === "light" ? "#f7f7fa" : "#121212",
+            paper: mode === "light" ? "#fff" : "#1e1e1e",
+          },
+          text: {
+            primary: mode === "light" ? "#000" : "#fff",
+            secondary: mode === "light" ? "#555" : "#ccc",
+          },
         },
       }),
     [mode]
   );
 
-  const toggleTheme = () => setMode(mode === "light" ? "dark" : "light");
+  const toggleTheme = () => setMode((prev) => (prev === "light" ? "dark" : "light"));
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div
-        style={{
-          position: "fixed",
-          top: 10,
-          right: 10,
-          zIndex: 1300, 
-          background: mode === "light" ? "#fff" : "#333",
-          borderRadius: "50%",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-        }}
-      >
-        <IconButton onClick={toggleTheme} color="inherit">
-          {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-        </IconButton>
-      </div>
-      {children}
-    </ThemeProvider>
+    <ThemeToggleContext.Provider value={toggleTheme}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {/* Fixed theme toggle button */}
+        <div
+          style={{
+            position: "fixed",
+            top: 10,
+            right: 10,
+            zIndex: 1300,
+            background: mode === "light" ? "#fff" : "#333",
+            borderRadius: "50%",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+          }}
+        >
+          <IconButton onClick={toggleTheme} color="inherit">
+            {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+          </IconButton>
+        </div>
+        {children}
+      </ThemeProvider>
+    </ThemeToggleContext.Provider>
   );
 }
