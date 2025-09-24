@@ -14,7 +14,7 @@ const createProduct = async (req: Request, res: Response): Promise<void> => {
   }: {
     title: string;
     description: string;
-    image_urls: string[]; 
+    image_urls: string[];
     category_id: number;
     price: number;
     is_feature?: boolean;
@@ -26,14 +26,7 @@ const createProduct = async (req: Request, res: Response): Promise<void> => {
         (title, description, image_urls, category_id, price, is_feature) 
        VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING *`,
-      [
-        title,
-        description,
-        image_urls, 
-        category_id,
-        price,
-        is_feature || false,
-      ]
+      [title, description, image_urls, category_id, price, is_feature || false]
     );
 
     res.status(201).json({
@@ -237,13 +230,11 @@ const createRating = async (req: Request, res: Response) => {
     );
 
     if (existingRating.rows.length > 0) {
-
       await pool.query(
         "UPDATE ratings SET rating = $1, created_at = CURRENT_TIMESTAMP WHERE product_id = $2 AND user_id = $3",
         [rating, id, userId]
       );
     } else {
-   
       await pool.query(
         "INSERT INTO ratings (product_id, user_id, rating) VALUES ($1, $2, $3)",
         [id, userId, rating]
@@ -263,7 +254,7 @@ const createRating = async (req: Request, res: Response) => {
 // 9. **Get product ratings**
 const getProductRatings = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { userId } = req.query; 
+  const { userId } = req.query;
 
   try {
     const result = await pool.query(
@@ -272,7 +263,11 @@ const getProductRatings = async (req: Request, res: Response) => {
     );
     const ratings = result.rows;
     const averageRating = ratings.length
-      ? ratings.reduce((acc: number, curr: { rating: string }) => acc + parseFloat(curr.rating), 0) / ratings.length
+      ? ratings.reduce(
+          (acc: number, curr: { rating: string }) =>
+            acc + parseFloat(curr.rating),
+          0
+        ) / ratings.length
       : 0;
 
     let userRating = null;
@@ -290,15 +285,24 @@ const getProductRatings = async (req: Request, res: Response) => {
       success: true,
       averageRating,
       userRating,
-      ratingsCount: ratings.length
+      ratingsCount: ratings.length,
     });
-
   } catch (err: any) {
     console.error("Error ratings:", err.message);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
-
+const getAllOffers = async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM offers WHERE is_deleted = 0 ORDER BY created_at DESC"
+    );
+    res.status(200).json(result.rows);
+  } catch (err: any) {
+    console.error("Error fetching offers:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -309,5 +313,6 @@ module.exports = {
   getProductById,
   getFeaturedProducts,
   createRating,
-  getProductRatings
+  getProductRatings,
+  getAllOffers,
 };
