@@ -19,3 +19,11 @@ type CartItem = {
   price: number;
   quantity: number;
 };
+
+const CheckoutPage = () => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [loading, setLoading] = useState(true);
+}
