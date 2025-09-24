@@ -7,6 +7,7 @@ import {
   InputLabel,
   TextField,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -46,35 +47,44 @@ export default function GetAddress({ onClose }: GetAddressProps) {
   const [locationText, setLocationText] = useState("");
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const defaultProps = {
     center: { lat: 31.9539, lng: 35.9106 },
     zoom: 11,
   };
 
-  const getAddressFromCoords = async (lat: number, lng: number) => {
-    try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyBMwLSriIi1nEkpz5YTX78wIPdhL8vE-d4`
-      );
+  const getDeviceLocation = () => {
+    setLoading(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setMarker({ lat: latitude, lng: longitude });
 
-      if (response.data.status === "OK") {
-        return response.data.results[0].formatted_address;
-      } else {
-        console.error("Geocoding error:", response.data.status);
-        return "";
-      }
-    } catch (err) {
-      console.error("Error in geocoding:", err);
-      return "";
+          const addr = await getAddressFromCoords(latitude, longitude);
+          setLocationText(addr || "");
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Error getting device location:", err);
+          setError("Unable to fetch device location. Please select manually.");
+          setLoading(false);
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser.");
+      setLoading(false);
     }
   };
 
   const handleMapClick = async ({ lat, lng }: { lat: number; lng: number }) => {
     setMarker({ lat, lng });
-    const address = await getAddressFromCoords(lat, lng);
-    setLocationText(address);
     setError("");
+    const addr = await getAddressFromCoords(lat, lng);
+    if (addr) {
+      setLocationText(addr);
+    }
   };
 
   const handleConfirm = async () => {
@@ -110,7 +120,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
               },
             }
           );
-          console.log("Location created:", result.data);
         }
 
         setError("");
@@ -131,37 +140,41 @@ export default function GetAddress({ onClose }: GetAddressProps) {
     }
   };
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          const address = await getAddressFromCoords(latitude, longitude);
-
-          setMarker({ lat: latitude, lng: longitude });
-          setMyLocation({ latitude, longitude, address });
-          setLocationText(address);
-
-          axios
-            .post(
-              "http://localhost:5000/location",
-              { latitude, longitude, address },
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
-            )
-            .catch((err) => console.error(err));
-        },
-        (error) => {
-          console.error("Cannot get location:", error);
-          setError("Unable to get your current location");
-        },
-        { enableHighAccuracy: true }
+  const getAddressFromCoords = async (lat: number, lng: number) => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyBMwLSriIi1nEkpz5YTX78wIPdhL8vE-d4`
       );
+
+      if (response.data.status === "OK") {
+        return response.data.results[0].formatted_address;
+      } else {
+        console.error("Geocoding error:", response.data.status);
+        return "";
+      }
+    } catch (err) {
+      console.error("Error in geocoding:", err);
+      return "";
     }
+  };
+
+  const getLocationById = async () => {
+    try {
+      const result = await axios.get("http://localhost:5000/location", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (result.data.location) {
+        setMyLocation(result.data.location);
+      }
+    } catch (err) {
+      console.error("Error fetching location:", err);
+    }
+  };
+
+  useEffect(() => {
+    getLocationById();
   }, []);
 
   const hasLocation =
@@ -185,7 +198,10 @@ export default function GetAddress({ onClose }: GetAddressProps) {
           <Button
             sx={{ mt: 2 }}
             variant="contained"
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setIsEditing(true);
+              getDeviceLocation(); 
+            }}
           >
             Choose Location
           </Button>
@@ -230,7 +246,6 @@ export default function GetAddress({ onClose }: GetAddressProps) {
         </Paper>
       )}
 
-      {/* Editing or selecting */}
       {isEditing && (
         <>
           <Box
@@ -242,6 +257,21 @@ export default function GetAddress({ onClose }: GetAddressProps) {
               mb: 2,
             }}
           >
+            {loading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2,
+                  backgroundColor: "rgba(255,255,255,0.7)", 
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            )}
             <GoogleMapReact
               bootstrapURLKeys={{
                 key: "AIzaSyBMwLSriIi1nEkpz5YTX78wIPdhL8vE-d4",
