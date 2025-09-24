@@ -15,6 +15,7 @@ import axios from "axios";
 import Slider from "react-slick";
 import Loading from "./loading";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion"; // استيراد المكتبة
 
 export interface Category {
   id: string;
@@ -102,7 +103,6 @@ export default function HeroSection() {
           color: "#fff",
         }}
       >
-        {/* Gradient overlay */}
         <Box
           sx={{
             position: "absolute",
@@ -113,47 +113,65 @@ export default function HeroSection() {
         />
 
         <Box sx={{ position: "relative", textAlign: "center", zIndex: 1 }}>
-          <Typography
-            variant="h2"
-            gutterBottom
-            sx={{
-              fontWeight: "bold",
-              textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
           >
-            Welcome to Our Baby Shop
-          </Typography>
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{ mb: 3, textShadow: "1px 1px 5px rgba(0,0,0,0.4)" }}
+            <Typography
+              variant="h2"
+              gutterBottom
+              sx={{
+                fontWeight: "bold",
+                textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
+              }}
+            >
+              Welcome to Our Baby Shop
+            </Typography>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
           >
-            Discover the best products for your baby
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              background: "linear-gradient(45deg, #ff80ab, #ff4081)",
-              color: "#fff",
-              fontWeight: "bold",
-              px: 4,
-              py: 1.5,
-              borderRadius: "30px",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-              transition: "0.3s",
-              "&:hover": {
-                transform: "scale(1.1)",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
-              },
-            }}
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ mb: 3, textShadow: "1px 1px 5px rgba(0,0,0,0.4)" }}
+            >
+              Discover the best products for your baby
+            </Typography>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.6 }}
           >
-            Shop Now
-          </Button>
+            <Button
+              variant="contained"
+              size="large"
+              sx={{
+                background: "linear-gradient(45deg, #ff80ab, #ff4081)",
+                color: "#fff",
+                fontWeight: "bold",
+                px: 4,
+                py: 1.5,
+                borderRadius: "30px",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+                transition: "0.3s",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+                },
+              }}
+              onClick={() => router.push("/offers")}  
+            >
+              Shop Now
+            </Button>
+          </motion.div>
         </Box>
       </Box>
 
-      {/* Featured Products */}
       {/* Featured Products */}
       <Box sx={{ mt: 6, px: 3 }}>
         <Typography
@@ -162,7 +180,7 @@ export default function HeroSection() {
           textAlign="center"
           sx={{ fontWeight: "bold", mb: 4 }}
         >
-           Featured Products 
+          Featured Products 
         </Typography>
         <Slider {...sliderSettings}>
           {product.map((prod) => (
@@ -178,6 +196,7 @@ export default function HeroSection() {
                     transform: "translateY(-8px) scale(1.05)",
                     boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
                   },
+                  margin: "0 16px"
                 }}
               >
                 <CardMedia
@@ -196,7 +215,7 @@ export default function HeroSection() {
                     {prod.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    ${prod.price}
+                    {prod.price} JD
                   </Typography>
                   <Button
                     variant="outlined"
@@ -211,7 +230,7 @@ export default function HeroSection() {
                         color: "#fff",
                       },
                     }}
-                    onClick={()=>{
+                    onClick={() => {
                       window.location.href = `/product/${prod.id}`;
                     }}
                   >
@@ -238,7 +257,7 @@ export default function HeroSection() {
           {categories.map((cat) => (
             <Grid key={cat.id}>
               <Card
-              onClick={() => router.push(`/category/${cat.id}`)}
+                onClick={() => router.push(`/category/${cat.id}`)}
                 sx={{
                   borderRadius: 3,
                   cursor: "pointer",
@@ -253,7 +272,7 @@ export default function HeroSection() {
                 <CardMedia
                   component="img"
                   height="160"
-                  image={cat.image_url}
+                  image={`/assets/${cat.image_url}`}
                   alt={cat.name}
                   sx={{ objectFit: "cover" }}
                 />
