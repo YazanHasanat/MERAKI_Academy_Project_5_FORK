@@ -14,6 +14,11 @@ import {
   DialogContent,
   DialogTitle,
   MenuItem,
+  List,
+  Paper,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
   Select,
   Stack,
   TextField,
@@ -30,11 +35,20 @@ type UserType = {
   age: number;
   role_id?: number;
 };
+type OrderType = {
+  id: number;
+  created_at: string;
+  total?: number; 
+  status: string;
+  pay_method: string;
+  products: any;
+};
 
 
 
 const user = () => {
   const [user, setUser] = useState<UserType[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [formData, setFormData] = useState({
@@ -83,6 +97,34 @@ const user = () => {
       [e.target.name]: e.target.value,
     }));
   };
+  const getOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/orders/userorders", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      console.log("Orders response from API:", res.data);
+
+      if (Array.isArray(res.data)) {
+        setOrders(res.data);
+      } else if (Array.isArray(res.data.orders)) {
+        setOrders(res.data.orders); 
+      } else {
+        console.error("Unexpected orders format:", res.data);
+        setOrders([]); 
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    }
+  };
+
+  useEffect(() => {
+    getInformation();
+    getOrders();
+  }, []);
+
 
   const handleUpdate = async () => {
     if (!selectedUser) return;
@@ -121,13 +163,14 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
       }}
     >
       <Stack spacing={3} sx={{ width: 600 }}>
+        {/* User Info */}
         {user.length === 0 ? (
           <Typography variant="h6" align="center">
             No user data available.
           </Typography>
         ) : (
           user.map((ele) => (
-            <Card key={ele.id} sx={{borderRadius: 3, boxShadow: 5 }}>
+            <Card key={ele.id} sx={{ borderRadius: 3, boxShadow: 5 }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="black">
                   Personal info
@@ -188,7 +231,6 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
                   <Stack direction="row" justifyContent="flex-end">
                     <Button
                       variant="contained"
-                      
                       onClick={() => handleOpenUpdate(ele)}
                       sx={{
                         backgroundColor: "#f06292",
@@ -204,6 +246,69 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
               </CardContent>
             </Card>
           ))
+        )}
+
+        {/* User Orders */}
+        {Array.isArray(orders) && orders.length > 0 ? (
+          <Card sx={{ borderRadius: 3, boxShadow: 5 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom color="black">
+                Order History
+              </Typography>
+              <Typography variant="body2" color="gray" mb={3}>
+                Review your past orders.
+              </Typography>
+
+              <List>
+                {orders.map((order) => (
+                  <ListItem
+                    key={order.id}
+                    sx={{
+                      border: "1px solid #eee",
+                      borderRadius: 2,
+                      mb: 2,
+                      alignItems: "flex-start",
+                      p: 2,
+                    }}
+                  >
+                    <Stack spacing={1} width="100%">
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          Order #{order.id}
+                        </Typography>
+                        <Typography variant="body2" color="gray">
+                          {new Date(order.created_at).toLocaleString()}
+                        </Typography>
+                      </Stack>
+
+                      <Typography variant="body2">
+                        <strong>Status:</strong> {order.status}
+                      </Typography>
+
+                      <Typography variant="body2">
+                        <strong>Payment:</strong> {order.pay_method || "N/A"}
+                      </Typography>
+
+                      <Typography variant="body2">
+                        <strong>Total Products:</strong>{" "}
+                        {Array.isArray(order.products)
+                          ? order.products.length
+                          : Object.keys(order.products || {}).length}
+                      </Typography>
+                    </Stack>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        ) : (
+          <Typography variant="h6" align="center">
+            No orders found.
+          </Typography>
         )}
       </Stack>
 
@@ -248,12 +353,16 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
           <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleUpdate} variant="contained" sx={{
-                        backgroundColor: "#f06292",
-                        "&:hover": {
-                          backgroundColor: "#d81b60",
-                        },
-                      }}>
+          <Button
+            onClick={handleUpdate}
+            variant="contained"
+            sx={{
+              backgroundColor: "#f06292",
+              "&:hover": {
+                backgroundColor: "#d81b60",
+              },
+            }}
+          >
             Save
           </Button>
         </DialogActions>
