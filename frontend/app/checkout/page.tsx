@@ -34,6 +34,10 @@ const CheckoutPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
@@ -48,7 +52,7 @@ const CheckoutPage = () => {
         } else {
           setCartItems([]);
         }
-      } catch {
+      } catch (err) {
         setCartItems([]);
       } finally {
         setLoading(false);
@@ -74,6 +78,7 @@ const CheckoutPage = () => {
           status: "pending",
           pay_method: paymentMethod,
           total_price: totalPrice,
+          card_info: paymentMethod === "card" ? { cardNumber, expiry, cvv } : null,
         },
         {
           headers: {
@@ -91,6 +96,9 @@ const CheckoutPage = () => {
       setName("");
       setPhone("");
       setPaymentMethod("cash");
+      setCardNumber("");
+      setExpiry("");
+      setCvv("");
     } catch {
       setSnackbarMessage("Failed to place order. Please try again.");
       setSnackbarSeverity("error");
@@ -122,7 +130,7 @@ const CheckoutPage = () => {
           borderRadius: 4,
           display: "flex",
           gap: 6,
-          fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
         }}
       >
         <Card
@@ -167,6 +175,46 @@ const CheckoutPage = () => {
             <FormControlLabel value="cash" control={<Radio />} label="Cash" />
             <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
           </RadioGroup>
+
+          {paymentMethod === "card" && (
+            <Box
+              sx={{
+                mt: 2,
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 3,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <TextField
+                label="Card Number"
+                variant="outlined"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                fullWidth
+              />
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  label="Expiry Date (MM/YY)"
+                  variant="outlined"
+                  value={expiry}
+                  onChange={(e) => setExpiry(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="CVV"
+                  variant="outlined"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                  fullWidth
+                />
+              </Box>
+            </Box>
+          )}
+
           <Button
             variant="contained"
             color="primary"
