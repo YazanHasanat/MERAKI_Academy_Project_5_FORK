@@ -25,6 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import SaveIcon from "@mui/icons-material/Save";
 
 type UserType = {
   id: number;
@@ -331,17 +332,18 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
           Cancel
         </Button>
         <Button
-          onClick={handleUpdate}
-          variant="contained"
-          sx={{
-            backgroundColor: "#f06292",
-            "&:hover": {
-              backgroundColor: "#d81b60",
-            },
-          }}
-        >
-          Save
-        </Button>
+  onClick={handleUpdate}
+  variant="contained"
+  startIcon={<SaveIcon />}
+  sx={{
+    backgroundColor: "#f06292",
+    "&:hover": {
+      backgroundColor: "#d81b60",
+    },
+  }}
+>
+  Save
+</Button>
       </DialogActions>
     </Dialog>
   </Box>
