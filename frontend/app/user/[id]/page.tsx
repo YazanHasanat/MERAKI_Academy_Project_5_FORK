@@ -26,6 +26,8 @@ import {
 } from "@mui/material";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import SaveIcon from "@mui/icons-material/Save";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 type UserType = {
   id: number;
@@ -40,10 +42,12 @@ type UserType = {
 type OrderType = {
   id: number;
   created_at: string;
-  total?: number; 
+  total_price?: number; 
   status: string;
   pay_method: string;
   products: any;
+  address:string
+
 };
 
 
@@ -259,25 +263,43 @@ const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
             </Typography>
 
             <Stack spacing={2}>
-              {orders.map((order) => (
-                <Stack
-                  key={order.id}
-                  direction="row"
-                  spacing={2}
-                  alignItems="flex-start"
-                >
-                  <AccessTimeRoundedIcon sx={{ color: "black", mt: 0.5 }} />
-                  <Stack>
-                    <Typography variant="body1">
-                      Order #{order.id} -{" "}
-                      <strong style={{ textTransform: "capitalize" }}>
-                        {order.status}
-                      </strong>
-                    </Typography>
-                    <Typography variant="body2" color="gray">
-                      {new Date(order.created_at).toLocaleDateString("en-GB")}
-                    </Typography>
-                  </Stack>
+            {orders.map((order) => (
+  <Stack key={order.id} direction="row" spacing={2} alignItems="flex-start">
+    <AccessTimeRoundedIcon sx={{ color: "black", mt: 0.5 }} />
+    <Stack>
+      <Typography variant="body1">
+        Order #{order.id} -{" "}
+        <strong style={{ textTransform: "capitalize" }}>
+          {order.status}
+        </strong>
+      </Typography>
+
+      <Stack direction="row" spacing={1} alignItems="center">
+  <CalendarTodayIcon sx={{ fontSize: 18, color: "gray" }} />
+  <Typography variant="body2" color="gray">
+    Date: {new Date(order.created_at).toLocaleDateString("en-GB")}
+  </Typography>
+</Stack>
+
+      <Typography variant="body2" color="gray">
+        Total: ${order.total_price}
+      </Typography>
+
+      <Typography variant="body2" color="gray">
+        Payment Method: {order.pay_method === "visa" ? "Visa" : "Cash"}
+      </Typography>
+
+      <Typography variant="body2" color="gray">
+        Number of Products: {Array.isArray(order.products) ? order.products.length : 0}
+      </Typography>
+      <Stack direction="row" spacing={1} alignItems="center">
+  <LocationOnIcon sx={{ fontSize: 18, color: "gray" }} />
+  <Typography variant="body2" color="gray">
+    Location: {order.address}
+  </Typography>
+</Stack>
+
+    </Stack>
                 </Stack>
               ))}
             </Stack>
