@@ -1,13 +1,10 @@
 "use client";
 
-import { ThemeProvider, createTheme, useTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { useState, useMemo, createContext, useContext } from "react";
-import IconButton from "@mui/material/IconButton";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
 
-// Theme Context for global toggle
+// Context لتبديل الثيم عالمياً
 const ThemeToggleContext = createContext<() => void>(() => {});
 
 export const useThemeToggle = () => useContext(ThemeToggleContext);
@@ -40,22 +37,6 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
     <ThemeToggleContext.Provider value={toggleTheme}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {/* Fixed theme toggle button */}
-        <div
-          style={{
-            position: "fixed",
-            top: 10,
-            right: 10,
-            zIndex: 1300,
-            background: mode === "light" ? "#fff" : "#333",
-            borderRadius: "50%",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-          }}
-        >
-          <IconButton onClick={toggleTheme} color="inherit">
-            {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-          </IconButton>
-        </div>
         {children}
       </ThemeProvider>
     </ThemeToggleContext.Provider>

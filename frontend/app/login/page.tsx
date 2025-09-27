@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-
+import jwtDecode from "jwt-decode";
 import {
   Box,
   Button,
@@ -16,15 +15,16 @@ import {
   TextField,
   Typography,
   Alert,
+  useTheme,
 } from "@mui/material";
+import { useThemeToggle } from "../components/Theme"; // اذا بدك تستخدم التوجل من زر خارجي
 
 const Login = () => {
   const router = useRouter();
-
+  const theme = useTheme(); // 👈 ناخذ الثيم الحالي
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
-  const [errorMsg, setErrorMsg] = useState<string>(""); // 👈 error message state
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const handleLogin = async () => {
     try {
@@ -33,36 +33,29 @@ const Login = () => {
         password,
       });
 
-      console.log("login success", response.data);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.user.id);
       localStorage.setItem("role_id", response.data.user.role_id);
       localStorage.setItem("firstName", response.data.user.firstName);
 
-      // clear error if login is successful
       setErrorMsg("");
-
       router.push("/");
-
       window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
-      console.error("login error", error);
-
-      // 👇 show error message coming from backend
-      if (error.response?.data?.error) {
-        setErrorMsg(error.response.data.error);
-      } else {
-        setErrorMsg("Login failed, please try again.");
-      }
+      setErrorMsg(
+        error.response?.data?.error || "Login failed, please try again."
+      );
     }
   };
-  const handleGoogleSuccess = async (
-    credentialResponse: CredentialResponse
-  ) => {
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
       const token = credentialResponse.credential;
       if (!token) return;
-     const decoded: { picture?: string; [key: string]: any } = jwtDecode(token as string);
+      const decoded: { picture?: string; [key: string]: any } = jwtDecode(
+        token as string
+      );
+
       const response = await axios.post(
         "http://localhost:5000/users/google-login",
         { token },
@@ -79,12 +72,9 @@ const Login = () => {
       router.push("/");
       window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
-      console.error("Google login error", error);
-      if (error.response?.data?.error) {
-        setErrorMsg(error.response.data.error);
-      } else {
-        setErrorMsg("Google login failed, please try again.");
-      }
+      setErrorMsg(
+        error.response?.data?.error || "Google login failed, please try again."
+      );
     }
   };
 
@@ -96,6 +86,7 @@ const Login = () => {
         alignItems: "center",
         justifyContent: "center",
         padding: 2,
+        bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212",
       }}
     >
       <motion.div
@@ -109,6 +100,7 @@ const Login = () => {
             width: "100%",
             boxShadow: 4,
             borderRadius: 3,
+            bgcolor: theme.palette.background.paper, // 👈 paper يتغير حسب الثيم
           }}
         >
           <CardContent>
@@ -122,80 +114,63 @@ const Login = () => {
                 component="h1"
                 align="center"
                 gutterBottom
-                sx={{ color: "#d63384" }}
+                sx={{
+                  color:
+                    theme.palette.mode === "light"
+                      ? "#d63384"
+                      : "#ce93d8", // 👈 purple للدارك
+                }}
               >
                 👶 Welcome Back
               </Typography>
             </motion.div>
 
             <Box component="form" noValidate autoComplete="off">
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-              >
-                <TextField
-                  label="Email"
-                  type="email"
-                  fullWidth
-                  margin="normal"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "rgba(0,0,0,0.23)",
+              {[{ label: "Email", value: email, setter: setEmail, type: "email" },
+                { label: "Password", value: password, setter: setPassword, type: "password" }].map((field, i) => (
+                <motion.div
+                  key={field.label}
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.2, duration: 0.6 }}
+                >
+                  <TextField
+                    label={field.label}
+                    type={field.type}
+                    fullWidth
+                    margin="normal"
+                    value={field.value}
+                    onChange={(e) => field.setter(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor:
+                            theme.palette.mode === "light"
+                              ? "rgba(0,0,0,0.23)"
+                              : "#777",
+                        },
+                        "&:hover fieldset": {
+                          borderColor:
+                            theme.palette.mode === "light" ? "#f06292" : "#ce93d8",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor:
+                            theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
+                        },
                       },
-                      "&:hover fieldset": {
-                        borderColor: "#f06292",
+                      "& .MuiInputLabel-root": {
+                        color:
+                          theme.palette.mode === "light"
+                            ? "rgba(0,0,0,0.6)"
+                            : "#ccc",
                       },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#ec407a",
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
                       },
-                    },
-                    "& .MuiInputLabel-root": {
-                      color: "rgba(0,0,0,0.6)",
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                      color: "#ec407a",
-                    },
-                  }}
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7, duration: 0.6 }}
-              >
-                <TextField
-                  label="Password"
-                  type="password"
-                  fullWidth
-                  margin="normal"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "rgba(0,0,0,0.23)",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#f06292",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#ec407a",
-                      },
-                    },
-                    "& .MuiInputLabel-root": {
-                      color: "rgba(0,0,0,0.6)",
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                      color: "#ec407a",
-                    },
-                  }}
-                />
-              </motion.div>
+                    }}
+                  />
+                </motion.div>
+              ))}
 
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -209,21 +184,29 @@ const Login = () => {
                   onClick={handleLogin}
                   sx={{
                     mt: 3,
-                    backgroundColor: "#ec407a",
+                    backgroundColor:
+                      theme.palette.mode === "light" ? "#ec407a" : "#9c27b0", // 👈 داكن للدارك
                     "&:hover": {
-                      backgroundColor: "#c02677",
+                      backgroundColor:
+                        theme.palette.mode === "light" ? "#c02677" : "#7b1fa2",
                     },
                   }}
                 >
                   Sign In
                 </Button>
               </motion.div>
+
               <Typography
                 align="center"
-                sx={{ my: 2, fontWeight: "bold", color: "gray" }}
+                sx={{
+                  my: 2,
+                  fontWeight: "bold",
+                  color: theme.palette.mode === "light" ? "gray" : "#ccc",
+                }}
               >
                 OR
               </Typography>
+
               <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
@@ -238,7 +221,14 @@ const Login = () => {
               </Box>
 
               {errorMsg && (
-                <Alert severity="error" sx={{ mt: 2 }}>
+                <Alert
+                  severity="error"
+                  sx={{
+                    mt: 2,
+                    bgcolor: theme.palette.mode === "light" ? "#ffcdd2" : "#880e4f",
+                    color: theme.palette.mode === "light" ? "#b71c1c" : "#ffb6d2",
+                  }}
+                >
                   {errorMsg}
                 </Alert>
               )}
@@ -252,13 +242,16 @@ const Login = () => {
               <Typography
                 variant="body2"
                 align="center"
-                sx={{ mt: 2, color: "gray" }}
+                sx={{
+                  mt: 2,
+                  color: theme.palette.mode === "light" ? "gray" : "#ccc",
+                }}
               >
                 Don’t have an account?{" "}
                 <Link
                   href="/register"
                   style={{
-                    color: "#ec407a",
+                    color: theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
                     fontWeight: "bold",
                     textDecoration: "none",
                   }}
