@@ -12,6 +12,8 @@ import DialogActions from "@mui/material/DialogActions";
 import GetAddress from "./addres";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 interface CartDrawerProps {
   open: boolean;
@@ -26,14 +28,31 @@ interface CartItem {
   image_urls: string[];
 }
 
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const router = useRouter();
   const [openDialog, setOpenDialog] = React.useState(false);
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [myLocation, setMyLocation] = React.useState<any>(null);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const handleDialogOpen = () => setOpenDialog(true);
   const handleDialogClose = () => setOpenDialog(false);
+
+  const handleSnackbarClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
 
   const getcart = async () => {
     try {
@@ -43,8 +62,6 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log(result.data.products);
-      
       setCart(result.data.products || []);
     } catch (err: any) {
       console.error("Error fetching cart:", err.message);
@@ -54,13 +71,34 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     }
   };
 
-  React.useEffect(() => {
-    if (open) {
-      getcart();
+  const getLocationById = async () => {
+    try {
+      const result = await axios.get("http://localhost:5000/location", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (result.data.location) {
+        setMyLocation(result.data.location);
+      } else {
+        setMyLocation(null);
+      }
+    } catch (err) {
+      console.error("Error fetching location:", err);
+      setMyLocation(null);
     }
+  };
+
+  React.useEffect(() => {
+    if (open) getcart();
   }, [open]);
 
+  React.useEffect(() => {
+    getLocationById();
+  }, []);
+
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   const handleDeleteItem = async (product_id: number) => {
     try {
       await axios.delete(`http://localhost:5000/cart/item/${product_id}`, {
@@ -68,12 +106,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
       await getcart();
     } catch (err: any) {
       console.error("Error deleting item:", err.message);
     }
   };
+
   const handleUpdateQuantity = async (product_id: number, quantity: number) => {
     try {
       await axios.put(
@@ -89,6 +127,21 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     } catch (err: any) {
       console.error("Error updating quantity:", err.message);
     }
+  };
+
+  const handleProceedToCheckout = () => {
+    if (!myLocation) {
+      setSnackbarOpen(true);
+      return;
+    }
+    router.push("/checkout");
+    onClose();
+  };
+
+  // عند إغلاق dialog بعد إضافة location
+  const handleDialogCloseAndRefresh = () => {
+    handleDialogClose();
+    getLocationById(); // إعادة جلب الموقع الجديد
   };
 
   return (
@@ -139,11 +192,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </Box>
                     <Typography
                       variant="body1"
-                      sx={{
-                        fontWeight: "bold",
-                        minWidth: 60,
-                        textAlign: "right",
-                      }}
+                      sx={{ fontWeight: "bold", minWidth: 60, textAlign: "right" }}
                     >
                       ${(item.quantity * item.price).toFixed(2)}
                     </Typography>
@@ -172,10 +221,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         variant="text"
                         size="small"
                         onClick={() =>
-                          handleUpdateQuantity(
-                            item.product_id,
-                            item.quantity - 1
-                          )
+                          handleUpdateQuantity(item.product_id, item.quantity - 1)
                         }
                       >
                         −
@@ -185,10 +231,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         variant="text"
                         size="small"
                         onClick={() =>
-                          handleUpdateQuantity(
-                            item.product_id,
-                            item.quantity + 1
-                          )
+                          handleUpdateQuantity(item.product_id, item.quantity + 1)
                         }
                       >
                         +
@@ -230,10 +273,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 color="secondary"
                 sx={{ mt: 1 }}
                 fullWidth
-                onClick={() => {
-                  router.push("/checkout");
-                  onClose();
-                }}
+                onClick={handleProceedToCheckout}
               >
                 Proceed to Checkout
               </Button>
@@ -245,18 +285,34 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       {/* Location Dialog */}
       <Dialog
         open={openDialog}
-        onClose={handleDialogClose}
+        onClose={handleDialogCloseAndRefresh}
         fullWidth
         maxWidth="md"
       >
         <DialogTitle>Location</DialogTitle>
         <DialogContent dividers>
-          <GetAddress onClose={handleDialogClose} />
+          <GetAddress onClose={handleDialogCloseAndRefresh} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Close</Button>
+          <Button onClick={handleDialogCloseAndRefresh}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar Notification */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="warning"
+          sx={{ backgroundColor: "red", color: "white" }}
+        >
+          Please add a location before proceeding to checkout.
+        </Alert>
+      </Snackbar>
     </>
   );
 }
