@@ -1,7 +1,6 @@
-const amin = () => {
-  return (
-    <div>amin</div>
-  );
-};
+import { redirect } from "next/navigation";
 
-export default amin;
+export default function AdminPage() {
+  redirect("/admin/dashboard");
+  return null;
+}
