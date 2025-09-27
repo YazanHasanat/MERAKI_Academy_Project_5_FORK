@@ -10,11 +10,12 @@ import {
   Button,
   Chip,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import { Star, StarBorder } from "@mui/icons-material";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 
 interface Product {
   id: number;
@@ -32,25 +33,28 @@ const ProductPage = () => {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const [message, setMessage] = useState<string | null>(null);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = React.useState<
-    "success" | "error"
-  >("success");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  // Rating states
+  const [rating, setRating] = useState(0);
+  const [userRating, setUserRating] = useState<number | null>(null);
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get<{ product: Product }>(
+        const res = await axios.get<{ product: Product; rating?: number }>(
           `http://localhost:5000/products/${id}`
         );
         setProduct(res.data.product);
+        setRating(res.data.rating || 0);
       } catch (error) {
         console.error("Failed to fetch product", error);
         setProduct(null);
@@ -59,10 +63,64 @@ const ProductPage = () => {
       }
     };
 
-    if (id) {
-      fetchProduct();
-    }
+    if (id) fetchProduct();
   }, [id]);
+
+  const handleAddToCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setSnackbarMessage("⚠️ You must log in first");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return;
+      }
+
+      await axios.post(
+        "http://localhost:5000/cart/add",
+        { product_id: product?.id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSnackbarMessage("Product added to cart!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error adding to cart", error);
+      setSnackbarMessage("Something went wrong. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleRatingClick = async (value: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setSnackbarMessage("⚠️ You must log in first to rate");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      const newRating = userRating === value ? 0 : value;
+      await axios.post(
+        `http://localhost:5000/products/${id}/rating`,
+        { rating: newRating },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUserRating(newRating);
+      setRating(newRating);
+      setSnackbarMessage("Rating updated!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error rating product", error);
+      setSnackbarMessage("Failed to update rating");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -79,37 +137,6 @@ const ProductPage = () => {
       </Typography>
     );
   }
-  const handleAddToCart = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setSnackbarMessage("⚠️ You must log in first");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
-      }
-
-      await axios.post(
-        "http://localhost:5000/cart/add",
-        {
-          product_id: product?.id,
-          quantity: 1,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setSnackbarMessage("Product added to cart!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error adding to cart", error);
-      setSnackbarMessage("Something went wrong. Please try again.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
 
   return (
     <Box
@@ -132,8 +159,7 @@ const ProductPage = () => {
           transition: "transform 0.3s ease",
           "&:hover": {
             transform: "translateY(-6px)",
-            boxShadow:
-              "0 16px 32px rgba(0,0,0,0.15), 0 12px 12px rgba(0,0,0,0.1)",
+            boxShadow: "0 16px 32px rgba(0,0,0,0.15), 0 12px 12px rgba(0,0,0,0.1)",
           },
         }}
       >
@@ -148,13 +174,8 @@ const ProductPage = () => {
             mb: 4,
             scrollbarWidth: "thin",
             scrollbarColor: "#bbb transparent",
-            "&::-webkit-scrollbar": {
-              height: 8,
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#bbb",
-              borderRadius: 4,
-            },
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": { backgroundColor: "#bbb", borderRadius: 4 },
           }}
         >
           {product.image_urls.map((img, index) => (
@@ -168,14 +189,12 @@ const ProductPage = () => {
                 borderRadius: 3,
                 objectFit: "cover",
                 flexShrink: 0,
-                boxShadow:
-                  "0 4px 10px rgba(0,0,0,0.08), inset 0 0 8px rgba(255,255,255,0.3)",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.08), inset 0 0 8px rgba(255,255,255,0.3)",
                 cursor: "pointer",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 "&:hover": {
                   transform: "scale(1.05)",
-                  boxShadow:
-                    "0 8px 20px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.4)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.4)",
                 },
               }}
             />
@@ -183,20 +202,14 @@ const ProductPage = () => {
         </Box>
 
         <CardContent sx={{ p: 6 }}>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={4}
-          >
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={4}>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 letterSpacing: "-0.6px",
                 color: "text.primary",
-                textShadow:
-                  "1px 1px 2px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.05)",
+                textShadow: "1px 1px 2px rgba(0,0,0,0.05), 0 0 1px rgba(0,0,0,0.05)",
               }}
             >
               {product.title}
@@ -210,35 +223,39 @@ const ProductPage = () => {
                   fontWeight: 700,
                   background: "linear-gradient(45deg, #FF6B6B, #FFD93D)",
                   color: "#fff",
-                  boxShadow:
-                    "0 4px 10px rgba(255, 107, 107, 0.5), 0 0 8px rgba(255, 217, 61, 0.6)",
+                  boxShadow: "0 4px 10px rgba(255, 107, 107, 0.5), 0 0 8px rgba(255, 217, 61, 0.6)",
                 }}
               />
             )}
           </Box>
 
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            paragraph
-            sx={{
-              fontSize: "1.15rem",
-              lineHeight: 1.9,
-              letterSpacing: "0.02em",
-              color: "#444",
-            }}
-          >
+          <Typography variant="body1" color="text.secondary" paragraph sx={{ fontSize: "1.15rem", lineHeight: 1.9, letterSpacing: "0.02em", color: "#444" }}>
             {product.description || "No description available."}
           </Typography>
 
           <Divider sx={{ my: 4, borderColor: "#ddd" }} />
 
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mt={3}
-          >
+          {/* Rating */}
+          <Box display="flex" alignItems="center" mb={2}>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <Box
+                key={num}
+                onClick={() => handleRatingClick(num)}
+                sx={{ cursor: "pointer" }}
+              >
+                {num <= rating ? (
+                  <Star sx={{ color: "#FFD700", fontSize: 32 }} />
+                ) : (
+                  <StarBorder sx={{ color: "#FFD700", fontSize: 32 }} />
+                )}
+              </Box>
+            ))}
+            <Typography sx={{ ml: 2, fontSize: "1rem", color: "#555" }}>
+              {rating} / 5
+            </Typography>
+          </Box>
+
+          <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
             <Typography
               variant="h5"
               color="primary"
@@ -246,8 +263,7 @@ const ProductPage = () => {
                 fontWeight: 700,
                 fontSize: "1.9rem",
                 letterSpacing: "-0.02em",
-                textShadow:
-                  "1px 1px 2px rgba(0,0,0,0.07), 0 0 2px rgba(0,0,0,0.04)",
+                textShadow: "1px 1px 2px rgba(0,0,0,0.07), 0 0 2px rgba(0,0,0,0.04)",
               }}
             >
               ${Number(product.price).toFixed(2)}
@@ -265,14 +281,11 @@ const ProductPage = () => {
                   fontSize: "1.05rem",
                   borderRadius: "40px",
                   textTransform: "none",
-                  boxShadow:
-                    "0 6px 14px rgba(25, 118, 210, 0.35), 0 3px 6px rgba(25, 118, 210, 0.3)",
-                  transition:
-                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  boxShadow: "0 6px 14px rgba(25, 118, 210, 0.35), 0 3px 6px rgba(25, 118, 210, 0.3)",
+                  transition: "background-color 0.3s ease, box-shadow 0.3s ease",
                   "&:hover": {
                     backgroundColor: "#1565c0",
-                    boxShadow:
-                      "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
+                    boxShadow: "0 8px 18px rgba(21, 101, 192, 0.5), 0 5px 10px rgba(21, 101, 192, 0.4)",
                   },
                 }}
               >
@@ -281,20 +294,12 @@ const ProductPage = () => {
             </Box>
           </Box>
         </CardContent>
-        <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
+        <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Card>
     </Box>
   );

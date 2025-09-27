@@ -9,7 +9,8 @@ const {
   getProductById,
   getFeaturedProducts,
   createRating,
-  getProductRatings,getAllOffers
+  getProductRatings,
+  getAllOffers
 } = require("../controllers/ProductController");
 
 
