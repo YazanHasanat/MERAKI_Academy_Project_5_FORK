@@ -53,9 +53,31 @@ const createOrder = async (req: AuthenticatedRequest, res: Response) => {
 
 const getAllOrders = async (req: any, res: e.Response) => {
   try {
-    const result = await pool.query(
-      `SELECT * FROM orders WHERE is_deleted = 0 ORDER BY created_at DESC`
-    );
+   const result = await pool.query(
+  `
+    SELECT 
+      orders.id,
+      orders.user_id,
+      orders.products,
+      orders.status,
+      orders.pay_method,
+      orders.created_at,
+      orders.total_price,
+      orders.full_name,
+      orders.is_deleted,
+      orders.location_id AS order_location_id,
+      user_locations.id AS location_id,
+      user_locations.address,
+      user_locations.latitude,
+      user_locations.longitude
+    FROM orders
+    JOIN user_locations 
+      ON orders.location_id = user_locations.id
+    WHERE orders.is_deleted = 0
+      AND orders.status = 'pending'
+  `
+);
+
     res.status(200).json({
       success: true,
       orders: result.rows,
