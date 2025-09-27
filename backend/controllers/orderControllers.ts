@@ -70,10 +70,10 @@ const getAllOrders = async (req: any, res: e.Response) => {
       user_locations.address,
       user_locations.latitude,
       user_locations.longitude
-    FROM orders
-    JOIN user_locations 
+      FROM orders
+      JOIN user_locations 
       ON orders.location_id = user_locations.id
-    WHERE orders.is_deleted = 0
+      WHERE orders.is_deleted = 0
       AND orders.status = 'pending'
   `
 );
