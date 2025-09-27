@@ -15,7 +15,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-// StarRating component handles full, half, and empty stars display
+
 const StarRating = ({
   rating,
   onRate,
@@ -31,7 +31,6 @@ const StarRating = ({
   const handleClick = (index: number) => {
     if (onRate) {
       const clickedRating = index + 1;
-      // If user clicks same rating, reset to 0
       onRate(clickedRating === rating ? 0 : clickedRating);
     }
   };
@@ -73,7 +72,6 @@ const CategoryPage = () => {
 
   const user = { id: 1 };
 
-  // Category descriptions
   const categoryDescriptions: { [key: string]: string } = {
     Clothing:
       "Discover the latest clothing collections that combine comfort and style to suit all tastes and occasions.",
@@ -87,7 +85,6 @@ const CategoryPage = () => {
       "Everything your baby needs with special care to ensure comfort and safety at all times.",
   };
 
-  // Fetch category products and ratings
   const CategoryData = async () => {
     setLoading(true);
     try {
@@ -144,13 +141,13 @@ const CategoryPage = () => {
   }
 
   return (
-<Box
-  sx={(theme) => ({
-    p: 4,
-    minHeight: "100vh",
-    bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212", 
-  })}
->
+    <Box
+      sx={(theme) => ({
+        p: 4,
+        minHeight: "100vh",
+        bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212",
+      })}
+    >
       <Typography
         variant="h4"
         align="center"
@@ -175,80 +172,99 @@ const CategoryPage = () => {
           <Grid key={product.id} display="flex" justifyContent="center">
             <Card
               sx={(theme) => ({
-  height: "100%",
-  display: "flex",
-  flexDirection: "column",
-  boxShadow: 6,
-  borderRadius: 4,
-  transition: "transform 0.3s, box-shadow 0.3s",
-  "&:hover": { transform: "translateY(-10px) scale(1.05)", boxShadow: 10 },
-  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-  mx: "auto",
-  maxWidth: 350,
-})}
-
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: 6,
+                borderRadius: 4,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-10px) scale(1.05)",
+                  boxShadow: 10,
+                },
+                bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                mx: "auto",
+                maxWidth: 350,
+              })}
             >
               <CardMedia
                 component="img"
                 image={`/assets/${product.image_urls?.[0] || "home.png"}`}
                 alt={product.title}
-                sx={{ width: "100%", height: 200, objectFit: "cover", borderTopLeftRadius: 4, borderTopRightRadius: 4 }}
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  objectFit: "cover",
+                  borderTopLeftRadius: 4,
+                  borderTopRightRadius: 4,
+                }}
               />
               <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                <Typography gutterBottom variant="h6" sx={{ fontWeight: 700, color: "#333", textAlign: "center" }}>
+                <Typography
+                  gutterBottom
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
                   {product.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: "center" }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2, textAlign: "center" }}
+                >
                   {product.description?.slice(0, 60)}...
                 </Typography>
-                <Typography variant="subtitle1"sx={{ fontWeight: "bold", textAlign: "center", color: "#EC407A", mb: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    color: "#EC407A",
+                    mb: 1,
+                  }}
+                >
                   {product.price ? `${product.price} JD` : ""}
                 </Typography>
-
                 <Box sx={{ mt: 1, textAlign: "center" }}>
-                  <StarRating
-                    rating={ratings[product.id]?.user || 0}
-                    onRate={async (newRating) => {
-                      setRatings((prev) => ({
-                        ...prev,
-                        [product.id]: {
-                          ...prev[product.id],
-                          user: newRating,
-                        },
-                      }));
-                      try {
-                        await axios.post(
-                          `http://localhost:5000/products/${product.id}/rating`,
-                          { rating: newRating, userId: user.id }
-                        );
-                      } catch (err) {
-                        console.error("Error saving rating:", err);
-                      }
-                    }}
-                  />
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    {ratings[product.id]?.average || 0} ⭐ ({ratings[product.id]?.count || 0})
+                  <StarRating rating={ratings[product.id]?.average || 0} />
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
+                    {ratings[product.id]?.count || 0})
                   </Typography>
                 </Box>
               </CardContent>
 
               <Box sx={{ p: 2, textAlign: "center" }}>
-                <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                <Link
+                  href={`/product/${product.id}`}
+                  style={{ textDecoration: "none" }}
+                >
                   <Button
                     variant="contained"
                     size="small"
-                  sx={(theme) => ({
-  textTransform: "none",
-  borderRadius: 20,
-  px: 3,
-  py: 1,
-  fontWeight: "bold",
-  bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#d81b60", 
-  "&:hover": {
-    bgcolor: theme.palette.mode === "light" ? "#d53972" : "#ad1457",
-  },
-})}
-
+                    sx={(theme) => ({
+                      textTransform: "none",
+                      borderRadius: 20,
+                      px: 3,
+                      py: 1,
+                      fontWeight: "bold",
+                      bgcolor:
+                        theme.palette.mode === "light" ? "#EC407A" : "#d81b60",
+                      "&:hover": {
+                        bgcolor:
+                          theme.palette.mode === "light"
+                            ? "#d53972"
+                            : "#ad1457",
+                      },
+                    })}
                   >
                     View Details
                   </Button>
