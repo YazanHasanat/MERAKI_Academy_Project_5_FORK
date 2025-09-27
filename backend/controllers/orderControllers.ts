@@ -11,21 +11,33 @@ export interface AuthenticatedRequest extends Request {
     role_id: number;
   };
 }
-const createOrder = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  const user_id=req.user.userId
+const createOrder = async (req: AuthenticatedRequest, res: Response) => {
+  const user_id = req.user.userId;
   try {
-    const { location_id, products, status, pay_method,total_price } = req.body;
+    const {
+      location_id,
+      products,
+      status,
+      pay_method,
+      total_price,
+      full_name,
+    } = req.body;
 
     const result = await pool.query(
       `
-      INSERT INTO orders (user_id,location_id, products, status, pay_method,total_price)
-      VALUES ($1, $2, $3, $4,$5,$6)
+      INSERT INTO orders (user_id,location_id, products, status, pay_method,total_price,full_name)
+      VALUES ($1, $2, $3, $4,$5,$6,$7)
       RETURNING *;
     `,
-      [user_id, location_id, JSON.stringify(products), status, pay_method,total_price]
+      [
+        user_id,
+        location_id,
+        JSON.stringify(products),
+        status,
+        pay_method,
+        total_price,
+        full_name,
+      ]
     );
 
     res.status(201).json({
@@ -54,10 +66,19 @@ const getAllOrders = async (req: any, res: e.Response) => {
   }
 };
 const getOrdersByUser = async (req: any, res: e.Response) => {
-  const user_id=req.user.userId
+  const user_id = req.user.userId;
   try {
     const result = await pool.query(
-      `SELECT * FROM orders WHERE user_id = $1 AND is_deleted = 0 `,
+      `
+    SELECT 
+      orders.*, 
+      locations.*
+    FROM orders
+    JOIN locations 
+      ON orders.location_id = locations.id
+    WHERE orders.user_id = $1
+      AND orders.is_deleted = 0
+  `,
       [user_id]
     );
     res.status(200).json({
