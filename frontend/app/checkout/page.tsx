@@ -21,6 +21,7 @@ type CartItem = {
   title: string;
   price: number;
   quantity: number;
+  image_urls: string[];
 };
 
 const CheckoutPage = () => {
@@ -32,12 +33,14 @@ const CheckoutPage = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
   const [myLocation, setMyLocation] = useState<any>(null);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
- const getLocationById = async () => {
+  const getLocationById = async () => {
     try {
       const result = await axios.get("http://localhost:5000/location", {
         headers: {
@@ -77,12 +80,10 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
-
   const totalPrice = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-
   const handlePlaceOrder = async () => {
     try {
       await axios.post(
@@ -94,10 +95,11 @@ const CheckoutPage = () => {
           })),
           status: "pending",
           location_id: myLocation ? myLocation.id : null,
-          full_name: name, 
+          full_name: name,
           pay_method: paymentMethod,
           total_price: totalPrice,
-          card_info: paymentMethod === "card" ? { cardNumber, expiry, cvv } : null,
+          card_info:
+            paymentMethod === "card" ? { cardNumber, expiry, cvv } : null,
         },
         {
           headers: {
@@ -106,7 +108,9 @@ const CheckoutPage = () => {
           withCredentials: true,
         }
       );
-
+      await axios.delete("http://localhost:5000/cart/clear", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setSnackbarMessage("Order placed successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -192,7 +196,11 @@ const CheckoutPage = () => {
             sx={{ gap: 3 }}
           >
             <FormControlLabel value="cash" control={<Radio />} label="Cash" />
-            <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+            <FormControlLabel
+              value="card"
+              control={<Radio />}
+              label="Credit Card"
+            />
           </RadioGroup>
 
           {paymentMethod === "card" && (
@@ -266,20 +274,36 @@ const CheckoutPage = () => {
             }}
           >
             {cartItems.length === 0 ? (
-              <Typography color="text.secondary">Your cart is empty.</Typography>
+              <Typography color="text.secondary">
+                Your cart is empty.
+              </Typography>
             ) : (
               cartItems.map((item) => (
                 <Box
                   key={item.product_id}
                   sx={{
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "space-between",
                     mb: 2,
                     pb: 2,
                     borderBottom: "1px solid #eee",
+                    gap: 2,
                   }}
                 >
-                  <Typography>{item.title}</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <img
+                      src={`/assets/${item.image_urls[0]}`}
+                      alt={item.title}
+                      style={{
+                        width: 60,
+                        height: 60,
+                        objectFit: "cover",
+                        borderRadius: 4,
+                      }}
+                    />
+                    <Typography>{item.title}</Typography>
+                  </Box>
                   <Typography>
                     {item.quantity} × ${item.price}
                   </Typography>
@@ -305,7 +329,11 @@ const CheckoutPage = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
