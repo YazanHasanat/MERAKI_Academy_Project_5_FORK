@@ -153,12 +153,10 @@ const updateCartItemQuantity = async (req: AuthRequest, res: Response) => {
   }
 
   if (!product_id || quantity == null) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "product_id and quantity are required",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "product_id and quantity are required",
+    });
   }
 
   try {
@@ -260,10 +258,44 @@ const deleteCartItem = async (req: AuthRequest, res: Response) => {
       .json({ success: false, error: "Failed to delete product from cart" });
   }
 };
+const clearCart = async (req: AuthRequest, res: Response) => {
+  const user_id = req.user?.userId;
 
+  if (!user_id) {
+    return res
+      .status(401)
+      .json({ success: false, message: "You have to login" });
+  }
+
+  try {
+    const cartResult = await pool.query(
+      `SELECT id FROM cart WHERE user_id = $1 AND is_deleted = 0`,
+      [user_id]
+    );
+
+    if (cartResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
+    }
+
+    const cart_id = cartResult.rows[0].id;
+
+    await pool.query(`DELETE FROM cart_items WHERE cart_id = $1`, [cart_id]);
+
+    return res.status(200).json({ success: true, message: "Cart cleared" });
+  } catch (err) {
+    console.error("Error clearing cart:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Failed to clear cart" });
+  }
+};
 module.exports = {
   addToCart,
   getCartByUser,
   softDeleteCartById,
-  updateCartItemQuantity,deleteCartItem
+  updateCartItemQuantity,
+  deleteCartItem,
+  clearCart,
 };
