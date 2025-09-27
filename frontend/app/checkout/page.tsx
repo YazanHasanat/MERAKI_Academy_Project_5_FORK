@@ -33,11 +33,28 @@ const CheckoutPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-
+  const [myLocation, setMyLocation] = useState<any>(null);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+ const getLocationById = async () => {
+    try {
+      const result = await axios.get("http://localhost:5000/location", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (result.data.location) {
+        setMyLocation(result.data.location);
+      }
+    } catch (err) {
+      console.error("Error fetching location:", err);
+    }
+  };
 
+  useEffect(() => {
+    getLocationById();
+  }, []);
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
@@ -76,6 +93,8 @@ const CheckoutPage = () => {
             quantity,
           })),
           status: "pending",
+          location_id: myLocation ? myLocation.id : null,
+          full_name: name, 
           pay_method: paymentMethod,
           total_price: totalPrice,
           card_info: paymentMethod === "card" ? { cardNumber, expiry, cvv } : null,
