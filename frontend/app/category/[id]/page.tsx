@@ -164,7 +164,7 @@ const CategoryPage = () => {
       <Typography
         variant="body1"
         align="center"
-        sx={{ mb: 4, color: "#555", maxWidth: "700px", mx: "auto" }}
+        sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
       >
         {categoryDescriptions[categoryName] ||
           "Shop the best products in this category."}

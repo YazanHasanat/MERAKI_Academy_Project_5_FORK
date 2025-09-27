@@ -20,11 +20,16 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+
+// ===== I Theme  =====
+import { useThemeToggle } from "./Theme";
 
 export default function Navbar() {
   const router = useRouter();
+  const toggleTheme = useThemeToggle();
 
-  // 👇 useState instead of reading directly from localStorage
   const [firstName, setFirstName] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
@@ -32,13 +37,11 @@ export default function Navbar() {
   const [openCart, setOpenCart] = React.useState(false);
 
   React.useEffect(() => {
-    // Load from localStorage when component mounts
     const storedFirstName = localStorage.getItem("firstName");
     const storedUserId = localStorage.getItem("userId");
     setFirstName(storedFirstName);
     setUserId(storedUserId);
 
-    // Fetch categories
     async function fetchCategories() {
       try {
         const response = await axios.get("http://localhost:5000/categories");
@@ -51,20 +54,16 @@ export default function Navbar() {
     }
     fetchCategories();
   }, []);
-React.useEffect(() => {
-  const loadUser = () => {
-    setFirstName(localStorage.getItem("firstName"));
-    setUserId(localStorage.getItem("userId"));
-  };
 
-  loadUser();
-
-  window.addEventListener("storageUpdate", loadUser);
-
-  return () => {
-    window.removeEventListener("storageUpdate", loadUser);
-  };
-}, []);
+  React.useEffect(() => {
+    const loadUser = () => {
+      setFirstName(localStorage.getItem("firstName"));
+      setUserId(localStorage.getItem("userId"));
+    };
+    loadUser();
+    window.addEventListener("storageUpdate", loadUser);
+    return () => window.removeEventListener("storageUpdate", loadUser);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("firstName");
@@ -73,17 +72,17 @@ React.useEffect(() => {
     localStorage.removeItem("role_id");
     setFirstName(null);
     setUserId(null);
-    router.push("/"); // redirect to home page
+    router.push("/");
   };
 
   return (
     <>
       <AppBar
-  position="fixed"
-  sx={(theme) => ({
-    bgcolor: theme.palette.mode === "light" ? "#F8BBD0" : "#6a1b9a",
-  })}
->
+        position="fixed"
+        sx={(theme) => ({
+          bgcolor: theme.palette.mode === "light" ? "#F8BBD0" : "#6a1b9a",
+        })}
+      >
         <Container>
           <Toolbar sx={{ justifyContent: "space-between" }}>
             {/* Logo */}
@@ -106,14 +105,13 @@ React.useEffect(() => {
                 placeholder="Search products..."
                 variant="outlined"
                 sx={(theme) => ({
-  bgcolor: theme.palette.mode === "light" ? "white" : "#424242",
-  borderRadius: 1,
-})}
-
+                  bgcolor: theme.palette.mode === "light" ? "white" : "#424242",
+                  borderRadius: 1,
+                })}
               />
             </Box>
 
-            {/* User section */}
+            {/* User section + Theme Toggle */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {firstName ? (
                 <>
@@ -146,6 +144,11 @@ React.useEffect(() => {
               <IconButton color="inherit" onClick={() => setOpenCart(true)}>
                 <ShoppingCartIcon />
               </IconButton>
+
+              {/* Theme Toggle Button */}
+              <IconButton color="inherit" onClick={toggleTheme}>
+                <DarkModeIcon />
+              </IconButton>
             </Box>
           </Toolbar>
         </Container>
@@ -153,13 +156,12 @@ React.useEffect(() => {
 
       {/* Categories */}
       <Box
-  sx={(theme) => ({
-    mt: 8.1,
-    bgcolor: theme.palette.mode === "light" ? "#ffffffff" : "#424242",
-    py: 1,
-  })}
->
-
+        sx={(theme) => ({
+          mt: 8.1,
+          bgcolor: theme.palette.mode === "light" ? "#ffffffff" : "#424242",
+          py: 1,
+        })}
+      >
         <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
           {categories.map((cat) => (
             <Button
@@ -168,15 +170,14 @@ React.useEffect(() => {
               href={`/category/${cat.id}`}
               variant="contained"
               sx={(theme) => ({
-  bgcolor: theme.palette.mode === "light" ? "#F48FB1" : "#AD1457",
-  color: "white",
-  borderRadius: "20px",
-  textTransform: "none",
-  "&:hover": {
-    bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#880E4F",
-  },
-})}
-
+                bgcolor: theme.palette.mode === "light" ? "#F48FB1" : "#AD1457",
+                color: "white",
+                borderRadius: "20px",
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#880E4F",
+                },
+              })}
             >
               {cat.name}
             </Button>
