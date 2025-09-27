@@ -69,18 +69,31 @@ const getOrdersByUser = async (req: any, res: e.Response) => {
   const user_id = req.user.userId;
   try {
     const result = await pool.query(
-      `
+  `
     SELECT 
-      orders.*, 
-      locations.*
+      orders.id,
+      orders.user_id,
+      orders.products,
+      orders.status,
+      orders.pay_method,
+      orders.created_at,
+      orders.total_price,
+      orders.full_name,
+      orders.is_deleted,
+      orders.location_id AS order_location_id,
+      user_locations.id AS location_id,
+      user_locations.address,
+      user_locations.latitude,
+      user_locations.longitude
     FROM orders
-    JOIN locations 
-      ON orders.location_id = locations.id
+    JOIN user_locations 
+      ON orders.location_id = user_locations.id
     WHERE orders.user_id = $1
       AND orders.is_deleted = 0
   `,
-      [user_id]
-    );
+  [user_id]
+);
+
     res.status(200).json({
       success: true,
       orders: result.rows,
