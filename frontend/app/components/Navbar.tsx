@@ -155,21 +155,41 @@ React.useEffect(() => {
                   <Box
                     key={pro.id}
                     sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
                       px: 2,
                       py: 1,
                       cursor: "pointer",
-                      "&:hover": { bgcolor: "#fce4ec" }, 
+                      "&:hover": { bgcolor: "#fce4ec" },
                     }}
                     onClick={() => {
                       router.push(`/product/${pro.id}`);
                       setSearch("");
                     }}
                   >
+                    {/*products photos*/}
+                    {pro.image_urls && pro.image_urls.length > 0 && pro.image_urls[0] && (
+                      <Box
+                        component="img"
+                        src={`/assets/${pro.image_urls[0]}`}
+                        alt={pro.title}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          objectFit: "cover",
+                          borderRadius: 1,
+                        }}
+                      />
+                    )}
+
+                    {/* product name*/}
                     <Typography variant="body2" sx={{ color: "black" }}>
                       {pro.title}
                     </Typography>
                   </Box>
                 ))}
+
               </Box>
             )}
           </Box>
