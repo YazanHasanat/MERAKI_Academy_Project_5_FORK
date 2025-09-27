@@ -152,7 +152,12 @@ const CategoryPage = () => {
         variant="h4"
         align="center"
         gutterBottom
-        sx={{ fontWeight: "bold", mb: 2, color: "#1976d2" }}
+       sx={(theme) => ({
+  fontWeight: "bold",
+  mb: 2,
+  color: theme.palette.mode === "light" ? "#EC407A" : "#ad1457",
+})}
+
       >
         {categoryName}
       </Typography>
