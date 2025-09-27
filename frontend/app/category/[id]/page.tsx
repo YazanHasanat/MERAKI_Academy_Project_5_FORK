@@ -15,7 +15,6 @@ import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-
 const StarRating = ({
   rating,
   onRate,
@@ -137,7 +136,11 @@ const CategoryPage = () => {
   }, [id]);
 
   if (loading) {
-    return <Typography variant="h6" align="center">Loading...</Typography>;
+    return (
+      <Typography variant="h6" align="center">
+        Loading...
+      </Typography>
+    );
   }
 
   return (
@@ -189,7 +192,13 @@ const CategoryPage = () => {
             >
               <CardMedia
                 component="img"
-                image={`/assets/${product.image_urls?.[0] || "home.png"}`}
+                image={
+                  product.image_urls && product.image_urls.length > 0
+                    ? product.image_urls[0].startsWith("http")
+                      ? product.image_urls[0] 
+                      : `/assets/${product.image_urls[0]}` 
+                    : "/assets/home.png"
+                }
                 alt={product.title}
                 sx={{
                   width: "100%",
@@ -199,6 +208,7 @@ const CategoryPage = () => {
                   borderTopRightRadius: 4,
                 }}
               />
+
               <CardContent sx={{ flexGrow: 1, p: 2 }}>
                 <Typography
                   gutterBottom
