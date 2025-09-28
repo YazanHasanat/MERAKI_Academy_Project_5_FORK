@@ -1,7 +1,7 @@
 "use client";
-
+import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -13,21 +13,18 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  MenuItem,
-  List,
-  Paper,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Select,
+  Divider,
+  Grid,
   Stack,
   TextField,
   Typography,
+  Chip,
 } from "@mui/material";
-import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import SaveIcon from "@mui/icons-material/Save";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import PaymentIcon from "@mui/icons-material/Payment";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 type UserType = {
   id: number;
@@ -39,20 +36,29 @@ type UserType = {
   age: number;
   role_id?: number;
 };
+
 type OrderType = {
   id: number;
   created_at: string;
-  total_price?: number; 
+  total_price?: number;
   status: string;
   pay_method: string;
   products: any;
-  address:string
-
+  address: string;
+};
+const statusMap: {
+  [key: string]: {
+    label: string;
+    color: "warning" | "info" | "success" | "default";
+  };
+} = {
+  pending: { label: "Pending", color: "warning" },
+  preparing: { label: "Preparing", color: "info" },
+  "on the way": { label: "On the Way", color: "info" },
+  delivered: { label: "Delivered", color: "success" },
 };
 
-
-
-const user = () => {
+const UserPage = () => {
   const [user, setUser] = useState<UserType[]>([]);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [open, setOpen] = useState(false);
@@ -77,8 +83,26 @@ const user = () => {
     }
   };
 
+  const getOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/orders/userorders", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (Array.isArray(res.data)) {
+        setOrders(res.data);
+      } else if (Array.isArray(res.data.orders)) {
+        setOrders(res.data.orders);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    }
+  };
+
   useEffect(() => {
     getInformation();
+    getOrders();
   }, []);
 
   const handleOpenUpdate = (user: UserType) => {
@@ -103,34 +127,6 @@ const user = () => {
       [e.target.name]: e.target.value,
     }));
   };
-  const getOrders = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/orders/userorders", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      console.log("Orders response from API:", res.data);
-
-      if (Array.isArray(res.data)) {
-        setOrders(res.data);
-      } else if (Array.isArray(res.data.orders)) {
-        setOrders(res.data.orders); 
-      } else {
-        console.error("Unexpected orders format:", res.data);
-        setOrders([]); 
-      }
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-    }
-  };
-
-  useEffect(() => {
-    getInformation();
-    getOrders();
-  }, []);
-
 
   const handleUpdate = async () => {
     if (!selectedUser) return;
@@ -149,227 +145,247 @@ const user = () => {
           },
         }
       );
-
       handleClose();
       getInformation();
     } catch (err) {
       console.error("Error updating user:", err);
     }
   };
-const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
+
+  const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
+  console.log(orders);
 
   return (
     <Box
-    sx={{
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-start",
-      py: 5,
-    }}
-  >
-    <Stack spacing={3} sx={{ width: 600 }}>
-      {/* User Info */}
-      {user.length === 0 ? (
-        <Typography variant="h6" align="center">
-          No user data available.
-        </Typography>
-      ) : (
-        user.map((ele) => (
-          <Card key={ele.id} sx={{ borderRadius: 3, boxShadow: 5 }}>
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        py: 5,
+        backgroundColor: "#fafafa",
+      }}
+    >
+      <Stack spacing={3} sx={{ width: 700 }}>
+        {/* User Info */}
+        {user.map((ele) => (
+          <Card
+            key={ele.id}
+            sx={{ borderRadius: 4, boxShadow: 6, p: 2, bgcolor: "white" }}
+          >
             <CardContent>
-              <Typography variant="h6" gutterBottom color="black">
-                Personal info
-              </Typography>
-              <Typography variant="body2" color="gray" mb={3}>
-                Customize how your profile information will appear to the networks.
-              </Typography>
-
-              <Stack spacing={2}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar
-                    src={userAvatar}
-                    alt="Profile"
-                    sx={{ width: 64, height: 64 }}
-                  />
-                  <Stack direction="row" spacing={2} width="100%">
-                    <TextField
-                      label="First name"
-                      name="firstname"
-                      value={ele.firstname}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                      InputLabelProps={{ style: { color: "gray" } }}
-                      sx={{ input: { color: "black" } }}
-                    />
-                    <TextField
-                      label="Last name"
-                      name="lastname"
-                      value={ele.lastname}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                      InputLabelProps={{ style: { color: "gray" } }}
-                      sx={{ input: { color: "black" } }}
-                    />
-                  </Stack>
-                </Stack>
-
-                <TextField
-                  label="Email"
-                  name="email"
-                  value={ele.email}
-                  fullWidth
-                  InputProps={{ readOnly: true }}
-                  InputLabelProps={{ style: { color: "gray" } }}
-                  sx={{ input: { color: "black" } }}
+              <Stack direction="row" spacing={3} alignItems="center">
+                <Avatar
+                  src={userAvatar}
+                  alt="Profile"
+                  sx={{ width: 72, height: 72, border: "2px solid #f06292" }}
                 />
+                <Box>
+                  <Typography variant="h6" color="black">
+                    {ele.firstname} {ele.lastname}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    {ele.email}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    {ele.country}
+                  </Typography>
+                </Box>
+              </Stack>
 
-                <TextField
-                  label="Country"
-                  name="country"
-                  value={ele.country}
-                  fullWidth
-                  InputProps={{ readOnly: true }}
-                  InputLabelProps={{ style: { color: "gray" } }}
-                  sx={{ input: { color: "black" } }}
-                />
+              <Divider sx={{ my: 2 }} />
 
-                <Stack direction="row" justifyContent="flex-end">
-                  <Button
-                    variant="contained"
-                    onClick={() => handleOpenUpdate(ele)}
-                    sx={{
-                      backgroundColor: "#f06292",
-                      "&:hover": {
-                        backgroundColor: "#d81b60",
-                      },
-                    }}
-                  >
-                    Update
-                  </Button>
-                </Stack>
+              <Stack direction="row" justifyContent="flex-end">
+                <Button
+                  variant="contained"
+                  onClick={() => handleOpenUpdate(ele)}
+                  sx={{
+                    backgroundColor: "#f06292",
+                    borderRadius: 2,
+                    textTransform: "none",
+                    px: 3,
+                    "&:hover": { backgroundColor: "#d81b60" },
+                  }}
+                >
+                  Update Profile
+                </Button>
               </Stack>
             </CardContent>
           </Card>
-        ))
-      )}
+        ))}
 
-      {/* Order History */}
-      {Array.isArray(orders) && orders.length > 0 ? (
-        <Card sx={{ borderRadius: 3, boxShadow: 5 }}>
+        {/* Order History */}
+        <Card sx={{ borderRadius: 4, boxShadow: 6, p: 2, bgcolor: "white" }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom sx={{ color: "black" }}>
+            <Typography variant="h6" gutterBottom color="black">
               Order History
             </Typography>
 
-            <Stack spacing={2}>
-            {orders.map((order) => (
-  <Stack key={order.id} direction="row" spacing={2} alignItems="flex-start">
-    <AccessTimeRoundedIcon sx={{ color: "black", mt: 0.5 }} />
-    <Stack>
-      <Typography variant="body1">
-        Order #{order.id} -{" "}
-        <strong style={{ textTransform: "capitalize" }}>
-          {order.status}
-        </strong>
-      </Typography>
+            {orders.length > 0 ? (
+              <Stack spacing={2}>
+                {orders.map((order) => (
+                  <Card
+                    key={order.id}
+                    sx={{
+                      borderRadius: 3,
+                      boxShadow: 2,
+                      p: 2,
+                      bgcolor: "#f9f9f9",
+                    }}
+                  >
+                    <Stack spacing={1}>
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography variant="body1" fontWeight="bold">
+                          Order #{order.id}
+                        </Typography>
+                        <Chip
+                          label={statusMap[order.status]?.label || order.status}
+                          size="small"
+                          sx={{
+                            backgroundColor:
+                              order.status === "pending"
+                                ? "#ff9800"
+                                : order.status === "preparing"
+                                ? "#2196f3"
+                                : order.status === "on the way"
+                                ? "#ba68c8"
+                                : order.status === "delivered"
+                                ? "#4caf50"
+                                : "#e0e0e0",
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        />
+                      </Stack>
 
-      <Stack direction="row" spacing={1} alignItems="center">
-  <CalendarTodayIcon sx={{ fontSize: 18, color: "gray" }} />
-  <Typography variant="body2" color="gray">
-    Date: {new Date(order.created_at).toLocaleDateString("en-GB")}
-  </Typography>
-</Stack>
+                      <Grid container spacing={2}>
+                        <Grid>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <CalendarTodayIcon sx={{ fontSize: 18 }} />
+                            <Typography variant="body2" color="gray">
+                              {new Date(order.created_at).toLocaleDateString(
+                                "en-GB"
+                              )}
+                            </Typography>
+                          </Stack>
+                        </Grid>
 
-      <Typography variant="body2" color="gray">
-        Total: ${order.total_price}
-      </Typography>
+                        <Grid>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <PaymentIcon sx={{ fontSize: 18 }} />
+                            <Typography variant="body2" color="gray">
+                              {order.pay_method}
+                            </Typography>
+                          </Stack>
+                        </Grid>
 
-      <Typography variant="body2" color="gray">
-        Payment Method: {order.pay_method === "visa" ? "Visa" : "Cash"}
-      </Typography>
+                        <Grid>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <ShoppingCartIcon sx={{ fontSize: 18 }} />
+                            <Typography variant="body2" color="gray">
+                              {order.products?.length || 0} Products
+                            </Typography>
+                          </Stack>
+                        </Grid>
 
-      <Typography variant="body2" color="gray">
-        Number of Products: {Array.isArray(order.products) ? order.products.length : 0}
-      </Typography>
-      <Stack direction="row" spacing={1} alignItems="center">
-  <LocationOnIcon sx={{ fontSize: 18, color: "gray" }} />
-  <Typography variant="body2" color="gray">
-    Location: {order.address}
-  </Typography>
-</Stack>
+                        <Grid>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <LocationOnIcon sx={{ fontSize: 18 }} />
+                            <Typography variant="body2" color="gray">
+                              {order.address}
+                            </Typography>
+                          </Stack>
+                        </Grid>
+                      </Grid>
 
-    </Stack>
-                </Stack>
-              ))}
-            </Stack>
+                      <Divider sx={{ my: 1 }} />
+
+                      <Typography variant="body2" fontWeight="bold">
+                        Total: ${order.total_price || 0}
+                      </Typography>
+                    </Stack>
+                  </Card>
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="body2" color="gray">
+                No orders found.
+              </Typography>
+            )}
           </CardContent>
         </Card>
-      ) : (
-        <Typography variant="h6" align="center">
-          No orders found.
-        </Typography>
-      )}
-    </Stack>
+      </Stack>
 
-    {/* Dialog for Update */}
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Update User</DialogTitle>
-      <DialogContent>
-        <TextField
-          margin="dense"
-          label="First Name"
-          name="firstname"
-          value={formData.firstname}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          margin="dense"
-          label="Last Name"
-          name="lastname"
-          value={formData.lastname}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          margin="dense"
-          label="Country"
-          name="country"
-          value={formData.country}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          margin="dense"
-          label="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          fullWidth
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
-        <Button
-  onClick={handleUpdate}
-  variant="contained"
-  startIcon={<SaveIcon />}
-  sx={{
-    backgroundColor: "#f06292",
-    "&:hover": {
-      backgroundColor: "#d81b60",
-    },
-  }}
->
-  Save
-</Button>
-      </DialogActions>
-    </Dialog>
-  </Box>
+      {/* Dialog for Update */}
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+        <DialogTitle>Update Profile</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} mt={1}>
+            <TextField
+              label="First Name"
+              name="firstname"
+              value={formData.firstname}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label="Last Name"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label="Country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdate}
+            variant="contained"
+            startIcon={<SaveIcon />}
+            sx={{
+              backgroundColor: "#f06292",
+              "&:hover": { backgroundColor: "#d81b60" },
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 
-export default user;
+export default UserPage;
