@@ -35,6 +35,7 @@ type UserType = {
   password: string;
   age: number;
   role_id?: number;
+  created_at: string;
 };
 
 type OrderType = {
@@ -46,19 +47,21 @@ type OrderType = {
   products: any;
   address: string;
 };
+
 const statusMap: {
   [key: string]: {
     label: string;
-    color: "warning" | "info" | "success" | "default";
+    color: string;
   };
 } = {
-  pending: { label: "Pending", color: "warning" },
-  preparing: { label: "Preparing", color: "info" },
-  "on the way": { label: "On the Way", color: "info" },
-  delivered: { label: "Delivered", color: "success" },
+  pending: { label: "Pending", color: "#ff9800" },
+  preparing: { label: "Preparing", color: "#2196f3" },
+  "on the way": { label: "On the Way", color: "#ba68c8" },
+  delivered: { label: "Delivered", color: "#4caf50" },
 };
 
 const UserPage = () => {
+  const [userAvatar, setUserAvatar] = useState("/avatar.png");
   const [user, setUser] = useState<UserType[]>([]);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [open, setOpen] = useState(false);
@@ -70,6 +73,7 @@ const UserPage = () => {
     email: "",
   });
 
+  // جلب معلومات المستخدم
   const getInformation = async () => {
     try {
       const res = await axios.get("http://localhost:5000/users/mypage", {
@@ -83,6 +87,7 @@ const UserPage = () => {
     }
   };
 
+  // جلب الطلبات
   const getOrders = async () => {
     try {
       const res = await axios.get("http://localhost:5000/orders/userorders", {
@@ -90,11 +95,8 @@ const UserPage = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      if (Array.isArray(res.data)) {
-        setOrders(res.data);
-      } else if (Array.isArray(res.data.orders)) {
-        setOrders(res.data.orders);
-      }
+      if (Array.isArray(res.data)) setOrders(res.data);
+      else if (Array.isArray(res.data.orders)) setOrders(res.data.orders);
     } catch (err) {
       console.error("Error fetching orders:", err);
     }
@@ -103,6 +105,10 @@ const UserPage = () => {
   useEffect(() => {
     getInformation();
     getOrders();
+
+    // جلب صورة من localStorage
+    const avatar = localStorage.getItem("avatar") || "/avatar.png";
+    setUserAvatar(avatar);
   }, []);
 
   const handleOpenUpdate = (user: UserType) => {
@@ -152,8 +158,12 @@ const UserPage = () => {
     }
   };
 
-  const userAvatar = localStorage.getItem("avatar") || "/avatar.png";
-  console.log(orders);
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const fileURL = URL.createObjectURL(e.target.files[0]);
+      setUserAvatar(fileURL);
+    }
+  };
 
   return (
     <Box
@@ -171,46 +181,83 @@ const UserPage = () => {
         {user.map((ele) => (
           <Card
             key={ele.id}
-            sx={{ borderRadius: 4, boxShadow: 6, p: 2, bgcolor: "white" }}
+            sx={{
+              borderRadius: 3,
+              boxShadow: 4,
+              p: 3,
+              bgcolor: "#ffffff",
+              transition: "transform 0.2s",
+              "&:hover": { transform: "scale(1.02)", boxShadow: 6 },
+            }}
           >
-            <CardContent>
-              <Stack direction="row" spacing={3} alignItems="center">
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Box sx={{ position: "relative", display: "inline-block" }}>
                 <Avatar
                   src={userAvatar}
-                  alt="Profile"
-                  sx={{ width: 72, height: 72, border: "2px solid #f06292" }}
+                  alt={ele.firstname}
+                  sx={{ width: 80, height: 80, border: "3px solid #f06292" }}
                 />
-                <Box>
-                  <Typography variant="h6" color="black">
-                    {ele.firstname} {ele.lastname}
-                  </Typography>
-                  <Typography variant="body2" color="gray">
-                    {ele.email}
-                  </Typography>
-                  <Typography variant="body2" color="gray">
-                    {ele.country}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Stack direction="row" justifyContent="flex-end">
                 <Button
                   variant="contained"
-                  onClick={() => handleOpenUpdate(ele)}
+                  component="label"
                   sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    minWidth: 0,
+                    p: 0.5,
+                    borderRadius: "50%",
                     backgroundColor: "#f06292",
-                    borderRadius: 2,
-                    textTransform: "none",
-                    px: 3,
                     "&:hover": { backgroundColor: "#d81b60" },
                   }}
                 >
-                  Update Profile
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                  <Typography sx={{ fontSize: 12 }}>✏️</Typography>
                 </Button>
-              </Stack>
-            </CardContent>
+              </Box>
+
+              {/* User Info */}
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" fontWeight="bold" color="#333">
+                  {ele.firstname} {ele.lastname}
+                </Typography>
+                <Typography variant="body2" color="gray">
+                  {ele.email}
+                </Typography>
+                <Stack direction="row" spacing={2} mt={1}>
+                  <Typography variant="body2" color="gray">
+                    Age: {ele.age}
+                  </Typography>
+                  <Typography variant="body2" color="gray">
+                    Country: {ele.country}
+                  </Typography>
+                </Stack>
+                <Typography variant="caption" color="gray" mt={1} display="block">
+                  Joined: {new Date(ele.created_at).toLocaleDateString("en-GB")}
+                </Typography>
+              </Box>
+
+              {/* Update Button */}
+              <Button
+                variant="contained"
+                onClick={() => handleOpenUpdate(ele)}
+                sx={{
+                  backgroundColor: "#f06292",
+                  borderRadius: 2,
+                  textTransform: "none",
+                  px: 3,
+                  "&:hover": { backgroundColor: "#d81b60" },
+                  height: 40,
+                }}
+              >
+                Update
+              </Button>
+            </Stack>
           </Card>
         ))}
 
@@ -243,15 +290,7 @@ const UserPage = () => {
                           size="small"
                           sx={{
                             backgroundColor:
-                              order.status === "pending"
-                                ? "#ff9800"
-                                : order.status === "preparing"
-                                ? "#2196f3"
-                                : order.status === "on the way"
-                                ? "#ba68c8"
-                                : order.status === "delivered"
-                                ? "#4caf50"
-                                : "#e0e0e0",
+                              statusMap[order.status]?.color || "#e0e0e0",
                             color: "white",
                             fontWeight: "bold",
                           }}
@@ -260,26 +299,16 @@ const UserPage = () => {
 
                       <Grid container spacing={2}>
                         <Grid>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                          >
+                          <Stack direction="row" spacing={1} alignItems="center">
                             <CalendarTodayIcon sx={{ fontSize: 18 }} />
                             <Typography variant="body2" color="gray">
-                              {new Date(order.created_at).toLocaleDateString(
-                                "en-GB"
-                              )}
+                              {new Date(order.created_at).toLocaleDateString("en-GB")}
                             </Typography>
                           </Stack>
                         </Grid>
 
                         <Grid>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                          >
+                          <Stack direction="row" spacing={1} alignItems="center">
                             <PaymentIcon sx={{ fontSize: 18 }} />
                             <Typography variant="body2" color="gray">
                               {order.pay_method}
@@ -288,11 +317,7 @@ const UserPage = () => {
                         </Grid>
 
                         <Grid>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                          >
+                          <Stack direction="row" spacing={1} alignItems="center">
                             <ShoppingCartIcon sx={{ fontSize: 18 }} />
                             <Typography variant="body2" color="gray">
                               {order.products?.length || 0} Products
@@ -301,11 +326,7 @@ const UserPage = () => {
                         </Grid>
 
                         <Grid>
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                          >
+                          <Stack direction="row" spacing={1} alignItems="center">
                             <LocationOnIcon sx={{ fontSize: 18 }} />
                             <Typography variant="body2" color="gray">
                               {order.address}
