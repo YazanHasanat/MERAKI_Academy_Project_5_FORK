@@ -14,12 +14,21 @@ import {
   TableRow,
 } from "@mui/material";
 
+// --------- Icons ----------
+import CategoryIcon from "@mui/icons-material/Category";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import PeopleIcon from "@mui/icons-material/People";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+
+// --------- Types ----------
 type Category = { id: number; name: string };
 type Product = {
   id: number;
   title: string;
   categoryId?: number;
   price: number;
+  image_urls: string[];
 };
 type OrderProduct = {
   product_id: number;
@@ -35,6 +44,7 @@ type Order = {
   created_at: string;
   status: string;
   user_id: number;
+  image_urls?: string[];
 };
 type User = { id: number; firstname: string; email: string; createdAt: string };
 
@@ -58,18 +68,20 @@ export default function DashboardPage() {
         setProducts(prodRes.data.products);
 
         const enrichedOrders: Order[] = orderRes.data.map((order: any) => {
-          const detailedProducts: OrderProduct[] = order.products.map((p: any) => {
-            const prodInfo = prodRes.data.products.find(
-              (prod: Product) => prod.id === p.product_id
-            );
-            return {
-              product_id: p.product_id,
-              title: p.title,
-              quantity: p.quantity,
-              price: parseFloat(p.price),
-              categoryId: prodInfo?.categoryId,
-            };
-          });
+          const detailedProducts: OrderProduct[] = order.products.map(
+            (p: any) => {
+              const prodInfo = prodRes.data.products.find(
+                (prod: Product) => prod.id === p.product_id
+              );
+              return {
+                product_id: p.product_id,
+                title: p.title,
+                quantity: p.quantity,
+                price: parseFloat(p.price),
+                categoryId: prodInfo?.categoryId,
+              };
+            }
+          );
 
           const total_price = detailedProducts.reduce(
             (sum, p) => sum + p.price * p.quantity,
@@ -97,6 +109,7 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
+  // ---------- Dashboard Stats ----------
   const totalCategories = categories.length;
   const totalProducts = products.length;
   const totalUsers = users.length;
@@ -106,31 +119,81 @@ export default function DashboardPage() {
   const productSalesCount: Record<string, number> = {};
   orders.forEach((o) => {
     o.products.forEach((p) => {
-      productSalesCount[p.title] = (productSalesCount[p.title] || 0) + p.quantity;
+      productSalesCount[p.title] =
+        (productSalesCount[p.title] || 0) + p.quantity;
     });
   });
-  const bestProduct = Object.entries(productSalesCount).sort((a, b) => b[1] - a[1])[0];
+  const bestProduct = Object.entries(productSalesCount).sort(
+    (a, b) => b[1] - a[1]
+  )[0];
 
-  
+  // ---------- Cards Data ----------
+  const cardsData = [
+    {
+      label: "Categories",
+      value: totalCategories,
+      color: "#f8bbd0",
+      icon: <CategoryIcon fontSize="large" />,
+    },
+    {
+      label: "Products",
+      value: totalProducts,
+      color: "#b3e5fc",
+      icon: <ShoppingCartIcon fontSize="large" />,
+    },
+    {
+      label: "Users",
+      value: totalUsers,
+      color: "#c8e6c9",
+      icon: <PeopleIcon fontSize="large" />,
+    },
+    {
+      label: "Orders",
+      value: totalOrders,
+      color: "#ffe0b2",
+      icon: <ListAltIcon fontSize="large" />,
+    },
+    {
+      label: "Total Sales",
+      value: `$${totalSales.toFixed(2)}`,
+      color: "#d1c4e9",
+      icon: <AttachMoneyIcon fontSize="large" />,
+    },
+  ];
 
   return (
     <div style={{ padding: 20 }}>
-      <Typography variant="h4" gutterBottom>Dashboard</Typography>
-
       {/* ---------- Cards ---------- */}
       <Grid container spacing={2}>
-        {[
-          { label: "Categories", value: totalCategories },
-          { label: "Products", value: totalProducts },
-          { label: "Users", value: totalUsers },
-          { label: "Orders", value: totalOrders },
-          { label: "Total Sales", value: `$${totalSales.toFixed(2)}` },
-        ].map((card, idx) => (
+        {cardsData.map((card, idx) => (
           <Grid key={idx}>
-            <Card>
+            <Card
+              style={{
+                borderRadius: "15px",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                backgroundColor: card.color,
+                textAlign: "center",
+                padding: "20px",
+                transition: "transform 0.2s",
+              }}
+              className="hover-card"
+            >
               <CardContent>
-                <Typography variant="h6">{card.label}</Typography>
-                <Typography variant="h4">{card.value}</Typography>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {card.icon}
+                </div>
+                <Typography variant="h6" gutterBottom>
+                  {card.label}
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {card.value}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -138,14 +201,67 @@ export default function DashboardPage() {
       </Grid>
 
       {/* ---------- Best Product ---------- */}
-      {bestProduct && (
-        <Card style={{ marginTop: 20 }}>
-          <CardContent>
-            <Typography variant="h6">Best Selling Product</Typography>
-            <Typography>{bestProduct[0]} - {bestProduct[1]} sold</Typography>
-          </CardContent>
-        </Card>
-      )}
+      <Card
+        style={{
+          marginTop: 20,
+          padding: 20,
+          borderRadius: 10,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+        }}
+      >
+        <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>
+          Best Selling Products
+        </Typography>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {Object.entries(productSalesCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([title, sold]) => {
+              const product = products.find((p) => p.title === title);
+              const image =
+                product?.image_urls && product.image_urls.length > 0
+                  ? product.image_urls[0].startsWith("http")
+                    ? product.image_urls[0]
+                    : `/assets/${product.image_urls[0]}`
+                  : "/assets/home.png";
+
+              return (
+                <div
+                  key={title}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: 10,
+                    borderRadius: 8,
+                    boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <img
+                    src={image}
+                    alt={title}
+                    style={{
+                      width: 50,
+                      height: 50,
+                      objectFit: "cover",
+                      borderRadius: 6,
+                    }}
+                  />
+                  <div>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {title}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {sold} sold
+                    </Typography>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </Card>
+
       {/* ---------- Last 5 Orders Table ---------- */}
       <Card style={{ marginTop: 20 }}>
         <CardContent>
@@ -162,13 +278,21 @@ export default function DashboardPage() {
             </TableHead>
             <TableBody>
               {orders
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .sort(
+                  (a, b) =>
+                    new Date(b.created_at).getTime() -
+                    new Date(a.created_at).getTime()
+                )
                 .slice(0, 5)
                 .map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>{order.id}</TableCell>
                     <TableCell>{order.user_id}</TableCell>
-                    <TableCell>{order.products.map((p) => `${p.title} (${p.quantity})`).join(", ")}</TableCell>
+                    <TableCell>
+                      {order.products
+                        .map((p) => `${p.title} (${p.quantity})`)
+                        .join(", ")}
+                    </TableCell>
                     <TableCell>${order.total_price.toFixed(2)}</TableCell>
                     <TableCell>{order.status}</TableCell>
                   </TableRow>
@@ -192,7 +316,11 @@ export default function DashboardPage() {
             </TableHead>
             <TableBody>
               {users
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
                 .slice(0, 5)
                 .map((u) => (
                   <TableRow key={u.id}>
