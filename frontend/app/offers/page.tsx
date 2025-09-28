@@ -130,7 +130,7 @@ const OffersPage = () => {
                 </Box>
 
                 <Link
-                  href={`/product/${offer.id}`}
+                  href={`/product/${offer.product_id}`} 
                   style={{ textDecoration: "none", marginTop: "auto" }}
                 >
                   <Button

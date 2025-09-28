@@ -23,30 +23,11 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 // --------- Types ----------
 type Category = { id: number; name: string };
-type Product = {
-  id: number;
-  title: string;
-  categoryId?: number;
-  price: number;
-  image_urls: string[];
-};
-type OrderProduct = {
-  product_id: number;
-  title: string;
-  quantity: number;
-  price: number;
-  categoryId?: number;
-};
-type Order = {
-  id: number;
-  products: OrderProduct[];
-  total_price: number;
-  created_at: string;
-  status: string;
-  user_id: number;
-  image_urls?: string[];
-};
+type Product = { id: number; title: string; categoryId?: number; price: number; image_urls: string[] };
+type OrderProduct = { product_id: number; title: string; quantity: number; price: number; categoryId?: number };
+type Order = { id: number; products: OrderProduct[]; total_price: number; created_at: string; status: string; user_id: number };
 type User = { id: number; firstname: string; email: string; createdAt: string };
+type BestUser = { id: number; firstname: string; email: string; ordersCount: number; totalSpent: number };
 
 export default function DashboardPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -54,8 +35,9 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
+  // ---------- Fetch Data ----------
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         const [catRes, prodRes, orderRes, userRes] = await Promise.all([
           axios.get("http://localhost:5000/categories"),
@@ -68,35 +50,14 @@ export default function DashboardPage() {
         setProducts(prodRes.data.products);
 
         const enrichedOrders: Order[] = orderRes.data.map((order: any) => {
-          const detailedProducts: OrderProduct[] = order.products.map(
-            (p: any) => {
-              const prodInfo = prodRes.data.products.find(
-                (prod: Product) => prod.id === p.product_id
-              );
-              return {
-                product_id: p.product_id,
-                title: p.title,
-                quantity: p.quantity,
-                price: parseFloat(p.price),
-                categoryId: prodInfo?.categoryId,
-              };
-            }
-          );
+          const detailedProducts: OrderProduct[] = order.products.map((p: any) => {
+            const prodInfo = prodRes.data.products.find((prod: Product) => prod.id === p.product_id);
+            return { ...p, price: parseFloat(p.price), categoryId: prodInfo?.categoryId };
+          });
 
-          const total_price = detailedProducts.reduce(
-            (sum, p) => sum + p.price * p.quantity,
-            0
-          );
+          const total_price = detailedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
 
-          return {
-            id: order.order_id,
-            user_id: order.user_id,
-            status: order.status,
-            pay_method: order.pay_method,
-            created_at: order.created_at,
-            products: detailedProducts,
-            total_price,
-          };
+          return { ...order, id: order.order_id, products: detailedProducts, total_price };
         });
 
         setOrders(enrichedOrders);
@@ -104,7 +65,7 @@ export default function DashboardPage() {
       } catch (err) {
         console.error(err);
       }
-    }
+    };
 
     fetchData();
   }, []);
@@ -116,50 +77,27 @@ export default function DashboardPage() {
   const totalOrders = orders.length;
   const totalSales = orders.reduce((sum, o) => sum + o.total_price, 0);
 
+  // ---------- Product Sales ----------
   const productSalesCount: Record<string, number> = {};
-  orders.forEach((o) => {
-    o.products.forEach((p) => {
-      productSalesCount[p.title] =
-        (productSalesCount[p.title] || 0) + p.quantity;
-    });
-  });
-  const bestProduct = Object.entries(productSalesCount).sort(
-    (a, b) => b[1] - a[1]
-  )[0];
+  orders.forEach((o) => o.products.forEach((p) => (productSalesCount[p.title] = (productSalesCount[p.title] || 0) + p.quantity)));
 
   // ---------- Cards Data ----------
   const cardsData = [
-    {
-      label: "Categories",
-      value: totalCategories,
-      color: "#f8bbd0",
-      icon: <CategoryIcon fontSize="large" />,
-    },
-    {
-      label: "Products",
-      value: totalProducts,
-      color: "#b3e5fc",
-      icon: <ShoppingCartIcon fontSize="large" />,
-    },
-    {
-      label: "Users",
-      value: totalUsers,
-      color: "#c8e6c9",
-      icon: <PeopleIcon fontSize="large" />,
-    },
-    {
-      label: "Orders",
-      value: totalOrders,
-      color: "#ffe0b2",
-      icon: <ListAltIcon fontSize="large" />,
-    },
-    {
-      label: "Total Sales",
-      value: `$${totalSales.toFixed(2)}`,
-      color: "#d1c4e9",
-      icon: <AttachMoneyIcon fontSize="large" />,
-    },
+    { label: "Categories", value: totalCategories, color: "#f8bbd0", icon: <CategoryIcon fontSize="large" /> },
+    { label: "Products", value: totalProducts, color: "#b3e5fc", icon: <ShoppingCartIcon fontSize="large" /> },
+    { label: "Users", value: totalUsers, color: "#c8e6c9", icon: <PeopleIcon fontSize="large" /> },
+    { label: "Orders", value: totalOrders, color: "#ffe0b2", icon: <ListAltIcon fontSize="large" /> },
+    { label: "Total Sales", value: `$${totalSales.toFixed(2)}`, color: "#d1c4e9", icon: <AttachMoneyIcon fontSize="large" /> },
   ];
+
+  // ---------- Best Users ----------
+  const bestUsers: BestUser[] = users
+    .map((user) => {
+      const userOrders = orders.filter((o) => o.user_id === user.id);
+      return { id: user.id, firstname: user.firstname, email: user.email, ordersCount: userOrders.length, totalSpent: userOrders.reduce((sum, o) => sum + o.total_price, 0) };
+    })
+    .sort((a, b) => b.totalSpent - a.totalSpent)
+    .slice(0, 5);
 
   return (
     <div style={{ padding: 20 }}>
@@ -167,94 +105,33 @@ export default function DashboardPage() {
       <Grid container spacing={2}>
         {cardsData.map((card, idx) => (
           <Grid key={idx}>
-            <Card
-              style={{
-                borderRadius: "15px",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-                backgroundColor: card.color,
-                textAlign: "center",
-                padding: "20px",
-                transition: "transform 0.2s",
-              }}
-              className="hover-card"
-            >
+            <Card style={{ borderRadius: 15, boxShadow: "0 4px 15px rgba(0,0,0,0.2)", backgroundColor: card.color, textAlign: "center", padding: 20, transition: "transform 0.2s" }} className="hover-card">
               <CardContent>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {card.icon}
-                </div>
-                <Typography variant="h6" gutterBottom>
-                  {card.label}
-                </Typography>
-                <Typography variant="h4" fontWeight="bold">
-                  {card.value}
-                </Typography>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>{card.icon}</div>
+                <Typography variant="h6" gutterBottom>{card.label}</Typography>
+                <Typography variant="h4" fontWeight="bold">{card.value}</Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* ---------- Best Product ---------- */}
-      <Card
-        style={{
-          marginTop: 20,
-          padding: 20,
-          borderRadius: 10,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
-        }}
-      >
-        <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>
-          Best Selling Products
-        </Typography>
-
+      {/* ---------- Best Selling Products ---------- */}
+      <Card style={{ marginTop: 20, padding: 20, borderRadius: 10, boxShadow: "0 2px 10px rgba(0,0,0,0.15)" }}>
+        <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>Best Selling Products</Typography>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {Object.entries(productSalesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 5)
             .map(([title, sold]) => {
               const product = products.find((p) => p.title === title);
-              const image =
-                product?.image_urls && product.image_urls.length > 0
-                  ? product.image_urls[0].startsWith("http")
-                    ? product.image_urls[0]
-                    : `/assets/${product.image_urls[0]}`
-                  : "/assets/home.png";
-
+              const image = product?.image_urls?.[0]?.startsWith("http") ? product.image_urls[0] : `/assets/${product?.image_urls?.[0] || "home.png"}`;
               return (
-                <div
-                  key={title}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: 10,
-                    borderRadius: 8,
-                    boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <img
-                    src={image}
-                    alt={title}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      objectFit: "cover",
-                      borderRadius: 6,
-                    }}
-                  />
+                <div key={title} style={{ display: "flex", alignItems: "center", gap: 10, padding: 10, borderRadius: 8, boxShadow: "0 1px 5px rgba(0,0,0,0.1)" }}>
+                  <img src={image} alt={title} style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 6 }} />
                   <div>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {title}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {sold} sold
-                    </Typography>
+                    <Typography variant="subtitle1" fontWeight="bold">{title}</Typography>
+                    <Typography variant="body2" color="textSecondary">{sold} sold</Typography>
                   </div>
                 </div>
               );
@@ -262,7 +139,7 @@ export default function DashboardPage() {
         </div>
       </Card>
 
-      {/* ---------- Last 5 Orders Table ---------- */}
+      {/* ---------- Last 5 Orders ---------- */}
       <Card style={{ marginTop: 20 }}>
         <CardContent>
           <Typography variant="h6">Last 5 Orders</Typography>
@@ -278,21 +155,13 @@ export default function DashboardPage() {
             </TableHead>
             <TableBody>
               {orders
-                .sort(
-                  (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
-                )
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                 .slice(0, 5)
                 .map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>{order.id}</TableCell>
                     <TableCell>{order.user_id}</TableCell>
-                    <TableCell>
-                      {order.products
-                        .map((p) => `${p.title} (${p.quantity})`)
-                        .join(", ")}
-                    </TableCell>
+                    <TableCell>{order.products.map((p) => `${p.title} (${p.quantity})`).join(", ")}</TableCell>
                     <TableCell>${order.total_price.toFixed(2)}</TableCell>
                     <TableCell>{order.status}</TableCell>
                   </TableRow>
@@ -302,33 +171,30 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* ---------- Last 5 Users Table ---------- */}
+      {/* ---------- Best Users Table ---------- */}
       <Card style={{ marginTop: 20 }}>
         <CardContent>
-          <Typography variant="h6">Last 5 Users</Typography>
+          <Typography variant="h6">Top 5 Users by Total Spent</Typography>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>User ID</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
+                <TableCell>Orders Count</TableCell>
+                <TableCell>Total Spent</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .slice(0, 5)
-                .map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.id}</TableCell>
-                    <TableCell>{u.firstname}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                  </TableRow>
-                ))}
+              {bestUsers.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell>{u.id}</TableCell>
+                  <TableCell>{u.firstname}</TableCell>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>{u.ordersCount}</TableCell>
+                  <TableCell>${u.totalSpent.toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
