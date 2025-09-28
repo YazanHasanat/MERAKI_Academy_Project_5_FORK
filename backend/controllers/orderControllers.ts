@@ -183,6 +183,7 @@ const getOrdersInfo = async (req: Request, res: Response) => {
           u.firstname,
           p.id AS product_id,
           p.title,
+          p.image_urls[1] AS image_url,
           pr.quantity,
           p.price,
           p.category_id,
