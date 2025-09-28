@@ -10,33 +10,52 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import Button from "@mui/material/Button";
-import Drawer from "@mui/material/Drawer";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
 
 import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-const drawerWidth = 240;
 
-const StarRating = ({ rating }: { rating: number }) => {
+const StarRating = ({
+  rating,
+  onRate,
+}: {
+  rating: number;
+  onRate?: (newRating: number) => void;
+}) => {
   rating = Math.min(5, Math.max(0, rating));
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating - fullStars >= 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
+  const handleClick = (index: number) => {
+    if (onRate) {
+      const clickedRating = index + 1;
+      onRate(clickedRating === rating ? 0 : clickedRating);
+    }
+  };
+
   return (
     <Box display="flex" justifyContent="center" alignItems="center">
       {[...Array(fullStars)].map((_, i) => (
-        <StarIcon key={`full-${i}`} sx={{ color: "#FFC107" }} />
+        <StarIcon
+          key={`full-${i}`}
+          sx={{ color: "#FFC107", cursor: onRate ? "pointer" : "default" }}
+          onClick={() => handleClick(i)}
+        />
       ))}
-      {hasHalfStar && <StarHalfIcon sx={{ color: "#FFC107" }} />}
+      {hasHalfStar && (
+        <StarHalfIcon
+          sx={{ color: "#FFC107", cursor: onRate ? "pointer" : "default" }}
+          onClick={() => handleClick(fullStars)}
+        />
+      )}
       {[...Array(emptyStars)].map((_, i) => (
-        <StarBorderIcon key={`empty-${i}`} sx={{ color: "#FFC107" }} />
+        <StarBorderIcon
+          key={`empty-${i}`}
+          sx={{ color: "#FFC107", cursor: onRate ? "pointer" : "default" }}
+          onClick={() => handleClick(fullStars + (hasHalfStar ? 1 : 0) + i)}
+        />
       ))}
     </Box>
   );
@@ -47,24 +66,12 @@ const CategoryPage = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
   const [ratings, setRatings] = useState<{
-    [key: string]: { average: number; count: number };
+    [key: string]: { average: number; user: number | null; count: number };
   }>({});
   const [loading, setLoading] = useState(true);
-  const [description, setDescription] = useState("");
+
   const user = { id: 1 };
 
-  const categoryDescriptions: { [key: string]: string } = {
-    Clothing:
-      "Discover the latest clothing collections that combine comfort and style to suit all tastes and occasions.",
-    "Toys & Games":
-      "Endless fun with the best educational and entertaining toys that help children develop creativity and imagination.",
-    Nutrition:
-      "A wide variety of food products and supplements to help you maintain a healthy and balanced lifestyle.",
-    Furniture:
-      "Modern and comfortable furniture with unique designs to give your home a stylish touch that blends beauty and function.",
-    "Baby Gear":
-      "Everything your baby needs with special care to ensure comfort and safety at all times.",
-  };
 
   const CategoryData = async () => {
     setLoading(true);
@@ -74,11 +81,9 @@ const CategoryPage = () => {
       );
       const data = res.data.products || res.data;
       setProducts(data);
-      console.log(data);
-      
 
       setCategoryName(data?.[0]?.category_name || "");
-      setDescription(data?.[0]?.category_description || "");
+
       const ratingsPromises = data.map(async (product: any) => {
         try {
           const ratingRes = await axios.get(
@@ -88,10 +93,11 @@ const CategoryPage = () => {
           return {
             id: product.id,
             average: ratingRes.data.averageRating || 0,
+            user: ratingRes.data.userRating ?? null,
             count: ratingRes.data.ratingsCount || 0,
           };
         } catch {
-          return { id: product.id, average: 0, count: 0 };
+          return { id: product.id, average: 0, user: null, count: 0 };
         }
       });
 
@@ -99,6 +105,7 @@ const CategoryPage = () => {
       const ratingsObj = ratingsResults.reduce((acc, item) => {
         acc[item.id] = {
           average: item.average,
+          user: item.user,
           count: item.count,
         };
         return acc;
@@ -122,184 +129,139 @@ const CategoryPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            p: 2,
-          },
-        }}
+    <Box
+      sx={(theme) => ({
+        p: 4,
+        minHeight: "100vh",
+        bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212",
+      })}
+    >
+      <Typography
+        variant="h4"
+        align="center"
+        gutterBottom
+        sx={{ fontWeight: "bold", mb: 2, color: "#1976d2" }}
       >
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Filters
-        </Typography>
-        <Divider />
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Price: Low to High" />
-            </ListItemButton>
-          </ListItem>
+        {categoryName}
+      </Typography>
 
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Price: High to Low" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Top Rated" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box
-        component="main"
-        sx={(theme) => ({
-          flexGrow: 1,
-          p: 4,
-          minHeight: "100vh",
-          bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212",
-        })}
+      {/* Category description */}
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
       >
-        <Typography
-          variant="h4"
-          align="center"
-          gutterBottom
-          sx={(theme) => ({
-            fontWeight: "bold",
-            mb: 2,
-            color: theme.palette.mode === "light" ? "#EC407A" : "#ad1457",
-          })}
-        >
-          {categoryName}
-        </Typography>
+        {categoryDescriptions[categoryName] ||
+          "Shop the best products in this category."}
+      </Typography>
 
-        <Typography
-          variant="body1"
-          align="center"
-          sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
-        >
-          {description ||
-            "Shop the best products in this category."}
-        </Typography>
-
-        <Grid container spacing={4} justifyContent="center" alignItems="center">
-          {products.map((product: any) => (
-            <Grid key={product.id} display="flex" justifyContent="center">
-              <Card
-                sx={(theme) => ({
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  boxShadow: 6,
-                  borderRadius: 4,
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": {
-                    transform: "translateY(-10px) scale(1.05)",
-                    boxShadow: 10,
-                  },
-                  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-                  mx: "auto",
-                  maxWidth: 350,
-                })}
-              >
-                <CardMedia
-                  component="img"
-                  image={ product.image_urls && product.image_urls.length > 0 ? product.image_urls[0].startsWith("http") ? product.image_urls[0] : `/assets/${product.image_urls[0]}` : "/assets/home.png" }
-                  alt={product.title}
+      <Grid container spacing={4} justifyContent="center" alignItems="center">
+        {products.map((product: any) => (
+          <Grid key={product.id} display="flex" justifyContent="center">
+            <Card
+              sx={(theme) => ({
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: 6,
+                borderRadius: 4,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-10px) scale(1.05)",
+                  boxShadow: 10,
+                },
+                bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                mx: "auto",
+                maxWidth: 350,
+              })}
+            >
+              <CardMedia
+                component="img"
+                image={`/assets/${product.image_urls?.[0] || "home.png"}`}
+                alt={product.title}
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  objectFit: "cover",
+                  borderTopLeftRadius: 4,
+                  borderTopRightRadius: 4,
+                }}
+              />
+              <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                <Typography
+                  gutterBottom
+                  variant="h6"
                   sx={{
-                    width: "100%",
-                    height: 200,
-                    objectFit: "cover",
-                    borderTopLeftRadius: 4,
-                    borderTopRightRadius: 4,
+                    fontWeight: 700,
+                    color: "#333",
+                    textAlign: "center",
                   }}
-                />
-                <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                >
+                  {product.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2, textAlign: "center" }}
+                >
+                  {product.description?.slice(0, 60)}...
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    color: "#EC407A",
+                    mb: 1,
+                  }}
+                >
+                  {product.price ? `${product.price} JD` : ""}
+                </Typography>
+                <Box sx={{ mt: 1, textAlign: "center" }}>
+                  <StarRating rating={ratings[product.id]?.average || 0} />
                   <Typography
-                    gutterBottom
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      color: "#333",
-                      textAlign: "center",
-                    }}
-                  >
-                    {product.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
+                    variant="caption"
                     color="text.secondary"
-                    sx={{ mb: 2, textAlign: "center" }}
+                    display="block"
                   >
-                    {product.description?.slice(0, 60)}...
+                    {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
+                    {ratings[product.id]?.count || 0})
                   </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      color: "#EC407A",
-                      mb: 1,
-                    }}
-                  >
-                    {product.price ? `${product.price} JD` : ""}
-                  </Typography>
-                  <Box sx={{ mt: 1, textAlign: "center" }}>
-                    <StarRating rating={ratings[product.id]?.average || 0} />
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="block"
-                    >
-                      {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
-                      {ratings[product.id]?.count || 0})
-                    </Typography>
-                  </Box>
-                </CardContent>
+                </Box>
+              </CardContent>
 
-                <Box sx={{ p: 2, textAlign: "center" }}>
-                  <Link
-                    href={`/product/${product.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={(theme) => ({
-                        textTransform: "none",
-                        borderRadius: 20,
-                        px: 3,
-                        py: 1,
-                        fontWeight: "bold",
+              <Box sx={{ p: 2, textAlign: "center" }}>
+                <Link
+                  href={`/product/${product.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={(theme) => ({
+                      textTransform: "none",
+                      borderRadius: 20,
+                      px: 3,
+                      py: 1,
+                      fontWeight: "bold",
+                      bgcolor:
+                        theme.palette.mode === "light" ? "#EC407A" : "#d81b60",
+                      "&:hover": {
                         bgcolor:
                           theme.palette.mode === "light"
-                            ? "#EC407A"
-                            : "#d81b60",
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "light"
-                              ? "#d53972"
-                              : "#ad1457",
-                        },
-                      })}
-                    >
-                      View Details
-                    </Button>
-                  </Link>
-                </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                            ? "#d53972"
+                            : "#ad1457",
+                      },
+                    })}
+                  >
+                    View Details
+                  </Button>
+                </Link>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 };
