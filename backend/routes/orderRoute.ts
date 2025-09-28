@@ -1,6 +1,6 @@
 const express = require("express");
 const orderRoute = express.Router();
-const {createOrder,getAllOrders,getOrdersByUser,softDeleteOrder,updateOrderStatus}=require("../controllers/orderControllers")
+const {createOrder,getAllOrders,getOrdersByUser,softDeleteOrder,updateOrderStatus,getOrdersInfo}=require("../controllers/orderControllers")
 const authentication=require("../middleware/authentication")
 
 
@@ -24,6 +24,8 @@ orderRoute.put("/status",updateOrderStatus)
 //path==>http://localhost:5000/orders/status
 
 
+orderRoute.get("/info",getOrdersInfo)
+//path==>http://localhost:5000/orders/info
 
 
 

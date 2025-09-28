@@ -53,8 +53,8 @@ const createOrder = async (req: AuthenticatedRequest, res: Response) => {
 
 const getAllOrders = async (req: any, res: e.Response) => {
   try {
-   const result = await pool.query(
-  `
+    const result = await pool.query(
+      `
     SELECT 
       orders.id,
       orders.user_id,
@@ -70,13 +70,13 @@ const getAllOrders = async (req: any, res: e.Response) => {
       user_locations.address,
       user_locations.latitude,
       user_locations.longitude
-    FROM orders
-    JOIN user_locations 
+      FROM orders
+      JOIN user_locations 
       ON orders.location_id = user_locations.id
-    WHERE orders.is_deleted = 0
+      WHERE orders.is_deleted = 0
       AND orders.status = 'pending'
   `
-);
+    );
 
     res.status(200).json({
       success: true,
@@ -91,7 +91,7 @@ const getOrdersByUser = async (req: any, res: e.Response) => {
   const user_id = req.user.userId;
   try {
     const result = await pool.query(
-  `
+      `
     SELECT 
       orders.id,
       orders.user_id,
@@ -113,8 +113,8 @@ const getOrdersByUser = async (req: any, res: e.Response) => {
     WHERE orders.user_id = $1
       AND orders.is_deleted = 0
   `,
-  [user_id]
-);
+      [user_id]
+    );
 
     res.status(200).json({
       success: true,
@@ -174,11 +174,67 @@ const updateOrderStatus = async (req: any, res: e.Response) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+const getOrdersInfo = async (req: Request, res: Response) => {
+  try {
+    const query = `
+      SELECT 
+          o.id AS order_id,
+          o.user_id,
+          u.firstname,
+          p.id AS product_id,
+          p.title,
+          pr.quantity,
+          p.price,
+          p.category_id,
+          o.status,
+          o.pay_method,
+          o.created_at
+      FROM orders o
+      JOIN users u ON u.id = o.user_id
+      CROSS JOIN LATERAL jsonb_to_recordset(o.products) AS pr(product_id INT, quantity INT)
+      JOIN products p ON p.id = pr.product_id
+      WHERE o.is_deleted = 0
+      ORDER BY o.id DESC;
+    `;
 
+    const result = await pool.query(query);
+
+    const ordersMap: any = {};
+
+    result.rows.forEach((row: any) => {
+      if (!ordersMap[row.order_id]) {
+        ordersMap[row.order_id] = {
+          order_id: row.order_id,
+          user_id: row.user_id,
+          full_name: row.full_name,
+          status: row.status,
+          pay_method: row.pay_method,
+          created_at: row.created_at,
+          products: [],
+        };
+      }
+
+      ordersMap[row.order_id].products.push({
+        product_id: row.product_id,
+        title: row.title, 
+        quantity: row.quantity,
+        price: row.price,
+        categoryId: row.category_id,
+      });
+    });
+
+    const orders = Object.values(ordersMap);
+    res.json(orders);
+  } catch (error) {
+    console.error("Error fetching orders", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 module.exports = {
   createOrder,
   getAllOrders,
   getOrdersByUser,
   softDeleteOrder,
   updateOrderStatus,
+  getOrdersInfo,
 };

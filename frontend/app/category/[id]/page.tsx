@@ -121,7 +121,6 @@ const CategoryPage = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* ثابت على اليسار - فلتر */}
       <Drawer
         variant="permanent"
         sx={{
@@ -158,8 +157,6 @@ const CategoryPage = () => {
           </ListItem>
         </List>
       </Drawer>
-
-      {/* المحتوى الرئيسي */}
       <Box
         component="main"
         sx={(theme) => ({
