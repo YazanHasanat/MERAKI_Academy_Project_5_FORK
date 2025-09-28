@@ -112,6 +112,7 @@ const getOrdersByUser = async (req: any, res: e.Response) => {
       ON orders.location_id = user_locations.id
     WHERE orders.user_id = $1
       AND orders.is_deleted = 0
+       ORDER BY orders.created_at DESC
   `,
       [user_id]
     );
