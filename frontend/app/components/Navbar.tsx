@@ -99,6 +99,8 @@ React.useEffect(() => {
     localStorage.removeItem("userId");
     localStorage.removeItem("token");
     localStorage.removeItem("role_id");
+    localStorage.removeItem("avatar");
+
     setFirstName(null);
     setUserId(null);
     router.push("/"); // redirect to home page
