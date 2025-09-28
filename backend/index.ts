@@ -23,7 +23,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
+//srtibe
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+app.post("/create-payment-intent", async (req:any, res:any) => {
+  const { amount } = req.body;
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+    });
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create payment intent" });
+  } 
+});
 
 // Routes Middleware
   app.use("/products", productRouter);

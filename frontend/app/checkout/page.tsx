@@ -1,7 +1,11 @@
+
 "use client";
 
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
 import {
   Box,
   Typography,
@@ -15,6 +19,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import PaymentPage from "./PaymentPage";
 
 type CartItem = {
   product_id: number;
@@ -23,7 +28,9 @@ type CartItem = {
   quantity: number;
   image_urls: string[];
 };
-
+const stripePromise = loadStripe(
+  "pk_test_51SCNPFBmIpGo4zeU14PUeoTUDY2fYx36JrBO6L8GYL0l5qnwveyTMyJNqnY6Lhf28JELJuoeg5cIbLRrkUCP6sk20001olS8p1"
+);
 const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [name, setName] = useState("");
@@ -40,6 +47,37 @@ const CheckoutPage = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const totalPrice = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+  const [clientSecret, setClientSecret] = useState("");
+
+  const Stripe = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/create-payment-intent",
+        {
+          amount: totalPrice * 100,
+          currency: "usd",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setClientSecret(response.data.clientSecret);
+    } catch (err) {
+      console.error("Error creating payment intent:", err);
+    }
+  };
+  useEffect(() => {
+    if (paymentMethod === "card") {
+      Stripe();
+    }
+  }, [paymentMethod]);
+
   const getLocationById = async () => {
     try {
       const result = await axios.get("http://localhost:5000/location", {
@@ -80,10 +118,7 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+
   const handlePlaceOrder = async () => {
     try {
       await axios.post(
@@ -202,56 +237,29 @@ const CheckoutPage = () => {
               label="Credit Card"
             />
           </RadioGroup>
-
-          {paymentMethod === "card" && (
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                border: "1px solid #ddd",
-                borderRadius: 3,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
-              <TextField
-                label="Card Number"
-                variant="outlined"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                fullWidth
+          {paymentMethod === "card" && clientSecret ? (
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentPage
+                cartItems={cartItems}
+                totalPrice={totalPrice}
+                myLocation={myLocation}
+                name={name}
+                phone={phone}
+                clientSecret={clientSecret}
               />
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <TextField
-                  label="Expiry Date (MM/YY)"
-                  variant="outlined"
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="CVV"
-                  variant="outlined"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                  fullWidth
-                />
-              </Box>
-            </Box>
-          )}
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ mt: "auto", borderRadius: 3 }}
-            onClick={handlePlaceOrder}
-            disabled={!name || !phone || cartItems.length === 0}
-          >
-            Place Order
-          </Button>
+            </Elements>
+          ) : paymentMethod === "cash" ? (
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mt: "auto", borderRadius: 3 }}
+              onClick={handlePlaceOrder}
+              disabled={!name || !phone || cartItems.length === 0}
+            >
+              Place Order
+            </Button>
+          ) : null}
         </Card>
         <Card
           sx={{
@@ -341,4 +349,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default CheckoutPage; 
