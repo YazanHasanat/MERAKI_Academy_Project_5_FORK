@@ -151,7 +151,7 @@ const CategoryPage = () => {
         align="center"
         sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
       >
-        {categoryDescriptions[categoryName] ||
+        {categoryName ||
           "Shop the best products in this category."}
       </Typography>
 
