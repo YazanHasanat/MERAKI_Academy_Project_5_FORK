@@ -147,7 +147,8 @@ const getProductsByCategory = async (req: Request, res: Response) => {
       `
       SELECT 
         products.*,
-        category.name AS category_name
+        category.name AS category_name,
+        category.description AS category_description
       FROM products
       INNER JOIN category ON products.category_id = category.id
       WHERE products.is_deleted = 0

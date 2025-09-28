@@ -50,7 +50,7 @@ const CategoryPage = () => {
     [key: string]: { average: number; count: number };
   }>({});
   const [loading, setLoading] = useState(true);
-
+  const [description, setDescription] = useState("");
   const user = { id: 1 };
 
   const categoryDescriptions: { [key: string]: string } = {
@@ -74,9 +74,11 @@ const CategoryPage = () => {
       );
       const data = res.data.products || res.data;
       setProducts(data);
+      console.log(data);
+      
 
       setCategoryName(data?.[0]?.category_name || "");
-
+      setDescription(data?.[0]?.category_description || "");
       const ratingsPromises = data.map(async (product: any) => {
         try {
           const ratingRes = await axios.get(
@@ -184,7 +186,7 @@ const CategoryPage = () => {
           align="center"
           sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
         >
-          {categoryDescriptions[categoryName] ||
+          {description ||
             "Shop the best products in this category."}
         </Typography>
 
@@ -210,7 +212,7 @@ const CategoryPage = () => {
               >
                 <CardMedia
                   component="img"
-                  image={`/assets/${product.image_urls?.[0] || "home.png"}`}
+                  image={ product.image_urls && product.image_urls.length > 0 ? product.image_urls[0].startsWith("http") ? product.image_urls[0] : `/assets/${product.image_urls[0]}` : "/assets/home.png" }
                   alt={product.title}
                   sx={{
                     width: "100%",
