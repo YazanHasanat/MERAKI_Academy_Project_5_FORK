@@ -28,6 +28,8 @@ type OrderType = {
   status: string;
   full_name: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export default function DeliveryPage() {
@@ -123,12 +125,21 @@ export default function DeliveryPage() {
                       <Typography variant="body1">
                         Order #{order.id} - <strong>{order.status}</strong>
                       </Typography>
-                      <Typography variant="body2" color="gray">
-                        {new Date(order.created_at).toLocaleDateString("en-GB")}
-                      </Typography>
-                      <Typography variant="body2" color="gray">
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        sx={{ cursor: "pointer", textDecoration: "underline" }}
+                        onClick={() => {
+                            if (order.latitude && order.longitude) {
+                            window.open(
+                                `https://www.google.com/maps?q=${order.latitude},${order.longitude}`,
+                                "_blank"
+                            );
+                            }
+                        }}
+                        >
                         Address: {order.address}
-                      </Typography>
+                        </Typography>
                       <Typography variant="body2" color="gray">
                         Total: ${order.total_price}
                       </Typography>
