@@ -54,10 +54,10 @@ const statusMap: {
     color: string;
   };
 } = {
-  pending: { label: "Pending", color: "#ff9800" },
+  pending: { label: "pending", color: "#ff9800" },
   preparing: { label: "Preparing", color: "#2196f3" },
-  "on the way": { label: "On the Way", color: "#ba68c8" },
-  delivered: { label: "Delivered", color: "#4caf50" },
+  "on the way": { label: "on the way", color: "#ba68c8" },
+  delivered: { label: "completed", color: "#4caf50" },
 };
 
 const UserPage = () => {

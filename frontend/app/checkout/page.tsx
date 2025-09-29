@@ -40,10 +40,15 @@ const CheckoutPage = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
   const [clientSecret, setClientSecret] = useState("");
 
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   // إنشاء client secret عند اختيار الدفع بالبطاقة
   const createPaymentIntent = async () => {
@@ -94,7 +99,10 @@ const CheckoutPage = () => {
       await axios.post(
         "http://localhost:5000/orders",
         {
-          products: cartItems.map(({ product_id, quantity }) => ({ product_id, quantity })),
+          products: cartItems.map(({ product_id, quantity }) => ({
+            product_id,
+            quantity,
+          })),
           status: "pending",
           full_name: name,
           pay_method: "cash",
@@ -123,45 +131,132 @@ const CheckoutPage = () => {
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
-  if (loading) return <Typography variant="h6" align="center" sx={{ mt: 6 }}>Loading...</Typography>;
+  if (loading)
+    return (
+      <Typography variant="h6" align="center" sx={{ mt: 6 }}>
+        Loading...
+      </Typography>
+    );
 
   return (
     <>
-      <Box sx={{ maxWidth: 900, mx: "auto", mt: 6, p: 4, boxShadow: "0 10px 30px rgba(0,0,0,0.1)", borderRadius: 4, display: "flex", gap: 6 }}>
-        <Card sx={{ flex: 1, p: 4, display: "flex", flexDirection: "column", gap: 3 }}>
-          <Typography variant="h5" fontWeight="bold">Customer Info</Typography>
-          <TextField label="Full Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
-          <TextField label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth />
+      <Box
+        sx={{
+          maxWidth: 900,
+          mx: "auto",
+          mt: 6,
+          p: 4,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+          borderRadius: 4,
+          display: "flex",
+          gap: 6,
+        }}
+      >
+        <Card
+          sx={{
+            flex: 1,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold">
+            Customer Info
+          </Typography>
+          <TextField
+            label="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Phone Number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            fullWidth
+          />
 
-          <Typography variant="h6" mt={2}>Payment Method</Typography>
-          <RadioGroup row value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+          <Typography variant="h6" mt={2}>
+            Payment Method
+          </Typography>
+          <RadioGroup
+            row
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+          >
             <FormControlLabel value="cash" control={<Radio />} label="Cash" />
-            <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+            <FormControlLabel
+              value="card"
+              control={<Radio />}
+              label="Credit Card"
+            />
           </RadioGroup>
 
           {paymentMethod === "card" && clientSecret ? (
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentPage cartItems={cartItems} totalPrice={totalPrice} name={name} phone={phone} clientSecret={clientSecret} />
+              <PaymentPage
+                cartItems={cartItems}
+                totalPrice={totalPrice}
+                name={name}
+                phone={phone}
+                clientSecret={clientSecret}
+              />
             </Elements>
           ) : paymentMethod === "cash" ? (
-            <Button variant="contained" size="large" onClick={handlePlaceOrderCash} disabled={!name || !phone || cartItems.length === 0}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handlePlaceOrderCash}
+              disabled={!name || !phone || cartItems.length === 0}
+            >
               Place Order
             </Button>
           ) : null}
         </Card>
 
         <Card sx={{ flex: 1, p: 4, display: "flex", flexDirection: "column" }}>
-          <Typography variant="h5" fontWeight="bold" mb={2}>Order Summary</Typography>
+          <Typography variant="h5" fontWeight="bold" mb={2}>
+            Order Summary
+          </Typography>
           <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
-            {cartItems.length === 0 ? <Typography>Your cart is empty.</Typography> :
-              cartItems.map(item => (
-                <Box key={item.product_id} sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                  <Typography>{item.title} × {item.quantity}</Typography>
-                  <Typography>${item.price * item.quantity}</Typography>
+            {cartItems.length === 0 ? (
+              <Typography>Your cart is empty.</Typography>
+            ) : (
+              cartItems.map((item) => (
+                <Box
+                  key={item.product_id}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 2,
+                    pb: 2,
+                    borderBottom: "1px solid #eee",
+                    gap: 2,
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <img
+                      src={`/assets/${item.image_urls[0]}`}
+                      alt={item.title}
+                      style={{
+                        width: 60,
+                        height: 60,
+                        objectFit: "cover",
+                        borderRadius: 4,
+                      }}
+                    />
+                    <Typography>{item.title}</Typography>
+                  </Box>
+                  <Typography>
+                    {item.quantity} × ${item.price}
+                  </Typography>
                 </Box>
               ))
-            }
+            )}
           </Box>
+
           <Divider />
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Typography fontWeight="bold">Total:</Typography>
@@ -170,8 +265,14 @@ const CheckoutPage = () => {
         </Card>
       </Box>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>{snackbarMessage}</Alert>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
       </Snackbar>
     </>
   );
