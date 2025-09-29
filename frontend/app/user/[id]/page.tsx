@@ -57,7 +57,7 @@ const statusMap: {
   pending: { label: "pending", color: "#ff9800" },
   preparing: { label: "Preparing", color: "#2196f3" },
   "on the way": { label: "on the way", color: "#ba68c8" },
-  delivered: { label: "completed", color: "#4caf50" },
+  completed: { label: "completed", color: "#4caf50" },
 };
 
 const UserPage = () => {
@@ -73,7 +73,6 @@ const UserPage = () => {
     email: "",
   });
 
-  // جلب معلومات المستخدم
   const getInformation = async () => {
     try {
       const res = await axios.get("http://localhost:5000/users/mypage", {
@@ -87,7 +86,6 @@ const UserPage = () => {
     }
   };
 
-  // جلب الطلبات
   const getOrders = async () => {
     try {
       const res = await axios.get("http://localhost:5000/orders/userorders", {
@@ -106,7 +104,6 @@ const UserPage = () => {
     getInformation();
     getOrders();
 
-    // جلب صورة من localStorage
     const avatar = localStorage.getItem("avatar") || "/avatar.png";
     setUserAvatar(avatar);
   }, []);
@@ -289,8 +286,7 @@ const UserPage = () => {
                           label={statusMap[order.status]?.label || order.status}
                           size="small"
                           sx={{
-                            backgroundColor:
-                              statusMap[order.status]?.color || "#e0e0e0",
+                            bgcolor: statusMap[order.status]?.color || "#e0e0e0",
                             color: "white",
                             fontWeight: "bold",
                           }}
