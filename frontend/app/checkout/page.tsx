@@ -50,7 +50,6 @@ const CheckoutPage = () => {
     0
   );
 
-  // إنشاء client secret عند اختيار الدفع بالبطاقة
   const createPaymentIntent = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -91,8 +90,17 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
-
-  // وضع الطلب نقداً
+const clearCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:5000/cart/clear", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartItems([]);
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+    } 
+  };
   const handlePlaceOrderCash = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -122,6 +130,7 @@ const CheckoutPage = () => {
       setName("");
       setPhone("");
       setPaymentMethod("cash");
+      clearCart();
     } catch {
       setSnackbarMessage("Failed to place order. Please try again.");
       setSnackbarSeverity("error");
@@ -269,6 +278,7 @@ const CheckoutPage = () => {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
           {snackbarMessage}

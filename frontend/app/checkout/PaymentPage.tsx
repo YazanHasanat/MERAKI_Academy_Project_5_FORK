@@ -18,7 +18,16 @@ const PaymentPage = ({ cartItems, totalPrice, name, phone, clientSecret }: Payme
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-
+const clearCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:5000/cart/clear", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+    } 
+  };
   const handlePlaceOrder = async () => {
     if (!stripe || !elements) return;
     setLoading(true);
@@ -53,6 +62,7 @@ const PaymentPage = ({ cartItems, totalPrice, name, phone, clientSecret }: Payme
     }
 
     setLoading(false);
+    clearCart();
   };
 
   return (
@@ -62,7 +72,8 @@ const PaymentPage = ({ cartItems, totalPrice, name, phone, clientSecret }: Payme
         {loading ? "Processing..." : "Place Order"}
       </Button>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert severity={snackbarSeverity}>{snackbarMessage}</Alert>
       </Snackbar>
     </div>

@@ -13,7 +13,9 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Star, StarBorder } from "@mui/icons-material";
+import Star from "@mui/icons-material/Star";
+import StarBorder from "@mui/icons-material/StarBorder";
+
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 
