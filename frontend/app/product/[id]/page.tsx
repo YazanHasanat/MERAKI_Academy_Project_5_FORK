@@ -182,7 +182,7 @@ const ProductPage = () => {
             <Box
               key={index}
               component="img"
-              src={`/assets/${img}`}
+              src={img.startsWith("http") ? img : `/assets/${img}`}
               alt={`${product.title} - ${index + 1}`}
               sx={{
                 height: 250,
