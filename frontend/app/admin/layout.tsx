@@ -1,7 +1,27 @@
+"use client"
 import { Box, Button, Typography } from "@mui/material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router =useRouter()
+  const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
+  if (role!==2) {
+    router.push("/")
+  }
+  const handleLogout = () => {
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role_id");
+    localStorage.removeItem("avatar");
+    setTimeout(() => {
+      window.location.reload()
+      
+    }, 200);
+    router.push("/"); 
+  };
+  
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
       <Box
@@ -23,6 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/products">Products info</Button>
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/users">User info</Button>
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/dashboard">Dashboard</Button>
+        <Button sx={{ mb: 1 }} variant="outlined" onClick={handleLogout}>logout</Button>
       </Box>
       <Box sx={{ flex: 1, p: 4 }}>
         {children}

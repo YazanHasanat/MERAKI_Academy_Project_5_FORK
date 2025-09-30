@@ -90,7 +90,7 @@ export default function HeroSection() {
   return (
     <Box>
       {/* Hero */}
-      <Box
+      <Box 
         sx={{
           position: "relative",
           height: "85vh",
