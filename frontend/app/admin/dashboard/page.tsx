@@ -23,36 +23,11 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 // --------- Types ----------
 type Category = { id: number; name: string };
-type Product = {
-  id: number;
-  title: string;
-  categoryId?: number;
-  price: number;
-  image_urls: string[];
-};
-type OrderProduct = {
-  product_id: number;
-  title: string;
-  quantity: number;
-  price: number;
-  categoryId?: number;
-};
-type Order = {
-  id: number;
-  products: OrderProduct[];
-  total_price: number;
-  created_at: string;
-  status: string;
-  user_id: number;
-};
+type Product = { id: number; title: string; categoryId?: number; price: number; image_urls: string[] };
+type OrderProduct = { product_id: number; title: string; quantity: number; price: number; categoryId?: number };
+type Order = { id: number; products: OrderProduct[]; total_price: number; created_at: string; status: string; user_id: number };
 type User = { id: number; firstname: string; email: string; createdAt: string };
-type BestUser = {
-  id: number;
-  firstname: string;
-  email: string;
-  ordersCount: number;
-  totalSpent: number;
-};
+type BestUser = { id: number; firstname: string; email: string; ordersCount: number; totalSpent: number };
 
 export default function DashboardPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -60,7 +35,6 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
-  // ---------- Fetch Data ----------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -75,30 +49,12 @@ export default function DashboardPage() {
         setProducts(prodRes.data.products);
 
         const enrichedOrders: Order[] = orderRes.data.map((order: any) => {
-          const detailedProducts: OrderProduct[] = order.products.map(
-            (p: any) => {
-              const prodInfo = prodRes.data.products.find(
-                (prod: Product) => prod.id === p.product_id
-              );
-              return {
-                ...p,
-                price: parseFloat(p.price),
-                categoryId: prodInfo?.categoryId,
-              };
-            }
-          );
-
-          const total_price = detailedProducts.reduce(
-            (sum, p) => sum + p.price * p.quantity,
-            0
-          );
-
-          return {
-            ...order,
-            id: order.order_id,
-            products: detailedProducts,
-            total_price,
-          };
+          const detailedProducts: OrderProduct[] = order.products.map((p: any) => {
+            const prodInfo = prodRes.data.products.find((prod: Product) => prod.id === p.product_id);
+            return { ...p, price: parseFloat(p.price), categoryId: prodInfo?.categoryId };
+          });
+          const total_price = detailedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
+          return { ...order, id: order.order_id, products: detailedProducts, total_price };
         });
 
         setOrders(enrichedOrders);
@@ -107,11 +63,10 @@ export default function DashboardPage() {
         console.error(err);
       }
     };
-
     fetchData();
   }, []);
 
-  // ---------- Dashboard Stats ----------
+  // ---------- Stats ----------
   const totalCategories = categories.length;
   const totalProducts = products.length;
   const totalUsers = users.length;
@@ -121,58 +76,23 @@ export default function DashboardPage() {
   // ---------- Product Sales ----------
   const productSalesCount: Record<string, number> = {};
   orders.forEach((o) =>
-    o.products.forEach(
-      (p) =>
-        (productSalesCount[p.title] =
-          (productSalesCount[p.title] || 0) + p.quantity)
-    )
+    o.products.forEach((p) => (productSalesCount[p.title] = (productSalesCount[p.title] || 0) + p.quantity))
   );
 
-  // ---------- Cards Data ----------
+  // ---------- Cards ----------
   const cardsData = [
-    {
-      label: "Categories",
-      value: totalCategories,
-      color: "#f8bbd0",
-      icon: <CategoryIcon fontSize="large" />,
-    },
-    {
-      label: "Products",
-      value: totalProducts,
-      color: "#b3e5fc",
-      icon: <ShoppingCartIcon fontSize="large" />,
-    },
-    {
-      label: "Users",
-      value: totalUsers,
-      color: "#c8e6c9",
-      icon: <PeopleIcon fontSize="large" />,
-    },
-    {
-      label: "Orders",
-      value: totalOrders,
-      color: "#ffe0b2",
-      icon: <ListAltIcon fontSize="large" />,
-    },
-    {
-      label: "Total Sales",
-      value: `$${totalSales.toFixed(2)}`,
-      color: "#d1c4e9",
-      icon: <AttachMoneyIcon fontSize="large" />,
-    },
+    { label: "Categories", value: totalCategories, color: "#f8bbd0", icon: <CategoryIcon fontSize="large" /> },
+    { label: "Products", value: totalProducts, color: "#b3e5fc", icon: <ShoppingCartIcon fontSize="large" /> },
+    { label: "Users", value: totalUsers, color: "#c8e6c9", icon: <PeopleIcon fontSize="large" /> },
+    { label: "Orders", value: totalOrders, color: "#ffe0b2", icon: <ListAltIcon fontSize="large" /> },
+    { label: "Total Sales", value: `$${totalSales.toFixed(2)}`, color: "#d1c4e9", icon: <AttachMoneyIcon fontSize="large" /> },
   ];
 
   // ---------- Best Users ----------
   const bestUsers: BestUser[] = users
     .map((user) => {
       const userOrders = orders.filter((o) => o.user_id === user.id);
-      return {
-        id: user.id,
-        firstname: user.firstname,
-        email: user.email,
-        ordersCount: userOrders.length,
-        totalSpent: userOrders.reduce((sum, o) => sum + o.total_price, 0),
-      };
+      return { id: user.id, firstname: user.firstname, email: user.email, ordersCount: userOrders.length, totalSpent: userOrders.reduce((sum, o) => sum + o.total_price, 0) };
     })
     .sort((a, b) => b.totalSpent - a.totalSpent)
     .slice(0, 5);
@@ -180,20 +100,17 @@ export default function DashboardPage() {
   return (
     <div style={{ padding: 20 }}>
       {/* ---------- Cards ---------- */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 16,
-          justifyContent: "space-between",
-        }}
-      >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "space-between" }}>
         {cardsData.map((card, idx) => (
           <div
             key={idx}
             style={{
-              flex: "1 1 18%", 
-              minWidth: 150, 
+              flex: "1 1 18%",
+              minWidth: 150,
+              opacity: 0,
+              transform: "translateY(20px)",
+              animation: `fadeInUp 1s ease forwards`,
+              animationDelay: `${idx * 0.1}s`,
             }}
           >
             <Card
@@ -203,26 +120,14 @@ export default function DashboardPage() {
                 backgroundColor: card.color,
                 textAlign: "center",
                 padding: 20,
-                transition: "transform 0.2s",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
               }}
               className="hover-card"
             >
               <CardContent>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  {card.icon}
-                </div>
-                <Typography variant="h6" gutterBottom>
-                  {card.label}
-                </Typography>
-                <Typography variant="h4" fontWeight="bold">
-                  {card.value}
-                </Typography>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>{card.icon}</div>
+                <Typography variant="h6" gutterBottom>{card.label}</Typography>
+                <Typography variant="h4" fontWeight="bold">{card.value}</Typography>
               </CardContent>
             </Card>
           </div>
@@ -230,55 +135,21 @@ export default function DashboardPage() {
       </div>
 
       {/* ---------- Best Selling Products ---------- */}
-      <Card
-        style={{
-          marginTop: 20,
-          padding: 20,
-          borderRadius: 10,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
-        }}
-      >
-        <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>
-          Best Selling Products
-        </Typography>
+      <Card style={{ marginTop: 20, padding: 20, borderRadius: 10, boxShadow: "0 2px 10px rgba(0,0,0,0.15)", animation: "fadeInUp 0.6s ease forwards", animationDelay: "0.6s" }}>
+        <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>Best Selling Products</Typography>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {Object.entries(productSalesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 5)
-            .map(([title, sold]) => {
+            .map(([title, sold], idx) => {
               const product = products.find((p) => p.title === title);
-              const image = product?.image_urls?.[0]?.startsWith("http")
-                ? product.image_urls[0]
-                : `/assets/${product?.image_urls?.[0] || "home.png"}`;
+              const image = product?.image_urls?.[0]?.startsWith("http") ? product.image_urls[0] : `/assets/${product?.image_urls?.[0] || "home.png"}`;
               return (
-                <div
-                  key={title}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: 10,
-                    borderRadius: 8,
-                    boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <img
-                    src={image}
-                    alt={title}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      objectFit: "cover",
-                      borderRadius: 6,
-                    }}
-                  />
+                <div key={title} style={{ display: "flex", alignItems: "center", gap: 10, padding: 10, borderRadius: 8, boxShadow: "0 1px 5px rgba(0,0,0,0.1)", opacity: 0, transform: "translateX(-10px)", animation: "rowFadeIn 0.4s ease forwards", animationDelay: `${idx * 0.2}s` }}>
+                  <img src={image} alt={title} style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 6 }} />
                   <div>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {title}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {sold} sold
-                    </Typography>
+                    <Typography variant="subtitle1" fontWeight="bold">{title}</Typography>
+                    <Typography variant="body2" color="textSecondary">{sold} sold</Typography>
                   </div>
                 </div>
               );
@@ -287,7 +158,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* ---------- Last 5 Orders ---------- */}
-      <Card style={{ marginTop: 20 }}>
+      <Card style={{ marginTop: 20, animation: "fadeInUp 0.6s ease forwards", animationDelay: "1s" }}>
         <CardContent>
           <Typography variant="h6">Last 5 Orders</Typography>
           <Table>
@@ -301,33 +172,22 @@ export default function DashboardPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders
-                .sort(
-                  (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
-                )
-                .slice(0, 5)
-                .map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>{order.user_id}</TableCell>
-                    <TableCell>
-                      {order.products
-                        .map((p) => `${p.title} (${p.quantity})`)
-                        .join(", ")}
-                    </TableCell>
-                    <TableCell>${order.total_price.toFixed(2)}</TableCell>
-                    <TableCell>{order.status}</TableCell>
-                  </TableRow>
-                ))}
+              {orders.sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,5).map((order, idx) => (
+                <TableRow key={order.id} style={{ opacity: 0, transform: "translateX(-10px)", animation: "rowFadeIn 0.4s ease forwards", animationDelay: `${idx*0.1}s` }}>
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{order.user_id}</TableCell>
+                  <TableCell>{order.products.map(p=>`${p.title} (${p.quantity})`).join(", ")}</TableCell>
+                  <TableCell>${order.total_price.toFixed(2)}</TableCell>
+                  <TableCell>{order.status}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
       {/* ---------- Best Users Table ---------- */}
-      <Card style={{ marginTop: 20 }}>
+      <Card style={{ marginTop: 20, animation: "fadeInUp 0.6s ease forwards", animationDelay: "1.3s" }}>
         <CardContent>
           <Typography variant="h6">Top 5 Users by Total Spent</Typography>
           <Table>
@@ -341,8 +201,8 @@ export default function DashboardPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {bestUsers.map((u) => (
-                <TableRow key={u.id}>
+              {bestUsers.map((u, idx) => (
+                <TableRow key={u.id} style={{ opacity: 0, transform: "translateX(-10px)", animation: "rowFadeIn 0.4s ease forwards", animationDelay: `${idx*0.1}s` }}>
                   <TableCell>{u.id}</TableCell>
                   <TableCell>{u.firstname}</TableCell>
                   <TableCell>{u.email}</TableCell>
@@ -354,6 +214,20 @@ export default function DashboardPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* ---------- Animations CSS ---------- */}
+      <style>{`
+        @keyframes fadeInUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes rowFadeIn {
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .hover-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+      `}</style>
     </div>
   );
 }

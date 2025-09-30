@@ -138,10 +138,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     onClose();
   };
 
-  // عند إغلاق dialog بعد إضافة location
   const handleDialogCloseAndRefresh = () => {
     handleDialogClose();
-    getLocationById(); // إعادة جلب الموقع الجديد
+    getLocationById();
   };
 
   return (
@@ -180,7 +179,13 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Box
                       component="img"
-                      src={`/assets/${item.image_urls[0]}`}
+                      src={
+                        item.image_urls?.[0]
+                          ? item.image_urls[0].startsWith("http")
+                            ? item.image_urls[0]
+                            : `/assets/${item.image_urls[0]}`
+                          : "/assets/home.png"
+                      }
                       alt={item.title}
                       sx={{ width: 60, height: 60, borderRadius: 2, mr: 2 }}
                     />
@@ -192,7 +197,11 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </Box>
                     <Typography
                       variant="body1"
-                      sx={{ fontWeight: "bold", minWidth: 60, textAlign: "right" }}
+                      sx={{
+                        fontWeight: "bold",
+                        minWidth: 60,
+                        textAlign: "right",
+                      }}
                     >
                       ${(item.quantity * item.price).toFixed(2)}
                     </Typography>
@@ -221,7 +230,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         variant="text"
                         size="small"
                         onClick={() =>
-                          handleUpdateQuantity(item.product_id, item.quantity - 1)
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity - 1
+                          )
                         }
                       >
                         −
@@ -231,7 +243,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         variant="text"
                         size="small"
                         onClick={() =>
-                          handleUpdateQuantity(item.product_id, item.quantity + 1)
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity + 1
+                          )
                         }
                       >
                         +
