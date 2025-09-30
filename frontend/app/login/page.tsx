@@ -116,20 +116,24 @@ if (role==2){
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Typography
-                variant="h5"
-                component="h1"
-                align="center"
-                gutterBottom
-                sx={{
-                  color:
-                    theme.palette.mode === "light"
-                      ? "#d63384"
-                      : "#ce93d8", // 👈 purple للدارك
-                }}
-              >
-                👶 Welcome Back
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', mb: 1, gap: 1, flexDirection: 'row', direction: 'ltr' }}>
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  align="center"
+                  gutterBottom
+                  sx={{
+                    color:
+                      theme.palette.mode === "light"
+                        ? "#d63384"
+                        : "#ce93d8", // 👈 purple للدارك
+                    display: 'flex', alignItems: 'center', gap: 1
+                  }}
+                >
+                  Welcome Back
+                  <img src="/assets/logo3.png" alt="logo" style={{ width: 32, height: 32, objectFit: 'contain', marginLeft: 8, verticalAlign: 'middle' }} />
+                </Typography>
+              </Box>
             </motion.div>
 
             <Box component="form" noValidate autoComplete="off">

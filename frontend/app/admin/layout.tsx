@@ -34,6 +34,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           alignItems: "stretch",
           py: 4,
           px: 2,
+          position: "sticky",
+          top: 0,
+          height: "100vh",
         }}
       >
         <Typography variant="h6" mb={2} textAlign="center" color="primary">
@@ -41,9 +44,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Typography>
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/category">Category info</Button>
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/products">Products info</Button>
-        <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/users">User info</Button>
         <Button sx={{ mb: 1 }} variant="outlined" component={Link} href="/admin/dashboard">Dashboard</Button>
-        <Button sx={{ mb: 1 }} variant="outlined" onClick={handleLogout}>logout</Button>
+        <Box sx={{ flex: 1 }} />
+        <Button sx={{ mt: "auto" }} variant="outlined" color="error" onClick={handleLogout}>logout</Button>
       </Box>
       <Box sx={{ flex: 1, p: 4 }}>
         {children}

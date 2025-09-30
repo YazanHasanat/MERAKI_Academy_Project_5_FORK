@@ -14,7 +14,7 @@ import axios from "axios";
 import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
 import { useRouter } from "next/navigation";
-
+import logo from "../../public/assets/logo.png";
 
 // ==== MUI Icons ====
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -37,9 +37,9 @@ interface Product {
 
 export default function Navbar() {
   const router = useRouter();
-//search
-  const [product, setProducts] = React.useState <Product[]>([])
-  const [search, setSearch] = React.useState("")
+  //search
+  const [product, setProducts] = React.useState<Product[]>([]);
+  const [search, setSearch] = React.useState("");
 
   //  useState instead of reading directly from localStorage
   const [firstName, setFirstName] = React.useState<string | null>(null);
@@ -54,7 +54,7 @@ export default function Navbar() {
     const storedUserId = localStorage.getItem("userId");
     setFirstName(storedFirstName);
     setUserId(storedUserId);
-  
+
     // Fetch categories
     async function fetchCategories() {
       try {
@@ -68,31 +68,31 @@ export default function Navbar() {
     }
     fetchCategories();
   }, []);
-React.useEffect(() => {
-  const loadUser = () => {
-    setFirstName(localStorage.getItem("firstName"));
-    setUserId(localStorage.getItem("userId"));
-  };
+  React.useEffect(() => {
+    const loadUser = () => {
+      setFirstName(localStorage.getItem("firstName"));
+      setUserId(localStorage.getItem("userId"));
+    };
 
-  loadUser();
+    loadUser();
 
-  window.addEventListener("storageUpdate", loadUser);
+    window.addEventListener("storageUpdate", loadUser);
 
-  return () => {
-    window.removeEventListener("storageUpdate", loadUser);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("storageUpdate", loadUser);
+    };
+  }, []);
   const getPrcucts = async () => {
     const results = await axios.get("http://localhost:5000/products");
-    setProducts(results.data.products)
-  }
-  React.useEffect(()=>{
-    getPrcucts()
-  },[])
-  
- const filteredProducts = product.filter((pro) =>
-  pro.title.toLowerCase().includes(search.toLowerCase())
-);
+    setProducts(results.data.products);
+  };
+  React.useEffect(() => {
+    getPrcucts();
+  }, []);
+
+  const filteredProducts = product.filter((pro) =>
+    pro.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleLogout = () => {
     localStorage.removeItem("firstName");
@@ -103,10 +103,13 @@ React.useEffect(() => {
 
     setFirstName(null);
     setUserId(null);
-    router.push("/"); 
+    router.push("/");
   };
-  const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
-if (role==2) return <div></div>
+  const role =
+    typeof window !== "undefined" && localStorage.getItem("role_id")
+      ? Number(localStorage.getItem("role_id"))
+      : null;
+  if (role == 2) return <div></div>;
 
   return (
     <>
@@ -114,90 +117,106 @@ if (role==2) return <div></div>
         <Container>
           <Toolbar sx={{ justifyContent: "space-between" }}>
             {/* Logo */}
-            <Box sx={{ display: "flex", justifyContent: "flex-start", minWidth: 120 }}>
-              <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                component="img"
+                src="/assets/logo2.png"
+                alt="Bebek Baby Logo"
+                sx={{
+                  height: "2.2rem",
+                  width: "auto",
+                  objectFit: "contain",
+                }}
+              />
+              <Link
+                href="/"
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
                 <Typography
                   variant="h4"
-                  sx={{ fontWeight: "bold", ml: -8, fontSize: "2rem" }}
+                  sx={{ fontWeight: "bold", fontSize: "2rem" }}
                 >
-                  Bebek Baby
+                  KiddyJoy
                 </Typography>
               </Link>
             </Box>
 
             {/* Search bar */}
-           <Box sx={{ position: "relative", flexGrow: 1, maxWidth: 400, mx: 4 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder="Search products..."
-              variant="outlined"
-              sx={{ bgcolor: "white", borderRadius: 1 }}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <Box
+              sx={{ position: "relative", flexGrow: 1, maxWidth: 400, mx: 4 }}
+            >
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search products..."
+                variant="outlined"
+                sx={{ bgcolor: "white", borderRadius: 1 }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
 
-            {/* Dropdown */}
-            {search && filteredProducts.length > 0 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  right: 0,
-                  bgcolor: "white",          
-                  border: "1px solid #ccc",
-                  borderRadius: 1,
-                  mt: 0.5,
-                  zIndex: 10,
-                  maxHeight: 250,
-                  overflowY: "auto",
-                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)", 
-                }}
-              >
-                {filteredProducts.map((pro) => (
-                  <Box
-                    key={pro.id}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      px: 2,
-                      py: 1,
-                      cursor: "pointer",
-                      "&:hover": { bgcolor: "#fce4ec" },
-                    }}
-                    onClick={() => {
-                      router.push(`/product/${pro.id}`);
-                      setSearch("");
-                    }}
-                  >
-                    {/*products photos*/}
-                    {pro.image_urls && pro.image_urls.length > 0 && pro.image_urls[0] && (
-                      <Box
-                        component="img"
-                        src={`/assets/${pro.image_urls[0]}`}
-                        alt={pro.title}
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          objectFit: "cover",
-                          borderRadius: 1,
-                        }}
-                      />
-                    )}
+              {/* Dropdown */}
+              {search && filteredProducts.length > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    bgcolor: "white",
+                    border: "1px solid #ccc",
+                    borderRadius: 1,
+                    mt: 0.5,
+                    zIndex: 10,
+                    maxHeight: 250,
+                    overflowY: "auto",
+                    boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  {filteredProducts.map((pro) => (
+                    <Box
+                      key={pro.id}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        px: 2,
+                        py: 1,
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "#fce4ec" },
+                      }}
+                      onClick={() => {
+                        router.push(`/product/${pro.id}`);
+                        setSearch("");
+                      }}
+                    >
+                      {/*products photos*/}
+                      {pro.image_urls &&
+                        pro.image_urls.length > 0 &&
+                        pro.image_urls[0] && (
+                          <Box
+                            component="img"
+                            src={`/assets/${pro.image_urls[0]}`}
+                            alt={pro.title}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: 1,
+                            }}
+                          />
+                        )}
 
-                    {/* product name*/}
-                    <Typography variant="body2" sx={{ color: "black" }}>
-                      {pro.title}
-                    </Typography>
-                  </Box>
-                ))}
+                      {/* product name*/}
+                      <Typography variant="body2" sx={{ color: "black" }}>
+                        {pro.title}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
 
-              </Box>
-            )}
-          </Box>
-          
             {/* User section */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {firstName ? (
