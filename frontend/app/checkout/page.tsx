@@ -90,7 +90,7 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
-const clearCart = async () => {
+  const clearCart = async () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete("http://localhost:5000/cart/clear", {
@@ -99,7 +99,7 @@ const clearCart = async () => {
       setCartItems([]);
     } catch (err) {
       console.error("Error clearing cart:", err);
-    } 
+    }
   };
   const handlePlaceOrderCash = async () => {
     try {
@@ -247,7 +247,13 @@ const clearCart = async () => {
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <img
-                      src={`/assets/${item.image_urls[0]}`}
+                      src={
+                        item.image_urls?.[0]
+                          ? item.image_urls[0].startsWith("http") 
+                            ? item.image_urls[0]
+                            : `/assets/${item.image_urls[0]}`
+                          : "/assets/home.png"
+                      }
                       alt={item.title}
                       style={{
                         width: 60,
