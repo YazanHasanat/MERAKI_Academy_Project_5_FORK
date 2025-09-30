@@ -89,15 +89,18 @@ function Register() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Typography
-                variant="h5"
-                component="h1"
-                align="center"
-                gutterBottom
-                sx={{ color: "#d63384", fontWeight: 600 }}
-              >
-                Create Your Account 👶
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', mb: 1, gap: 1, flexDirection: 'row', direction: 'ltr' }}>
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  align="center"
+                  gutterBottom
+                  sx={{ color: "#d63384", fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
+                >
+                  Create Your Account
+                  <img src="/assets/logo3.png" alt="logo" style={{ width: 32, height: 32, objectFit: 'contain', marginLeft: 8, verticalAlign: 'middle' }} />
+                </Typography>
+              </Box>
             </motion.div>
 
             <Box component="form" noValidate autoComplete="off">

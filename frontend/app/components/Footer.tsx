@@ -10,11 +10,9 @@ export default function Footer() {
   const [role, setRole] = useState<number | null>(null);
 
   useEffect(() => {
-    // أول تحميل
     const storedRole = localStorage.getItem("role_id");
     setRole(storedRole ? Number(storedRole) : null);
 
-    // listener لأي تحديث
     const handleStorageUpdate = () => {
       const updatedRole = localStorage.getItem("role_id");
       setRole(updatedRole ? Number(updatedRole) : null);
@@ -26,7 +24,7 @@ export default function Footer() {
     };
   }, []);
 
-  if (role === 2) return null; // إخفاء للفوتر إذا كان أدمن
+  if (role === 2) return null; 
 
   return (
     <Box
@@ -47,15 +45,25 @@ export default function Footer() {
             mb: 3,
           }}
         >
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-              Bebek Baby
-            </Typography>
+          {/* Logo + Name */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                component="img"
+                src="/assets/logo2.png" 
+                alt="KiddyJoy Logo"
+                sx={{ width: 40, height: 40, objectFit: "contain" }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                KiddyJoy
+              </Typography>
+            </Box>
             <Typography variant="body2">
               Your trusted store for baby products.
             </Typography>
           </Box>
 
+          {/* Categories Links */}
           <Box
             sx={{
               display: "flex",
@@ -81,6 +89,8 @@ export default function Footer() {
             </Link>
           </Box>
         </Box>
+
+        {/* Socials + copyright */}
         <Box
           sx={{
             borderTop: "1px solid #e0e0e0",
