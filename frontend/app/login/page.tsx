@@ -69,7 +69,14 @@ const Login = () => {
       localStorage.setItem("avatar", decoded.picture || "");
 
       setErrorMsg("");
-      router.push("/");
+      const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
+  console.log(role);
+if (role==2){
+  router.push("/admin")
+}else{
+  router.push("/")
+}
+
       window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
       setErrorMsg(

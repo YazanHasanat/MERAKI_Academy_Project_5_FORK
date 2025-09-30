@@ -103,8 +103,10 @@ React.useEffect(() => {
 
     setFirstName(null);
     setUserId(null);
-    router.push("/"); // redirect to home page
+    router.push("/"); 
   };
+  const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
+if (role==2) return <div></div>
 
   return (
     <>

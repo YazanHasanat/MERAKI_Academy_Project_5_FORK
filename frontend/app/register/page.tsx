@@ -39,7 +39,7 @@ function Register() {
           email,
           password,
           age: typeof age === "string" ? parseInt(age) || 0 : age,
-          role_id: 2,
+          role_id: 1,
         }
       );
 
