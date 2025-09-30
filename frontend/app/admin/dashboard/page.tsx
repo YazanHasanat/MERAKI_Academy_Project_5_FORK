@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { ResponsivePie } from "@nivo/pie";
+
 import {
   Grid,
   Card,
@@ -36,35 +38,43 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [catRes, prodRes, orderRes, userRes] = await Promise.all([
-          axios.get("http://localhost:5000/categories"),
-          axios.get("http://localhost:5000/products"),
-          axios.get("http://localhost:5000/orders/info"),
-          axios.get("http://localhost:5000/users/get"),
-        ]);
+  const fetchData = async () => {
+    try {
+      const [catRes, prodRes, orderRes, userRes] = await Promise.all([
+        axios.get("http://localhost:5000/categories"),
+        axios.get("http://localhost:5000/products"),
+        axios.get("http://localhost:5000/orders/info"),
+        axios.get("http://localhost:5000/users/get"),
+      ]);
 
-        setCategories(catRes.data);
-        setProducts(prodRes.data.products);
+      console.log("Categories:", catRes.data);
+      console.log("Products:", prodRes.data.products);
 
-        const enrichedOrders: Order[] = orderRes.data.map((order: any) => {
-          const detailedProducts: OrderProduct[] = order.products.map((p: any) => {
-            const prodInfo = prodRes.data.products.find((prod: Product) => prod.id === p.product_id);
-            return { ...p, price: parseFloat(p.price), categoryId: prodInfo?.categoryId };
-          });
-          const total_price = detailedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
-          return { ...order, id: order.order_id, products: detailedProducts, total_price };
+      setCategories(catRes.data);
+      setProducts(prodRes.data.products);
+
+      const enrichedOrders: Order[] = orderRes.data.map((order: any) => {
+        const detailedProducts: OrderProduct[] = order.products.map((p: any) => {
+          const prodInfo = prodRes.data.products.find((prod: Product) => prod.id === p.product_id);
+          return { 
+            ...p, 
+            price: parseFloat(p.price), 
+            categoryId: prodInfo?.category_id // ⚡ هنا عدلنا الاسم
+          };
         });
+        const total_price = detailedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
+        return { ...order, id: order.order_id, products: detailedProducts, total_price };
+      });
 
-        setOrders(enrichedOrders);
-        setUsers(userRes.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchData();
-  }, []);
+      setOrders(enrichedOrders);
+      setUsers(userRes.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  fetchData();
+}, []);
+
 
   // ---------- Stats ----------
   const totalCategories = categories.length;
@@ -96,6 +106,23 @@ export default function DashboardPage() {
     })
     .sort((a, b) => b.totalSpent - a.totalSpent)
     .slice(0, 5);
+
+
+const categorySalesCount: Record<string, number> = {};
+orders.forEach((o) =>
+  o.products.forEach((p) => {
+    const category = categories.find((c) => c.id === p.categoryId);
+    if (category) {
+      categorySalesCount[category.name] = (categorySalesCount[category.name] || 0) + p.quantity;
+    }
+  })
+);
+
+const pieData = Object.entries(categorySalesCount).map(([category, value]) => ({
+  id: category,
+  label: category,
+  value,
+}));
 
   return (
     <div style={{ padding: 20 }}>
@@ -214,6 +241,38 @@ export default function DashboardPage() {
           </Table>
         </CardContent>
       </Card>
+{/* ---------- Pie Chart by Category ---------- */}
+<Card style={{ marginTop: 20, padding: 20, borderRadius: 10, height: 400 }}>
+  <Typography variant="h6" fontWeight="bold" style={{ marginBottom: 15 }}>
+    Best Selling Categories
+  </Typography>
+  <div style={{ height: 320 }}>
+    <ResponsivePie
+      data={pieData}
+      margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+      innerRadius={0.5}
+      padAngle={0.6}
+      cornerRadius={2}
+      activeOuterRadiusOffset={8}
+      arcLinkLabelsSkipAngle={10}
+      arcLinkLabelsTextColor="#333333"
+      arcLinkLabelsThickness={2}
+      arcLinkLabelsColor={{ from: 'color' }}
+      arcLabelsSkipAngle={10}
+      arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+      legends={[
+        {
+          anchor: 'bottom',
+          direction: 'row',
+          translateY: 56,
+          itemWidth: 100,
+          itemHeight: 18,
+          symbolShape: 'circle'
+        }
+      ]}
+    />
+  </div>
+</Card>
 
       {/* ---------- Animations CSS ---------- */}
       <style>{`
