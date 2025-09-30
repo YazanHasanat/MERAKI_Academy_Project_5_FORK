@@ -269,6 +269,7 @@ const pieData = Object.entries(categorySalesCount).map(([category, value]) => ({
           itemHeight: 18,
           symbolShape: 'circle'
         }
+        
       ]}
     />
   </div>
