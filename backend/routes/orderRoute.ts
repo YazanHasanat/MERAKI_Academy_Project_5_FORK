@@ -19,7 +19,7 @@ orderRoute.put("/delete",softDeleteOrder)
 
 //path==>http://localhost:5000/orders/delete
 
-orderRoute.put("/status",updateOrderStatus)
+orderRoute.put("/status",authentication,updateOrderStatus)
 
 //path==>http://localhost:5000/orders/status
 

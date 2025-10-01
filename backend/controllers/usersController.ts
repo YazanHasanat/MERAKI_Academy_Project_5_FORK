@@ -155,7 +155,7 @@ const googleLogin = async (req: any, res: Res) => {
         `INSERT INTO users (firstname, lastname, email, password, country, age, role_id)
    VALUES ($1, $2, $3, $4, $5, $6, $7)
    RETURNING *`,
-        [given_name, family_name, email, null, "N/A", 0, 2]
+        [given_name, family_name, email, null, "N/A", 0, 1]
       );
       user = insert.rows[0];
     } else {

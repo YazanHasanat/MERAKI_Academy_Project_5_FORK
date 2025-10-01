@@ -24,7 +24,7 @@ export default function Footer() {
     };
   }, []);
 
-  if (role === 2) return null; 
+  if (role === 2||role===3) return null; 
 
   return (
     <Box
@@ -122,7 +122,7 @@ export default function Footer() {
             </IconButton>
           </Box>
           <Typography variant="body2">
-            © 2025 Bebek Baby - All Rights Reserved
+            © 2025 KiddyJoy - All Rights Reserved
           </Typography>
         </Box>
       </Container>

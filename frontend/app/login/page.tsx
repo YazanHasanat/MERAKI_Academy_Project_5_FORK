@@ -39,7 +39,17 @@ const Login = () => {
       localStorage.setItem("firstName", response.data.user.firstName);
 
       setErrorMsg("");
-      router.push("/");
+      const role =
+        typeof window !== "undefined" && localStorage.getItem("role_id")
+          ? Number(localStorage.getItem("role_id"))
+          : null;
+      if (role == 2) {
+        router.push("/admin");
+      } else if (role == 3) {
+        router.push("/delivery");
+      } else {
+        router.push("/");
+      }
       window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
       setErrorMsg(
@@ -48,7 +58,9 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse
+  ) => {
     try {
       const token = credentialResponse.credential;
       if (!token) return;
@@ -69,13 +81,17 @@ const Login = () => {
       localStorage.setItem("avatar", decoded.picture || "");
 
       setErrorMsg("");
-      const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
-  console.log(role);
-if (role==2){
-  router.push("/admin")
-}else{
-  router.push("/")
-}
+      const role =
+        typeof window !== "undefined" && localStorage.getItem("role_id")
+          ? Number(localStorage.getItem("role_id"))
+          : null;
+      if (role == 2) {
+        router.push("/admin");
+      } else if (role == 3) {
+        router.push("/delivery");
+      } else {
+        router.push("/");
+      }
 
       window.dispatchEvent(new Event("storageUpdate"));
     } catch (error: any) {
@@ -107,7 +123,7 @@ if (role==2){
             width: "100%",
             boxShadow: 4,
             borderRadius: 3,
-            bgcolor: theme.palette.background.paper, // 👈 paper يتغير حسب الثيم
+            bgcolor: theme.palette.background.paper,
           }}
         >
           <CardContent>
@@ -116,7 +132,17 @@ if (role==2){
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', mb: 1, gap: 1, flexDirection: 'row', direction: 'ltr' }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "center",
+                  mb: 1,
+                  gap: 1,
+                  flexDirection: "row",
+                  direction: "ltr",
+                }}
+              >
                 <Typography
                   variant="h5"
                   component="h1"
@@ -124,21 +150,43 @@ if (role==2){
                   gutterBottom
                   sx={{
                     color:
-                      theme.palette.mode === "light"
-                        ? "#d63384"
-                        : "#ce93d8", // 👈 purple للدارك
-                    display: 'flex', alignItems: 'center', gap: 1
+                      theme.palette.mode === "light" ? "#d63384" : "#ce93d8",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
                   }}
                 >
                   Welcome Back
-                  <img src="/assets/logo3.png" alt="logo" style={{ width: 32, height: 32, objectFit: 'contain', marginLeft: 8, verticalAlign: 'middle' }} />
+                  <img
+                    src="/assets/logo3.png"
+                    alt="logo"
+                    style={{
+                      width: 32,
+                      height: 32,
+                      objectFit: "contain",
+                      marginLeft: 8,
+                      verticalAlign: "middle",
+                    }}
+                  />
                 </Typography>
               </Box>
             </motion.div>
 
             <Box component="form" noValidate autoComplete="off">
-              {[{ label: "Email", value: email, setter: setEmail, type: "email" },
-                { label: "Password", value: password, setter: setPassword, type: "password" }].map((field, i) => (
+              {[
+                {
+                  label: "Email",
+                  value: email,
+                  setter: setEmail,
+                  type: "email",
+                },
+                {
+                  label: "Password",
+                  value: password,
+                  setter: setPassword,
+                  type: "password",
+                },
+              ].map((field, i) => (
                 <motion.div
                   key={field.label}
                   initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
@@ -162,11 +210,15 @@ if (role==2){
                         },
                         "&:hover fieldset": {
                           borderColor:
-                            theme.palette.mode === "light" ? "#f06292" : "#ce93d8",
+                            theme.palette.mode === "light"
+                              ? "#f06292"
+                              : "#ce93d8",
                         },
                         "&.Mui-focused fieldset": {
                           borderColor:
-                            theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
+                            theme.palette.mode === "light"
+                              ? "#ec407a"
+                              : "#ba68c8",
                         },
                       },
                       "& .MuiInputLabel-root": {
@@ -176,7 +228,10 @@ if (role==2){
                             : "#ccc",
                       },
                       "& .MuiInputLabel-root.Mui-focused": {
-                        color: theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
+                        color:
+                          theme.palette.mode === "light"
+                            ? "#ec407a"
+                            : "#ba68c8",
                       },
                     }}
                   />
@@ -236,8 +291,10 @@ if (role==2){
                   severity="error"
                   sx={{
                     mt: 2,
-                    bgcolor: theme.palette.mode === "light" ? "#ffcdd2" : "#880e4f",
-                    color: theme.palette.mode === "light" ? "#b71c1c" : "#ffb6d2",
+                    bgcolor:
+                      theme.palette.mode === "light" ? "#ffcdd2" : "#880e4f",
+                    color:
+                      theme.palette.mode === "light" ? "#b71c1c" : "#ffb6d2",
                   }}
                 >
                   {errorMsg}
@@ -262,7 +319,8 @@ if (role==2){
                 <Link
                   href="/register"
                   style={{
-                    color: theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
+                    color:
+                      theme.palette.mode === "light" ? "#ec407a" : "#ba68c8",
                     fontWeight: "bold",
                     textDecoration: "none",
                   }}
