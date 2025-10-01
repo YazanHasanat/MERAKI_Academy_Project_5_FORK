@@ -57,7 +57,7 @@ const statusMap: {
   pending: { label: "pending", color: "#ff9800" },
   preparing: { label: "Preparing", color: "#2196f3" },
   "on the way": { label: "on the way", color: "#ba68c8" },
-  completed: { label: "completed", color: "#4caf50" },
+  delivered: { label: "completed", color: "#4caf50" },
 };
 
 const UserPage = () => {
@@ -73,6 +73,7 @@ const UserPage = () => {
     email: "",
   });
 
+  // جلب معلومات المستخدم
   const getInformation = async () => {
     try {
       const res = await axios.get("http://localhost:5000/users/mypage", {
@@ -86,6 +87,7 @@ const UserPage = () => {
     }
   };
 
+  // جلب الطلبات
   const getOrders = async () => {
     try {
       const res = await axios.get("http://localhost:5000/orders/userorders", {
@@ -104,6 +106,7 @@ const UserPage = () => {
     getInformation();
     getOrders();
 
+    // جلب صورة من localStorage
     const avatar = localStorage.getItem("avatar") || "/avatar.png";
     setUserAvatar(avatar);
   }, []);
@@ -155,12 +158,31 @@ const UserPage = () => {
     }
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const fileURL = URL.createObjectURL(e.target.files[0]);
-      setUserAvatar(fileURL);
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+  
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "tecknest");
+  
+    try {
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/dv2a5welg/image/upload",
+        formData
+      );
+  
+      const uploadedUrl = response.data.secure_url;
+  
+      setUserAvatar(uploadedUrl);
+  
+      
+      localStorage.setItem("avatar", uploadedUrl);
+    } catch (err) {
+      console.error("Error uploading avatar:", err);
     }
   };
+  
 
   return (
     <Box
@@ -286,7 +308,8 @@ const UserPage = () => {
                           label={statusMap[order.status]?.label || order.status}
                           size="small"
                           sx={{
-                            bgcolor: statusMap[order.status]?.color || "#e0e0e0",
+                            backgroundColor:
+                              statusMap[order.status]?.color || "#e0e0e0",
                             color: "white",
                             fontWeight: "bold",
                           }}
