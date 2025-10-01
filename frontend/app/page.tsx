@@ -139,7 +139,7 @@ export default function HeroSection() {
               gutterBottom
               sx={{ mb: 3, textShadow: "1px 1px 5px rgba(0,0,0,0.4)" }}
             >
-              Discover the best products for your baby
+              Discover the best products for your baby 🍼🧸
             </Typography>
           </motion.div>
           <motion.div
