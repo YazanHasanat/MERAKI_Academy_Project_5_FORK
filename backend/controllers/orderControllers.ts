@@ -89,7 +89,8 @@ const getAllOrders = async (req: any, res: e.Response) => {
         location_id,
         address,
         latitude,
-        longitude
+        longitude,
+        driver_id
       FROM orders
       WHERE is_deleted = 0
       ORDER BY created_at DESC
@@ -181,7 +182,7 @@ const updateOrderStatus = async (req: any, res: e.Response) => {
   try {
     const result = await pool.query(
       `UPDATE orders 
-       SET status = $1, driver_id = $2 
+       SET status = $1, driver_id = $2, updated_at = NOW()
        WHERE id = $3 
        RETURNING *`,
       [status, driverId, order_id]
