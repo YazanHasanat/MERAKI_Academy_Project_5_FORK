@@ -9,7 +9,8 @@ import {
   CardContent,
   Stack,
   Typography,
-  Button, 
+  Button,
+  Divider,
 } from "@mui/material";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 
@@ -64,25 +65,25 @@ export default function DeliveryPage() {
           ? res.data.orders
           : [];
 
-        setOrders(fetchedOrders.filter((o: OrderType) => o.status === "pending"));
+        setOrders(fetchedOrders);
       })
       .catch((err) => console.error("Orders fetch error:", err))
       .finally(() => setLoadingOrders(false));
   }, []);
 
-  
   const handleChangeStatus = async (orderId: number, newStatus: string) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.put(
+      const res = await axios.put(
         "http://localhost:5000/orders/status",
         { order_id: orderId, status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: res.data.order.status } : o
+        )
       );
     } catch (err) {
       console.error("Error updating status:", err);
@@ -90,177 +91,221 @@ export default function DeliveryPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", justifyContent: "center", py: 5 }}>
-      <Stack spacing={3} sx={{ width: 600 }}>
-        {/* Driver*/}
-        <Card
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #e6ebf1 100%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        py: 5,
+      }}
+    >
+      {/* عنوان الصفحة */}
+      <Typography
+        variant="h4"
         sx={{
-          borderRadius: 4,
-          boxShadow: 3,
-          p: 4,
-          backgroundColor: "#ffffff",
-          border: "1px solid #ddd",
-          width: "100%", 
+          fontWeight: "bold",
+          mb: 4,
+          color: "#333",
+          textAlign: "center",
+          letterSpacing: 1,
         }}
       >
+        🚚 Delivery Dashboard
+      </Typography>
 
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: "bold", mb: 3, color: "#222", textAlign: "center" }}
+      <Stack spacing={4} sx={{ width: "90%", maxWidth: "900px" }}>
+        {/* Driver Card */}
+        <Card
+          sx={{
+            borderRadius: 4,
+            boxShadow: 4,
+            p: 4,
+            backgroundColor: "#fff",
+            border: "1px solid #ddd",
+          }}
         >
-          Driver Information
-        </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: "bold",
+              mb: 3,
+              color: "#1976d2",
+              textAlign: "center",
+            }}
+          >
+            Driver Information
+          </Typography>
 
-        <Stack spacing={2}>
-          <Stack direction="row" spacing={4} alignItems="flex-start">
+          <Stack spacing={3} alignItems="center">
             {/* Avatar */}
             <Avatar
               src={userAvatar}
               alt="Driver Profile"
-              sx={{ width: 100, height: 100, border: "1px solid #ccc" }}
+              sx={{
+                width: 120,
+                height: 120,
+                border: "3px solid #1976d2",
+              }}
             />
 
-            {/* First Name & Last Name */}
-            <Stack direction="row" spacing={2} flexGrow={1}>
-              <Box
-                sx={{
-                  flex: 1,
-                  p: 2,
-                  borderRadius: 2,
-                  backgroundColor: "#f9f9f9",
-                  boxShadow: 1,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#555" }}>
-                  First Name:
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              justifyContent="center"
+              width="100%"
+            >
+              <Box sx={{ flex: 1, p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  First Name
                 </Typography>
-                <Typography variant="body1" sx={{ color: "#333" }}>
+                <Typography variant="body1" fontWeight="bold">
                   {user?.firstname || "-"}
                 </Typography>
               </Box>
 
-              <Box
-                sx={{
-                  flex: 1,
-                  p: 2,
-                  borderRadius: 2,
-                  backgroundColor: "#f9f9f9",
-                  boxShadow: 1,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#555" }}>
-                  Last Name:
+              <Box sx={{ flex: 1, p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Last Name
                 </Typography>
-                <Typography variant="body1" sx={{ color: "#333" }}>
+                <Typography variant="body1" fontWeight="bold">
                   {user?.lastname || "-"}
                 </Typography>
               </Box>
             </Stack>
+
+            <Divider sx={{ width: "100%" }} />
+
+            <Box
+              sx={{ width: "100%", p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Email
+              </Typography>
+              <Typography variant="body1">{user?.email || "-"}</Typography>
+            </Box>
+
+            <Box
+              sx={{ width: "100%", p: 2, bgcolor: "#f9f9f9", borderRadius: 2 }}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Country
+              </Typography>
+              <Typography variant="body1">{user?.country || "-"}</Typography>
+            </Box>
           </Stack>
+        </Card>
 
-          {/* Email */}
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: "#f9f9f9",
-              boxShadow: 1,
-            }}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#555" }}>
-              Email:
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#333" }}>
-              {user?.email || "-"}
-            </Typography>
-          </Box>
-
-          {/* Country */}
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: "#f9f9f9",
-              boxShadow: 1,
-            }}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#555" }}>
-              Country:
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#333" }}>
-              {user?.country || "-"}
-            </Typography>
-          </Box>
-        </Stack>
-      </Card>
-
-
-
-
-        {/* orders*/}
+        {/* Orders Card */}
         <Card sx={{ borderRadius: 3, boxShadow: 5 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom color="black">
-              Pending Orders
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ fontWeight: "bold", color: "#333" }}
+            >
+              📦 Pending / On The Way Orders
             </Typography>
 
             {loadingOrders ? (
-              <Typography>Loading</Typography>
+              <Typography>Loading...</Typography>
             ) : orders.length === 0 ? (
               <Typography>No pending orders</Typography>
             ) : (
               <Stack spacing={2}>
-                {orders.map((order: OrderType) => (
-                  <Stack key={order.id} direction="row" spacing={2} alignItems="flex-start">
-                    <AccessTimeRoundedIcon sx={{ color: "black", mt: 0.5 }} />
-                    <Stack spacing={0.5} flexGrow={1}>
-                      <Typography variant="body1">
-                        Order #{order.id} - <strong>{order.status}</strong>
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="primary"
-                        sx={{ cursor: "pointer", textDecoration: "underline" }}
-                        onClick={() => {
-                          if (order.latitude && order.longitude) {
-                            window.open(
-                              `https://www.google.com/maps?q=${order.latitude},${order.longitude}`,
-                              "_blank"
-                            );
-                          }
-                        }}
+                {orders
+                  .filter((o) => o.status !== "completed") // عرض بس pending + on the way
+                  .map((order: OrderType) => (
+                    <Card
+                      key={order.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        border: "1px solid #eee",
+                        bgcolor: "#fafafa",
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="flex-start"
                       >
-                        Address: {order.address}
-                      </Typography>
-                      <Typography variant="body2" color="gray">
-                        Total: ${order.total_price}
-                      </Typography>
+                        <AccessTimeRoundedIcon
+                          sx={{
+                            mt: 0.5,
+                            color:
+                              order.status === "pending"
+                                ? "#1976d2"
+                                : "#ff9800", // لون حسب الحالة
+                          }}
+                        />
+                        <Stack spacing={1} flexGrow={1}>
+                          <Typography variant="body1">
+                            Order #{order.id} -{" "}
+                            <strong
+                              style={{
+                                color:
+                                  order.status === "pending"
+                                    ? "#1976d2"
+                                    : "#ff9800",
+                              }}
+                            >
+                              {order.status}
+                            </strong>
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="primary"
+                            sx={{
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                            }}
+                            onClick={() => {
+                              if (order.latitude && order.longitude) {
+                                window.open(
+                                  `https://www.google.com/maps?q=${order.latitude},${order.longitude}`,
+                                  "_blank"
+                                );
+                              }
+                            }}
+                          >
+                            Address: {order.address}
+                          </Typography>
+                          <Typography variant="body2" color="gray">
+                            Total: ${order.total_price}
+                          </Typography>
 
-                      {/* status buttons*/}
-                      <Stack direction="row" spacing={1} mt={1}>
-                        {order.status === "pending" && (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => handleChangeStatus(order.id, "on the way")}
-                          >
-                            Mark as On The Way
-                          </Button>
-                        )}
-                        {order.status === "on the way" && (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="success"
-                            onClick={() => handleChangeStatus(order.id, "completed")}
-                          >
-                            Mark as Completed
-                          </Button>
-                        )}
+                          {/* Status Buttons */}
+                          <Stack direction="row" spacing={1} mt={1}>
+                            {order.status === "pending" && (
+                              <Button
+                                size="small"
+                                variant="contained"
+                                onClick={() =>
+                                  handleChangeStatus(order.id, "on the way")
+                                }
+                              >
+                                Mark as On The Way
+                              </Button>
+                            )}
+                            {order.status === "on the way" && (
+                              <Button
+                                size="small"
+                                variant="contained"
+                                color="success"
+                                onClick={() =>
+                                  handleChangeStatus(order.id, "completed")
+                                }
+                              >
+                                Mark as Completed
+                              </Button>
+                            )}
+                          </Stack>
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </Stack>
-                ))}
+                    </Card>
+                  ))}
               </Stack>
             )}
           </CardContent>
