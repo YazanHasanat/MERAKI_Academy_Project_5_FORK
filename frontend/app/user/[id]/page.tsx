@@ -1,8 +1,4 @@
 "use client";
-import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -25,6 +21,8 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PaymentIcon from "@mui/icons-material/Payment";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 type UserType = {
   id: number;
@@ -36,6 +34,7 @@ type UserType = {
   age: number;
   role_id?: number;
   created_at: string;
+  avatar?: string;
 };
 
 type OrderType = {
@@ -48,12 +47,7 @@ type OrderType = {
   address: string;
 };
 
-const statusMap: {
-  [key: string]: {
-    label: string;
-    color: string;
-  };
-} = {
+const statusMap: { [key: string]: { label: string; color: string } } = {
   pending: { label: "pending", color: "#ff9800" },
   preparing: { label: "Preparing", color: "#2196f3" },
   "on the way": { label: "on the way", color: "#ba68c8" },
@@ -61,7 +55,6 @@ const statusMap: {
 };
 
 const UserPage = () => {
-  const [userAvatar, setUserAvatar] = useState("/avatar.png");
   const [user, setUser] = useState<UserType[]>([]);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [open, setOpen] = useState(false);
@@ -77,9 +70,7 @@ const UserPage = () => {
   const getInformation = async () => {
     try {
       const res = await axios.get("http://localhost:5000/users/mypage", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setUser(res.data);
     } catch (err) {
@@ -91,9 +82,7 @@ const UserPage = () => {
   const getOrders = async () => {
     try {
       const res = await axios.get("http://localhost:5000/orders/userorders", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (Array.isArray(res.data)) setOrders(res.data);
       else if (Array.isArray(res.data.orders)) setOrders(res.data.orders);
@@ -105,10 +94,6 @@ const UserPage = () => {
   useEffect(() => {
     getInformation();
     getOrders();
-
-    // جلب صورة من localStorage
-    const avatar = localStorage.getItem("avatar") || "/avatar.png";
-    setUserAvatar(avatar);
   }, []);
 
   const handleOpenUpdate = (user: UserType) => {
@@ -128,10 +113,7 @@ const UserPage = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleUpdate = async () => {
@@ -145,11 +127,7 @@ const UserPage = () => {
           country: formData.country,
           email: formData.email,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
       handleClose();
       getInformation();
@@ -158,31 +136,42 @@ const UserPage = () => {
     }
   };
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // رفع الصورة وتحديث الواجهة مباشرة
+  const handleAvatarChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    user: UserType
+  ) => {
     if (!e.target.files || !e.target.files[0]) return;
-  
+
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "tecknest");
-  
+    const formDataCloud = new FormData();
+    formDataCloud.append("file", file);
+    formDataCloud.append("upload_preset", "tecknest");
+    formDataCloud.append("cloud_name", "dv2a5welg");
+
     try {
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/dv2a5welg/image/upload",
-        formData
+        formDataCloud
       );
-  
+
       const uploadedUrl = response.data.secure_url;
-  
-      setUserAvatar(uploadedUrl);
-  
-      
-      localStorage.setItem("avatar", uploadedUrl);
+
+      await axios.put(
+        `http://localhost:5000/users/avatar/${user.id}`,
+        { avatar: uploadedUrl },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      console.log("Avatar updated successfully ✅");
+
+      setUser((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, avatar: uploadedUrl } : u))
+      );
     } catch (err) {
       console.error("Error uploading avatar:", err);
     }
   };
-  
 
   return (
     <Box
@@ -196,7 +185,6 @@ const UserPage = () => {
       }}
     >
       <Stack spacing={3} sx={{ width: 700 }}>
-        {/* User Info */}
         {user.map((ele) => (
           <Card
             key={ele.id}
@@ -212,10 +200,18 @@ const UserPage = () => {
             <Stack direction="row" spacing={3} alignItems="center">
               <Box sx={{ position: "relative", display: "inline-block" }}>
                 <Avatar
-                  src={userAvatar}
-                  alt={ele.firstname}
-                  sx={{ width: 80, height: 80, border: "3px solid #f06292" }}
-                />
+                  src={ele.avatar || undefined}
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    border: "3px solid #f06292",
+                    bgcolor: ele.avatar ? "transparent" : "#f06292",
+                    color: "white",
+                    fontSize: 32,
+                  }}
+                >
+                  {!ele.avatar && ele.firstname.charAt(0).toUpperCase()}
+                </Avatar>
                 <Button
                   variant="contained"
                   component="label"
@@ -234,13 +230,12 @@ const UserPage = () => {
                     type="file"
                     hidden
                     accept="image/*"
-                    onChange={handleAvatarChange}
+                    onChange={(e) => handleAvatarChange(e, ele)}
                   />
                   <Typography sx={{ fontSize: 12 }}>✏️</Typography>
                 </Button>
               </Box>
 
-              {/* User Info */}
               <Box sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" fontWeight="bold" color="#333">
                   {ele.firstname} {ele.lastname}
@@ -256,12 +251,16 @@ const UserPage = () => {
                     Country: {ele.country}
                   </Typography>
                 </Stack>
-                <Typography variant="caption" color="gray" mt={1} display="block">
+                <Typography
+                  variant="caption"
+                  color="gray"
+                  mt={1}
+                  display="block"
+                >
                   Joined: {new Date(ele.created_at).toLocaleDateString("en-GB")}
                 </Typography>
               </Box>
 
-              {/* Update Button */}
               <Button
                 variant="contained"
                 onClick={() => handleOpenUpdate(ele)}
@@ -286,7 +285,6 @@ const UserPage = () => {
             <Typography variant="h6" gutterBottom color="black">
               Order History
             </Typography>
-
             {orders.length > 0 ? (
               <Stack spacing={2}>
                 {orders.map((order) => (
@@ -321,11 +319,12 @@ const UserPage = () => {
                           <Stack direction="row" spacing={1} alignItems="center">
                             <CalendarTodayIcon sx={{ fontSize: 18 }} />
                             <Typography variant="body2" color="gray">
-                              {new Date(order.created_at).toLocaleDateString("en-GB")}
+                              {new Date(order.created_at).toLocaleDateString(
+                                "en-GB"
+                              )}
                             </Typography>
                           </Stack>
                         </Grid>
-
                         <Grid>
                           <Stack direction="row" spacing={1} alignItems="center">
                             <PaymentIcon sx={{ fontSize: 18 }} />
@@ -334,7 +333,6 @@ const UserPage = () => {
                             </Typography>
                           </Stack>
                         </Grid>
-
                         <Grid>
                           <Stack direction="row" spacing={1} alignItems="center">
                             <ShoppingCartIcon sx={{ fontSize: 18 }} />
@@ -343,7 +341,6 @@ const UserPage = () => {
                             </Typography>
                           </Stack>
                         </Grid>
-
                         <Grid>
                           <Stack direction="row" spacing={1} alignItems="center">
                             <LocationOnIcon sx={{ fontSize: 18 }} />
@@ -372,7 +369,7 @@ const UserPage = () => {
         </Card>
       </Stack>
 
-      {/* Dialog for Update */}
+      {/* Update Dialog */}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>Update Profile</DialogTitle>
         <DialogContent>
@@ -415,10 +412,7 @@ const UserPage = () => {
             onClick={handleUpdate}
             variant="contained"
             startIcon={<SaveIcon />}
-            sx={{
-              backgroundColor: "#f06292",
-              "&:hover": { backgroundColor: "#d81b60" },
-            }}
+            sx={{ backgroundColor: "#f06292", "&:hover": { backgroundColor: "#d81b60" } }}
           >
             Save
           </Button>
