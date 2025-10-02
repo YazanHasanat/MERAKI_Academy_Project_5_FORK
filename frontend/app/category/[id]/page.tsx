@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
@@ -10,19 +10,21 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import Button from "@mui/material/Button";
-import Drawer from "@mui/material/Drawer";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
+import SortIcon from "@mui/icons-material/Sort";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import StarIcon from "@mui/icons-material/Star";
+
+import StarIconFull from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-const drawerWidth = 240;
-
+// ⭐ عرض النجوم
 const StarRating = ({ rating }: { rating: number }) => {
   rating = Math.min(5, Math.max(0, rating));
   const fullStars = Math.floor(rating);
@@ -32,7 +34,7 @@ const StarRating = ({ rating }: { rating: number }) => {
   return (
     <Box display="flex" justifyContent="center" alignItems="center">
       {[...Array(fullStars)].map((_, i) => (
-        <StarIcon key={`full-${i}`} sx={{ color: "#FFC107" }} />
+        <StarIconFull key={`full-${i}`} sx={{ color: "#FFC107" }} />
       ))}
       {hasHalfStar && <StarHalfIcon sx={{ color: "#FFC107" }} />}
       {[...Array(emptyStars)].map((_, i) => (
@@ -42,36 +44,76 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
+enum SortOption {
+  Default,
+  PriceAsc,
+  PriceDesc,
+  TopRated,
+}
+
+const SortMenu = ({
+  activeSort,
+  onSortChange,
+}: {
+  activeSort: SortOption;
+  onSortChange: (sort: SortOption) => void;
+}) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const sortOptions = [
+    { key: SortOption.Default, label: "Recommended", icon: <SortIcon fontSize="small" /> },
+    { key: SortOption.PriceAsc, label: "Price: Low to High", icon: <ArrowUpwardIcon fontSize="small" /> },
+    { key: SortOption.PriceDesc, label: "Price: High to Low", icon: <ArrowDownwardIcon fontSize="small" /> },
+    { key: SortOption.TopRated, label: "Top Rated", icon: <StarIcon fontSize="small" /> },
+  ];
+
+  const currentSortLabel =
+    sortOptions.find((o) => o.key === activeSort)?.label || "Recommended";
+
+  return (
+    <div>
+      <Button
+        variant="outlined"
+        startIcon={<SortIcon />}
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        sx={{ textTransform: "none" }}
+      >
+        Sort By: {currentSortLabel}
+      </Button>
+      <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)}>
+        {sortOptions.map((option) => (
+          <MenuItem
+            key={option.key}
+            selected={option.key === activeSort}
+            onClick={() => {
+              onSortChange(option.key);
+              setAnchorEl(null);
+            }}
+          >
+            <ListItemIcon>{option.icon}</ListItemIcon>
+            <ListItemText primary={option.label} />
+          </MenuItem>
+        ))}
+      </Menu>
+    </div>
+  );
+};
+
 const CategoryPage = () => {
   const { id } = useParams();
   const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
-  const [ratings, setRatings] = useState<{
-    [key: string]: { average: number; count: number };
-  }>({});
+  const [ratings, setRatings] = useState<{ [key: string]: { average: number; count: number } }>({});
   const [loading, setLoading] = useState(true);
+  const [sortOption, setSortOption] = useState<SortOption>(SortOption.Default);
 
   const user = { id: 1 };
-
-  const categoryDescriptions: { [key: string]: string } = {
-    Clothing:
-      "Discover the latest clothing collections that combine comfort and style to suit all tastes and occasions.",
-    "Toys & Games":
-      "Endless fun with the best educational and entertaining toys that help children develop creativity and imagination.",
-    Nutrition:
-      "A wide variety of food products and supplements to help you maintain a healthy and balanced lifestyle.",
-    Furniture:
-      "Modern and comfortable furniture with unique designs to give your home a stylish touch that blends beauty and function.",
-    "Baby Gear":
-      "Everything your baby needs with special care to ensure comfort and safety at all times.",
-  };
 
   const CategoryData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `http://localhost:5000/products/category/${id}`
-      );
+      const res = await axios.get(`http://localhost:5000/products/category/${id}`);
       const data = res.data.products || res.data;
       setProducts(data);
 
@@ -115,6 +157,26 @@ const CategoryPage = () => {
     CategoryData();
   }, [id]);
 
+  const sortedProducts = useMemo(() => {
+    let sorted = [...products];
+    switch (sortOption) {
+      case SortOption.PriceAsc:
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case SortOption.PriceDesc:
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case SortOption.TopRated:
+        sorted.sort(
+          (a, b) => (ratings[b.id]?.average || 0) - (ratings[a.id]?.average || 0)
+        );
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [products, ratings, sortOption]);
+
   if (loading) {
     return (
       <Typography variant="h6" align="center">
@@ -124,189 +186,134 @@ const CategoryPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            p: 2,
-          },
-        }}
-      >
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Filters
-        </Typography>
-        <Divider />
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Price: Low to High" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Price: High to Low" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemText primary="Top Rated" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box
-        component="main"
-        sx={(theme) => ({
-          flexGrow: 1,
-          p: 4,
-          minHeight: "100vh",
-          bgcolor: theme.palette.mode === "light" ? "#f7f7fa" : "#121212",
-        })}
-      >
+    <Box sx={{ flexGrow: 1, p: 4 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography
           variant="h4"
-          align="center"
-          gutterBottom
-          sx={(theme) => ({
+          sx={{
             fontWeight: "bold",
-            mb: 2,
-            color: theme.palette.mode === "light" ? "#EC407A" : "#ad1457",
-          })}
+            color: "#EC407A",
+          }}
         >
           {categoryName}
         </Typography>
-
-        <Typography
-          variant="body1"
-          align="center"
-          sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
-        >
-          {categoryName || "Shop the best products in this category."}
-        </Typography>
-
-        <Grid container spacing={4} justifyContent="center" alignItems="center">
-          {products.map((product: any) => (
-            <Grid key={product.id} display="flex" justifyContent="center">
-              <Card
-                sx={(theme) => ({
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  boxShadow: 6,
-                  borderRadius: 4,
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": {
-                    transform: "translateY(-10px) scale(1.05)",
-                    boxShadow: 10,
-                  },
-                  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-                  mx: "auto",
-                  maxWidth: 350,
-                })}
-              >
-                <CardMedia
-                  component="img"
-                  image={
-                    product.image_urls && product.image_urls.length > 0
-                      ? product.image_urls[0].startsWith("http")
-                        ? product.image_urls[0]
-                        : ` /assets/${product.image_urls[0]} `
-                      : "/assets/home.png"
-                  }
-                  alt={product.title}
-                  sx={{
-                    width: "100%",
-                    height: 200,
-                    objectFit: "cover",
-                    borderTopLeftRadius: 4,
-                    borderTopRightRadius: 4,
-                  }}
-                />
-                <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                  <Typography
-                    gutterBottom
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      color: "#333",
-                      textAlign: "center",
-                    }}
-                  >
-                    {product.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2, textAlign: "center" }}
-                  >
-                    {product.description?.slice(0, 60)}...
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      color: "#EC407A",
-                      mb: 1,
-                    }}
-                  >
-                    {product.price ? `${product.price} JD` : ""}
-                  </Typography>
-                  <Box sx={{ mt: 1, textAlign: "center" }}>
-                    <StarRating rating={ratings[product.id]?.average || 0} />
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="block"
-                    >
-                      {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
-                      {ratings[product.id]?.count || 0})
-                    </Typography>
-                  </Box>
-                </CardContent>
-
-                <Box sx={{ p: 2, textAlign: "center" }}>
-                  <Link
-                    href={`/product/${product.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={(theme) => ({
-                        textTransform: "none",
-                        borderRadius: 20,
-                        px: 3,
-                        py: 1,
-                        fontWeight: "bold",
-                        bgcolor:
-                          theme.palette.mode === "light"
-                            ? "#EC407A"
-                            : "#d81b60",
-                        "&:hover": {
-                          bgcolor:
-                            theme.palette.mode === "light"
-                              ? "#d53972"
-                              : "#ad1457",
-                        },
-                      })}
-                    >
-                      View Details
-                    </Button>
-                  </Link>
-                </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
       </Box>
+
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
+      >
+        {categoryName || "Shop the best products in this category."}
+      </Typography>
+
+      <Grid container spacing={4} justifyContent="center" alignItems="center">
+        {sortedProducts.map((product: any) => (
+          <Grid key={product.id} display="flex" justifyContent="center">
+            <Card
+              sx={(theme) => ({
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: 6,
+                borderRadius: 4,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-10px) scale(1.05)",
+                  boxShadow: 10,
+                },
+                bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                mx: "auto",
+                maxWidth: 350,
+              })}
+            >
+              <CardMedia
+                component="img"
+                image={
+                  product.image_urls && product.image_urls.length > 0
+                    ? product.image_urls[0].startsWith("http")
+                      ? product.image_urls[0]
+                      : `/assets/${product.image_urls[0]}`
+                    : "/assets/home.png"
+                }
+                alt={product.title}
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  objectFit: "cover",
+                  borderTopLeftRadius: 4,
+                  borderTopRightRadius: 4,
+                }}
+              />
+              <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                <Typography
+                  gutterBottom
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: "#333",
+                    textAlign: "center",
+                  }}
+                >
+                  {product.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2, textAlign: "center" }}
+                >
+                  {product.description?.slice(0, 60)}...
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    color: "#EC407A",
+                    mb: 1,
+                  }}
+                >
+                  {product.price ? `${product.price} JD` : ""}
+                </Typography>
+                <Box sx={{ mt: 1, textAlign: "center" }}>
+                  <StarRating rating={ratings[product.id]?.average || 0} />
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
+                    {ratings[product.id]?.count || 0})
+                  </Typography>
+                </Box>
+              </CardContent>
+
+              <Box sx={{ p: 2, textAlign: "center" }}>
+                <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={(theme) => ({
+                      textTransform: "none",
+                      borderRadius: 20,
+                      px: 3,
+                      py: 1,
+                      fontWeight: "bold",
+                      bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#d81b60",
+                      "&:hover": {
+                        bgcolor: theme.palette.mode === "light" ? "#d53972" : "#ad1457",
+                      },
+                    })}
+                  >
+                    View Details
+                  </Button>
+                </Link>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 };
