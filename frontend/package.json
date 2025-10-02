@@ -14,6 +14,8 @@
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@react-oauth/google": "^0.12.2",
+    "@stripe/react-stripe-js": "^4.0.2",
+    "@stripe/stripe-js": "^7.9.0",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.16",
     "google-map-react": "^2.2.5",
