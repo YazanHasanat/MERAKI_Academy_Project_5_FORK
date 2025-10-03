@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import axios from "axios";
 import {
   Box,
@@ -11,6 +11,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 type Category = {
@@ -32,9 +35,18 @@ const CategoryDashBoard: React.FC = () => {
 
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [message, setMessage] = useState<string>("");
-  const [selectedCategoryToDelete, setSelectedCategoryToDelete] =
-    useState<string>("");
+
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  // Loader state
+  const [loadingAdd, setLoadingAdd] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
+  const [selectedCategoryToDelete, setSelectedCategoryToDelete] = useState<string>("");
+
   const getAllCategories = async () => {
     try {
       const response = await axios.get("http://localhost:5000/categories");
@@ -44,9 +56,10 @@ const CategoryDashBoard: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     getAllCategories();
   }, []);
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -76,31 +89,48 @@ const CategoryDashBoard: React.FC = () => {
   const handleAddCategory = async (e: FormEvent) => {
     e.preventDefault();
     if (!image) {
-      setMessage("Please select an image");
+      setSnackbarMessage("Please select an image");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
       return;
     }
+
+    setLoadingAdd(true);
     try {
       const imageUrl = await uploadImage();
       const categoryData = { ...form, image: imageUrl };
       await axios.post("http://localhost:5000/categories", categoryData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessage("Category added successfully!");
+      setSnackbarMessage("Category added successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+
       setForm({ name: "", description: "" });
       setImage(null);
       setPreview(null);
+
+      await getAllCategories();
     } catch (err) {
       console.error(err);
-      setMessage("Failed to add category");
+      setSnackbarMessage("Failed to add category");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setLoadingAdd(false);
     }
   };
 
   const handleDeleteCategory = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedCategoryToDelete) {
-      setMessage("Please select a category to delete");
+      setSnackbarMessage("Please select a category to delete");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
       return;
     }
+
+    setLoadingDelete(true);
     try {
       await axios.delete(
         `http://localhost:5000/categories/${selectedCategoryToDelete}`,
@@ -108,20 +138,29 @@ const CategoryDashBoard: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setMessage("Category deleted successfully!");
+      setSnackbarMessage("Category deleted successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
       setSelectedCategoryToDelete("");
+
+      await getAllCategories();
     } catch (err) {
       console.error(err);
-      setMessage("Failed to delete category");
+      setSnackbarMessage("Failed to delete category");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
   return (
     <Paper sx={{ p: 4, maxWidth: 700, margin: "auto", mt: 4 }}>
       <Typography variant="h4" mb={3}>
-        Add Category
+        Admin Dashboard - Categories
       </Typography>
 
+      {/* Add Category */}
       <Box
         component="form"
         onSubmit={handleAddCategory}
@@ -163,23 +202,22 @@ const CategoryDashBoard: React.FC = () => {
           </Box>
         )}
 
-        <Button type="submit" variant="contained" color="primary">
-          Add Category
+        <Button type="submit" variant="contained" color="primary" disabled={loadingAdd}>
+          {loadingAdd ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Add Category"}
         </Button>
       </Box>
-      <br />
+
+      {/* Delete Category */}
       <Box
         component="form"
         onSubmit={handleDeleteCategory}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 4 }}
       >
         <FormControl fullWidth>
           <InputLabel>Select Category to Delete</InputLabel>
           <Select
             value={selectedCategoryToDelete}
-            onChange={(e) => {
-              setSelectedCategoryToDelete(e.target.value as string);
-            }}
+            onChange={(e) => setSelectedCategoryToDelete(e.target.value)}
             required
           >
             {categories.map((category: Category) => (
@@ -189,24 +227,33 @@ const CategoryDashBoard: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+
         <Button
           type="submit"
           variant="contained"
           color="error"
-          sx={{
-            width: "250px",
-            textAlign: "center",
-            margin: "auto",
-          }}
+          sx={{ width: "250px", textAlign: "center", margin: "auto" }}
+          disabled={loadingDelete}
         >
-          Delete Category
+          {loadingDelete ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Delete Category"}
         </Button>
       </Box>
-      {message && (
-        <Typography color="secondary" mt={2}>
-          {message}
-        </Typography>
-      )}
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };
