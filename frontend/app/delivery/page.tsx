@@ -8,6 +8,7 @@ import UserInfo from "./components/UserInfo";
 import PendingOrders from "./components/PendingOrders";
 import MyOrders from "./components/MyOrders";
 import CompletedOrders from "./components/CompletedOrders";
+import { useRouter } from "next/navigation";
 
 type UserType = {
   id: number;
@@ -35,7 +36,7 @@ export default function DeliveryPage() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [selected, setSelected] = useState<string>("userinfo");
-
+const router=useRouter()
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -81,7 +82,10 @@ export default function DeliveryPage() {
       console.error("Error updating status:", err);
     }
   };
-
+const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
+  if (role!==3) {
+    router.push("/unauthorized")
+  }
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
       <Sidebar selected={selected} onSelect={setSelected} />

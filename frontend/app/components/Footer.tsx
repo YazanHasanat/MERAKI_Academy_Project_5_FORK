@@ -5,10 +5,11 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const [role, setRole] = useState<number | null>(null);
-
+  const pathname=usePathname()
   useEffect(() => {
     const storedRole = localStorage.getItem("role_id");
     setRole(storedRole ? Number(storedRole) : null);
@@ -24,7 +25,7 @@ export default function Footer() {
     };
   }, []);
 
-  if (role === 2||role===3) return null; 
+  if (role === 2||role===3||pathname.startsWith("/unauthorized")) return null; 
 
   return (
     <Box

@@ -13,7 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import axios from "axios";
 import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import logo from "../../public/assets/logo.png";
 
 // ==== MUI Icons ====
@@ -37,6 +37,8 @@ interface Product {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname =usePathname()
+  
   //search
   const [product, setProducts] = React.useState<Product[]>([]);
   const [search, setSearch] = React.useState("");
@@ -109,7 +111,7 @@ export default function Navbar() {
     typeof window !== "undefined" && localStorage.getItem("role_id")
       ? Number(localStorage.getItem("role_id"))
       : null;
-  if (role == 2||role==3) return <div></div>;
+  if (role == 2||role==3||pathname.startsWith("/unauthorized")) return <div></div>;
 
   return (
     <>

@@ -7,7 +7,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router =useRouter()
   const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
   if (role!==2) {
-    router.push("/")
+    router.push("/unauthorized")
   }
   const handleLogout = () => {
     localStorage.removeItem("firstName");
