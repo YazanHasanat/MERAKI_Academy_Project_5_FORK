@@ -1,9 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, Button, Container, Stack, TextField, Typography, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+  Paper,
+  useTheme,
+} from '@mui/material';
 
 export default function ContactUsPage() {
+  const theme = useTheme();
+
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -34,31 +45,38 @@ export default function ContactUsPage() {
       }}
     >
       <Container maxWidth="md">
-        
+        {/* Top image or illustration */}
         <Box
-          sx={{
-            mb: 4,
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 2,
-            flexWrap: 'wrap',
-            position: 'relative',
-            background: 'linear-gradient(135deg, #a1d4f9 0%, #c7f0f4 100%)',
-            borderRadius: 3,
-            p: 3,
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-          }}
-        >
-          
-          <img
-            src="/assets/kiddyjoy.png"
-            alt="Kids playing"
-            style={{ maxHeight: 140, objectFit: 'contain' }}
-          />
+  sx={{
+    width: '100%',
+    height: { xs: 220, sm: 300, md: 380 },
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: 4,
+    mb: 5,
+    boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+    background: 'linear-gradient(to top,rgb(235, 235, 235), #f8bbd0)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  <Box
+    component="img"
+    src="/assets/kiddyj.png"
+    alt="Kids playing"
+    sx={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      objectPosition: 'center',
+    }}
+  />
         </Box>
 
+        {/* Contact sections */}
         <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          
+          {/* Left section: contact info */}
           <Paper
             elevation={3}
             sx={{
@@ -71,7 +89,12 @@ export default function ContactUsPage() {
           >
             <Typography
               variant="h6"
-              sx={{ fontWeight: 'bold', mb: 2, color: '#6a1b9a', textAlign: 'center' }}
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: '#6a1b9a',
+                textAlign: 'center',
+              }}
             >
               Got Questions? <br /> We’re Here To Help!
             </Typography>
@@ -84,7 +107,7 @@ export default function ContactUsPage() {
                   width={22}
                 />
                 <Box>
-                  <strong>Chat with Us:</strong> Click on the icon below for live support!
+                  <strong>Chat with Us:</strong> Click the icon below for live support!
                 </Box>
               </Box>
 
@@ -109,19 +132,10 @@ export default function ContactUsPage() {
                   <strong>Call Us:</strong> 1-800-KID-PLAY (1-800-543-7529)
                 </Box>
               </Box>
-
-              <Box
-                sx={{
-                  mt: 3,
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
-                
-              </Box>
             </Stack>
           </Paper>
 
+          {/* Right section: contact form */}
           <Paper
             elevation={3}
             sx={{
@@ -134,7 +148,12 @@ export default function ContactUsPage() {
           >
             <Typography
               variant="h6"
-              sx={{ fontWeight: 'bold', mb: 3, textAlign: 'center', color: '#1976d2' }}
+              sx={{
+                fontWeight: 'bold',
+                mb: 3,
+                textAlign: 'center',
+                color: '#1976d2',
+              }}
             >
               Send Us A Message
             </Typography>
@@ -184,12 +203,16 @@ export default function ContactUsPage() {
                   type="submit"
                   variant="contained"
                   sx={{
-                    backgroundColor: '#ff6600',
+                    mt: 3,
+                    backgroundColor:
+                      theme.palette.mode === 'light' ? '#ec407a' : '#9c27b0',
+                    '&:hover': {
+                      backgroundColor:
+                        theme.palette.mode === 'light' ? '#c02677' : '#7b1fa2',
+                    },
                     color: '#fff',
                     fontWeight: 'bold',
-                    '&:hover': {
-                      backgroundColor: '#e65c00',
-                    },
+                    borderRadius: 2,
                   }}
                 >
                   Submit
@@ -199,11 +222,8 @@ export default function ContactUsPage() {
           </Paper>
         </Box>
 
-        
-        <Box
-          mt={4}
-          sx={{ display: 'flex', justifyContent: 'center', gap: 3 }}
-        >
+        {/* Social media icons */}
+        <Box mt={4} sx={{ display: 'flex', justifyContent: 'center', gap: 3 }}>
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
             <img
               src="https://cdn-icons-png.flaticon.com/512/733/733547.png"
