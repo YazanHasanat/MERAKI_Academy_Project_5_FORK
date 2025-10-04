@@ -165,7 +165,7 @@ const ProductDashBoard: React.FC = () => {
       setImages([]);
       setPreview([]);
 
-      await fetchProducts(); // تحديث المنتجات بعد الإضافة
+      await fetchProducts(); 
     } catch (err) {
       console.error("Error creating product:", err);
       setSnackbarMessage("Failed to add product");

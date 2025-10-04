@@ -3,7 +3,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 type OrderType = {
   id: number;
   created_at: string;
-  updated_at?: string; // مهم للترتيب حسب آخر تحديث
+  updated_at?: string; 
   total_price: string;
   status: string;
   full_name: string;
@@ -17,13 +17,13 @@ type CompletedOrdersProps = {
 };
 
 export default function CompletedOrders({ orders, driverId }: CompletedOrdersProps) {
-  // فلترة الأوردرات المكتملة للسائق وترتيبها حسب آخر تحديث
+  
   const myCompletedOrders = orders
     .filter(order => order.driver_id === driverId && order.status === "completed")
     .sort((a, b) => {
       const updatedA = new Date(a.updated_at || a.created_at).getTime();
       const updatedB = new Date(b.updated_at || b.created_at).getTime();
-      return updatedB - updatedA; // تنازلي: آخر تحديث أولًا
+      return updatedB - updatedA; 
     });
 
   return (

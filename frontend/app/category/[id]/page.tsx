@@ -24,7 +24,6 @@ import StarIconFull from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-// ⭐ عرض النجوم
 const StarRating = ({ rating }: { rating: number }) => {
   rating = Math.min(5, Math.max(0, rating));
   const fullStars = Math.floor(rating);
