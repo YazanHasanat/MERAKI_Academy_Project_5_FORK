@@ -27,7 +27,8 @@
     "react-dom": "19.1.0",
     "react-slick": "^0.31.0",
     "recharts": "^3.2.1",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "stripe": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
