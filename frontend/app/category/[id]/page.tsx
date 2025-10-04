@@ -103,6 +103,7 @@ const CategoryPage = () => {
   const { id } = useParams();
   const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
+  const [categoryDesc, setCategoryDesc] = useState(""); 
   const [ratings, setRatings] = useState<{ [key: string]: { average: number; count: number } }>({});
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>(SortOption.Default);
@@ -116,7 +117,10 @@ const CategoryPage = () => {
       const data = res.data.products || res.data;
       setProducts(data);
 
-      setCategoryName(data?.[0]?.category_name || "");
+      if (data?.length > 0) {
+        setCategoryName(data[0].category_name || "");
+        setCategoryDesc(data[0].category_description || ""); // 🆕
+      }
 
       const ratingsPromises = data.map(async (product: any) => {
         try {
@@ -147,6 +151,7 @@ const CategoryPage = () => {
     } catch (err) {
       console.error(err);
       setCategoryName("");
+      setCategoryDesc("");
     } finally {
       setLoading(false);
     }
@@ -186,27 +191,31 @@ const CategoryPage = () => {
 
   return (
     <Box sx={{ flexGrow: 1, p: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box textAlign="center" mb={3}>
         <Typography
           variant="h4"
           sx={{
             fontWeight: "bold",
             color: "#EC407A",
+            mb: 1,
           }}
         >
           {categoryName}
         </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "#555",
+            maxWidth: "700px",
+            mx: "auto",
+          }}
+        >
+          {categoryDesc || "Shop the best products in this category."}
+        </Typography>
+      </Box>
+      <Box display="flex" justifyContent="center" mb={4}>
         <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
       </Box>
-
-      <Typography
-        variant="body1"
-        align="center"
-        sx={{ mb: 4, color: "#010000ff", maxWidth: "700px", mx: "auto" }}
-      >
-        {categoryName || "Shop the best products in this category."}
-      </Typography>
-
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         {sortedProducts.map((product: any) => (
           <Grid key={product.id} display="flex" justifyContent="center">
