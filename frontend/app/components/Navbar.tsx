@@ -193,13 +193,17 @@ export default function Navbar() {
                         setSearch("");
                       }}
                     >
-                      {/*products photos*/}
+                      {/* Product image */}
                       {pro.image_urls &&
                         pro.image_urls.length > 0 &&
                         pro.image_urls[0] && (
                           <Box
                             component="img"
-                            src={`/assets/${pro.image_urls[0]}`}
+                            src={
+                              pro.image_urls[0].startsWith("http")
+                                ? pro.image_urls[0]
+                                : `/assets/${pro.image_urls[0]}`
+                            }
                             alt={pro.title}
                             sx={{
                               width: 40,
@@ -210,7 +214,7 @@ export default function Navbar() {
                           />
                         )}
 
-                      {/* product name*/}
+                      {/* Product name */}
                       <Typography variant="body2" sx={{ color: "black" }}>
                         {pro.title}
                       </Typography>
@@ -253,7 +257,7 @@ export default function Navbar() {
               <IconButton
                 color="inherit"
                 onClick={() => {
-                  if (pathname === "/cart") return; 
+                  if (pathname === "/cart") return;
                   setOpenCart(true);
                 }}
               >
