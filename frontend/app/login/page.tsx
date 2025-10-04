@@ -17,11 +17,10 @@ import {
   Alert,
   useTheme,
 } from "@mui/material";
-import { useThemeToggle } from "../components/Theme"; // اذا بدك تستخدم التوجل من زر خارجي
-
+import { useThemeToggle } from "../components/Theme"; 
 const Login = () => {
   const router = useRouter();
-  const theme = useTheme(); // 👈 ناخذ الثيم الحالي
+  const theme = useTheme(); 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -251,7 +250,7 @@ const Login = () => {
                   sx={{
                     mt: 3,
                     backgroundColor:
-                      theme.palette.mode === "light" ? "#ec407a" : "#9c27b0", // 👈 داكن للدارك
+                      theme.palette.mode === "light" ? "#ec407a" : "#9c27b0",
                     "&:hover": {
                       backgroundColor:
                         theme.palette.mode === "light" ? "#c02677" : "#7b1fa2",

@@ -14,13 +14,13 @@ import axios from "axios";
 import { Category } from "../page";
 import CartDrawer from "./CartDrawer";
 import { usePathname, useRouter } from "next/navigation";
-import logo from "../../public/assets/logo.png";
 
 // ==== MUI Icons ====
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SimpleNavbar from "./NavBarCheck";
 
 interface Product {
   id: number;
@@ -37,8 +37,8 @@ interface Product {
 
 export default function Navbar() {
   const router = useRouter();
-  const pathname =usePathname()
-  
+  const pathname = usePathname();
+
   //search
   const [product, setProducts] = React.useState<Product[]>([]);
   const [search, setSearch] = React.useState("");
@@ -111,8 +111,9 @@ export default function Navbar() {
     typeof window !== "undefined" && localStorage.getItem("role_id")
       ? Number(localStorage.getItem("role_id"))
       : null;
-  if (role == 2||role==3||pathname.startsWith("/unauthorized")) return <div></div>;
-
+  if (role == 2 || role == 3 || pathname.startsWith("/unauthorized"))
+    return <div></div>;
+  if (pathname.startsWith("/checkout")) return <SimpleNavbar />;
   return (
     <>
       <AppBar position="fixed" sx={{ bgcolor: "#F8BBD0" }}>
@@ -249,7 +250,13 @@ export default function Navbar() {
               )}
 
               {/* Cart */}
-              <IconButton color="inherit" onClick={() => setOpenCart(true)}>
+              <IconButton
+                color="inherit"
+                onClick={() => {
+                  if (pathname === "/cart") return; 
+                  setOpenCart(true);
+                }}
+              >
                 <ShoppingCartIcon />
               </IconButton>
             </Box>

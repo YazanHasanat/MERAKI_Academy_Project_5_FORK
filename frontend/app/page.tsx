@@ -15,7 +15,7 @@ import axios from "axios";
 import Slider from "react-slick";
 import Loading from "./loading";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion"; // استيراد المكتبة
+import { motion } from "framer-motion"; 
 
 export interface Category {
   id: string;
@@ -126,7 +126,7 @@ export default function HeroSection() {
                 textShadow: "2px 2px 10px rgba(0,0,0,0.5)",
               }}
             >
-              Welcome to Our Baby Shop
+              Welcome to Our KiddyJoy
             </Typography>
           </motion.div>
           <motion.div

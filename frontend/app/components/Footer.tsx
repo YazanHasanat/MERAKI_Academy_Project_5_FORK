@@ -25,7 +25,7 @@ export default function Footer() {
     };
   }, []);
 
-  if (role === 2||role===3||pathname.startsWith("/unauthorized")) return null; 
+  if (role === 2||role===3||pathname.startsWith("/unauthorized")||pathname.startsWith("/checkout")) return null; 
 
   return (
     <Box

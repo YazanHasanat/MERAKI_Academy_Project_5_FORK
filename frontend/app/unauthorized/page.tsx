@@ -35,14 +35,14 @@ const AuthorizePage = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         style={{
           width: "90%",
-          maxWidth: 700, // مستطيل أفقي أكبر
+          maxWidth: 700, 
           minHeight: 300,
         }}
       >
         <Card
           sx={{
             display: "flex",
-            flexDirection: "row", // تخلي المستطيل أفقي
+            flexDirection: "row", 
             alignItems: "center",
             justifyContent: "space-around",
             p: 4,

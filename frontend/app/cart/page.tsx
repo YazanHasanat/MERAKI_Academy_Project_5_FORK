@@ -49,10 +49,7 @@ export default function CartPage() {
     getcart();
   }, []);
 
-  const total = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleDeleteItem = async (product_id: number) => {
     try {
@@ -68,7 +65,7 @@ export default function CartPage() {
   };
 
   const handleUpdateQuantity = async (product_id: number, quantity: number) => {
-    if (quantity < 1) return; 
+    if (quantity < 1) return;
     try {
       await axios.put(
         "http://localhost:5000/cart/update",
@@ -93,9 +90,13 @@ export default function CartPage() {
         </Typography>
 
         {loading ? (
-          <Typography variant="h6" color="text.secondary">Loading...</Typography>
+          <Typography variant="h6" color="text.secondary">
+            Loading...
+          </Typography>
         ) : cart.length === 0 ? (
-          <Typography variant="h6" color="text.secondary">Your cart is empty</Typography>
+          <Typography variant="h6" color="text.secondary">
+            Your cart is empty
+          </Typography>
         ) : (
           cart.map((item) => (
             <Box
@@ -113,48 +114,76 @@ export default function CartPage() {
             >
               <Box
                 component="img"
-                src={`/assets/${item.image_urls[0]}`}
+                src={
+                  item.image_urls?.[0]
+                    ? item.image_urls[0].startsWith("http")
+                      ? item.image_urls[0]
+                      : `/assets/${item.image_urls[0]}`
+                    : "/assets/home.png"
+                }
                 alt={item.title}
                 sx={{ width: 80, height: 80, borderRadius: 2 }}
               />
 
-              <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Typography variant="h6">{item.title}</Typography>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Box sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        border: "1px solid #ccc",
-                        borderRadius: "50px",
-                        px: 1.5,
-                        py: 0.5,
-                        gap: 1.5,
-                      }}>
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item.product_id, item.quantity - 1)}
-                  >−</Button>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      border: "1px solid #ccc",
+                      borderRadius: "50px",
+                      px: 1.5,
+                      py: 0.5,
+                      gap: 1.5,
+                    }}
+                  >
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() =>
+                        handleUpdateQuantity(item.product_id, item.quantity - 1)
+                      }
+                    >
+                      −
+                    </Button>
 
-                  <Typography>{item.quantity}</Typography>
+                    <Typography>{item.quantity}</Typography>
 
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item.product_id, item.quantity + 1)}
-                  >+</Button>
-                    </Box>
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() =>
+                        handleUpdateQuantity(item.product_id, item.quantity + 1)
+                      }
+                    >
+                      +
+                    </Button>
+                  </Box>
                   <Button
                     variant="text"
                     color="error"
                     size="small"
                     onClick={() => handleDeleteItem(item.product_id)}
-                  >🗑️</Button>
+                  >
+                    🗑️
+                  </Button>
                 </Box>
               </Box>
 
-              <Typography variant="body1" sx={{ fontWeight: "bold", minWidth: 80, textAlign: "right" }}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "bold", minWidth: 80, textAlign: "right" }}
+              >
                 ${(item.quantity * item.price).toFixed(2)}
               </Typography>
             </Box>
@@ -163,7 +192,10 @@ export default function CartPage() {
 
         {cart.length > 0 && (
           <Box sx={{ mt: 3, textAlign: "right" }}>
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "primary.main" }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "primary.main" }}
+            >
               Total: ${total.toFixed(2)}
             </Typography>
           </Box>
@@ -207,7 +239,12 @@ export default function CartPage() {
         </Box>
       </Box>
 
-      <Dialog open={openDialog} onClose={handleDialogClose} fullWidth maxWidth="md">
+      <Dialog
+        open={openDialog}
+        onClose={handleDialogClose}
+        fullWidth
+        maxWidth="md"
+      >
         <DialogTitle>Enter Your Location</DialogTitle>
         <DialogContent dividers>
           <GetAddress onClose={handleDialogClose} />
