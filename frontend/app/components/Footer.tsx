@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const [role, setRole] = useState<number | null>(null);
-  const pathname=usePathname()
+  const pathname = usePathname();
   useEffect(() => {
     const storedRole = localStorage.getItem("role_id");
     setRole(storedRole ? Number(storedRole) : null);
@@ -25,7 +25,8 @@ export default function Footer() {
     };
   }, []);
 
-  if (role === 2||role===3||pathname.startsWith("/unauthorized")||pathname.startsWith("/checkout")) return null; 
+  if (role === 2 || role === 3 || pathname.startsWith("/unauthorized"))
+    return null;
 
   return (
     <Box
@@ -51,7 +52,7 @@ export default function Footer() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 component="img"
-                src="/assets/logo2.png" 
+                src="/assets/logo2.png"
                 alt="KiddyJoy Logo"
                 sx={{ width: 40, height: 40, objectFit: "contain" }}
               />
@@ -87,6 +88,23 @@ export default function Footer() {
             </Link>
             <Link href="/category/5" underline="hover" color="inherit">
               Baby Gear
+            </Link>
+          </Box>
+
+          {/* About & Contact Us below categories */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 3,
+              flexWrap: "wrap",
+              mt: 1,
+            }}
+          >
+            <Link href="/about" underline="hover" color="inherit">
+              About
+            </Link>
+            <Link href="/contact" underline="hover" color="inherit">
+              Contact Us
             </Link>
           </Box>
         </Box>
