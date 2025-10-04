@@ -173,14 +173,7 @@ export default function HeroSection() {
         }}
       >
         {/* Overlay with gradient */}
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(135deg, rgba(236, 64, 122, 0.7) 0%, rgba(236, 64, 122, 0.3) 50%, rgba(255, 255, 255, 0.2) 100%)",
-          }}
-        />
+    
 
         {/* Animated background elements */}
         <Box
