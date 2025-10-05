@@ -75,8 +75,6 @@ enum SortOption {
   PriceAsc,
   PriceDesc,
   TopRated,
-  Newest,
-  Popular,
 }
 
 const SortMenu = ({
@@ -94,8 +92,6 @@ const SortMenu = ({
     { key: SortOption.PriceAsc, label: "Price: Low to High", icon: <ArrowUpwardIcon fontSize="small" /> },
     { key: SortOption.PriceDesc, label: "Price: High to Low", icon: <ArrowDownwardIcon fontSize="small" /> },
     { key: SortOption.TopRated, label: "Top Rated", icon: <StarIcon fontSize="small" /> },
-    { key: SortOption.Newest, label: "Newest First", icon: <ShoppingBagIcon fontSize="small" /> },
-    { key: SortOption.Popular, label: "Most Popular", icon: <LocalOfferIcon fontSize="small" /> },
   ];
 
   const currentSortLabel =
@@ -189,7 +185,7 @@ const PriceRangeSlider = ({
 
   return (
     <Box sx={{ width: "100%" }}>
-      
+      {/* Title */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#333" }}>
           Price Range
@@ -199,7 +195,7 @@ const PriceRangeSlider = ({
         </Typography>
       </Box>
 
-      
+      {/* Price Inputs */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
         <Typography variant="body2" sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}>
           Min
@@ -262,6 +258,8 @@ const PriceRangeSlider = ({
           }}
         />
       </Box>
+
+      {/* Slider */}
       <Box sx={{ px: 1, py: 2 }}>
         <Slider
           value={value}
@@ -307,7 +305,7 @@ const PriceRangeSlider = ({
         />
       </Box>
 
-   
+      {/* Current Range Display */}
       <Box sx={{ 
         mt: 2, 
         p: 1.5, 
@@ -332,6 +330,7 @@ const QuickViewModal = ({
   open: boolean; 
   onClose: () => void;
 }) => {
+  // Check if product is null or undefined
   if (!product) {
     return null;
   }
@@ -547,12 +546,6 @@ const CategoryPage = () => {
           (a, b) => (ratings[b.id]?.average || 0) - (ratings[a.id]?.average || 0)
         );
         break;
-      case SortOption.Newest:
-        filtered.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        break;
-      case SortOption.Popular:
-        filtered.sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0));
-        break;
       default:
         break;
     }
@@ -659,7 +652,8 @@ const CategoryPage = () => {
             {error}
           </Alert>
         </Snackbar>
-       
+        
+        {/* Search Bar */}
         <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
@@ -687,10 +681,10 @@ const CategoryPage = () => {
           />
         </Box>
         
-        
+        {/* World-Class Filter Layout */}
         {products.length > 0 && (
           <Box sx={{ display: "flex", gap: 3, mb: 6, alignItems: "flex-start" }}>
-            
+            {/* Left Sidebar - Filters */}
             <Paper
               sx={{
                 width: 280,
@@ -702,6 +696,7 @@ const CategoryPage = () => {
                 top: 20,
               }}
             >
+              {/* Sidebar Header */}
               <Box sx={{
                 p: 3,
                 background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
@@ -738,7 +733,10 @@ const CategoryPage = () => {
                   </Button>
                 </Box>
               </Box>
+
+              {/* Filter Sections */}
               <Box sx={{ p: 3 }}>
+                {/* Price Filter */}
                 <Accordion 
                   defaultExpanded 
                   sx={{ 
@@ -771,6 +769,8 @@ const CategoryPage = () => {
                     />
                   </AccordionDetails>
                 </Accordion>
+
+                {/* Rating Filter */}
                 <Accordion 
                   defaultExpanded 
                   sx={{ 
@@ -909,9 +909,9 @@ const CategoryPage = () => {
               </Box>
             </Paper>
 
-            
+            {/* Main Content Area */}
             <Box sx={{ flex: 1 }}>
-              
+              {/* Results Bar */}
               <Paper
                 sx={{
                   p: 2,
@@ -959,7 +959,7 @@ const CategoryPage = () => {
                 </Box>
               </Paper>
 
-              
+              {/* Products Grid */}
               {filteredAndSortedProducts.length === 0 ? (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
                   <FilterListIcon sx={{ fontSize: 60, color: "#999", mb: 2 }} />
@@ -983,8 +983,9 @@ const CategoryPage = () => {
                 <Grid container spacing={3}>
                   {filteredAndSortedProducts.map((product: any, index) => (
                     <Grid 
-                      
+                      item 
                       key={product.id}
+                      xs={12} sm={6} md={4} lg={3}
                       sx={{ 
                         display: 'flex',
                         justifyContent: 'center',
@@ -1028,7 +1029,7 @@ const CategoryPage = () => {
                           maxWidth: 300,
                         })}
                       >
-                        
+                        {/* Product Image Container */}
                         <Box sx={{ 
                           position: "relative", 
                           overflow: "hidden",
@@ -1055,6 +1056,7 @@ const CategoryPage = () => {
                             onError={handleImageError}
                           />
                           
+                          {/* Discount Badge */}
                           {product.discount && (
                             <Chip
                               label={`-${product.discount}%`}
@@ -1072,6 +1074,8 @@ const CategoryPage = () => {
                               }}
                             />
                           )}
+
+                          {/* Quick Actions */}
                           <Box 
                             className="quick-actions"
                             sx={{ 
@@ -1104,12 +1108,15 @@ const CategoryPage = () => {
                             </IconButton>
                           </Box>
                         </Box>
+                        
+                        {/* Product Content */}
                         <CardContent sx={{ 
                           flexGrow: 1, 
                           p: 2.5,
                           display: "flex",
                           flexDirection: "column",
                         }}>
+                          {/* Product Title */}
                           <Typography
                             variant="h6"
                             sx={{
@@ -1127,6 +1134,8 @@ const CategoryPage = () => {
                           >
                             {product.title || "Untitled Product"}
                           </Typography>
+
+                          {/* Product Description */}
                           <Typography
                             variant="body2"
                             color="text.secondary"
@@ -1143,6 +1152,8 @@ const CategoryPage = () => {
                           >
                             {product.description || "No description available"}
                           </Typography>
+
+                          {/* Rating */}
                           <Box sx={{ 
                             display: "flex", 
                             alignItems: "center", 
@@ -1158,6 +1169,8 @@ const CategoryPage = () => {
                               ({ratings[product.id]?.count || 0})
                             </Typography>
                           </Box>
+
+                          {/* Price and Action */}
                           <Box sx={{ 
                             mt: "auto",
                             display: "flex",
@@ -1223,6 +1236,8 @@ const CategoryPage = () => {
           </Box>
         )}
       </Container>
+
+      {/* Quick View Modal - Only render if product is not null */}
       {quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}
