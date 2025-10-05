@@ -14,14 +14,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     localStorage.removeItem("userId");
     localStorage.removeItem("token");
     localStorage.removeItem("role_id");
-    localStorage.removeItem("avatar");
-    setTimeout(() => {
-      window.location.reload()
-      
-    }, 200);
-    router.push("/"); 
+    window.dispatchEvent(new Event("storageUpdate"));
+    router.push("/");
   };
-  
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
       <Box
