@@ -434,21 +434,7 @@ export default function HeroSection() {
                     {prod.title}
                   </Typography>
 
-                  {/* Rating */}
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        sx={{
-                          fontSize: 16,
-                          color: i < 4 ? "#FFD700" : "#E0E0E0",
-                        }}
-                      />
-                    ))}
-                    <Typography variant="caption" sx={{ ml: 1, color: "#666" }}>
-                      (4.0)
-                    </Typography>
-                  </Box>
+                 
 
                   <Box
                     sx={{
@@ -462,7 +448,7 @@ export default function HeroSection() {
                       variant="h6"
                       sx={{ fontWeight: "bold", color: "#EC407A" }}
                     >
-                      {prod.price} JD
+                      {prod.price} $
                     </Typography>
                     <Button
                       variant="contained"
