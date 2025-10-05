@@ -89,7 +89,7 @@ const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Nu
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
       <Sidebar selected={selected} onSelect={setSelected} />
-      <Box sx={{ flex: 1, p: 4 }}>
+      <Box sx={{ flex: 1, p: 4, marginLeft: '220px' }}>
         {selected === "userinfo" && <UserInfo user={user} />}
         {selected === "pending" && (
           <PendingOrders

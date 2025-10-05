@@ -35,9 +35,11 @@ export default function Sidebar({ selected, onSelect }: { selected: string; onSe
         alignItems: "stretch",
         py: 4,
         px: 2,
-        position: "sticky",
+        position: "fixed",
         top: 0,
+        left: 0,
         height: "100vh",
+        zIndex: 1200,
       }}
     >
       <Typography variant="h6" mb={2} textAlign="center" color="primary">

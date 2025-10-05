@@ -8,6 +8,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import ToysIcon from "@mui/icons-material/Toys";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useRouter } from "next/navigation";
 
 const FeatureCard = ({ 
   title, 
@@ -93,6 +94,7 @@ const FeatureCard = ({
 );
 
 export default function AboutPage() {
+  const router=useRouter()
   return (
     <Box sx={{ bgcolor: "#FFF5F8", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
       {/* Decorative Background Elements */}
@@ -346,6 +348,9 @@ export default function AboutPage() {
                   bgcolor: "#f5f5f5",
                   transform: "scale(1.05)",
                 },
+              }}
+              onClick={()=>{
+                router.push("/")
               }}
             >
               Shop Now

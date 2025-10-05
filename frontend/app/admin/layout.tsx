@@ -34,9 +34,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           alignItems: "stretch",
           py: 4,
           px: 2,
-          position: "sticky",
+          position: "fixed",
           top: 0,
+          left: 0,
           height: "100vh",
+          zIndex: 1200,
         }}
       >
         <Typography variant="h6" mb={2} textAlign="center" color="primary">
@@ -48,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Box sx={{ flex: 1 }} />
         <Button sx={{ mt: "auto" }} variant="outlined" color="error" onClick={handleLogout}>logout</Button>
       </Box>
-      <Box sx={{ flex: 1, p: 4 }}>
+      <Box sx={{ flex: 1, p: 4, marginLeft: '220px' }}>
         {children}
       </Box>
     </Box>
