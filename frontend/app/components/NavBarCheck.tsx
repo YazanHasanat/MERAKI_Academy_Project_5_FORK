@@ -8,64 +8,41 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useRouter, usePathname } from "next/navigation";
-import axios from "axios";
-import { Category } from "../page";
+import { useRouter } from "next/navigation";
 
 export default function SimpleNavbar() {
   const router = useRouter();
-  const pathname = usePathname();
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [cartCount, setCartCount] = React.useState(0);
-
-  React.useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const response = await axios.get("http://localhost:5000/categories");
-        setCategories(
-          response.data.map((cat: any) => ({ id: cat.id, name: cat.name }))
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchCategories();
-  }, []);
-
-  React.useEffect(() => {
-    // Get cart item count from localStorage
-    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    setCartCount(cartItems.length);
-  }, []);
-
   return (
     <>
-      <AppBar 
-        position="sticky" 
-        sx={{ 
+      <AppBar
+        position="sticky"
+        sx={{
           bgcolor: "#FFFFFF",
           boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
           color: "#333",
           transition: "all 0.3s ease",
-          zIndex: 1100
+          zIndex: 1100,
         }}
       >
         <Container maxWidth="xl">
           <Toolbar sx={{ justifyContent: "space-between", py: 1.5 }}>
             {/* Logo + name */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Link 
-                href="/" 
-                style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
+              <Link
+                href="/"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
                   textDecoration: "none",
-                  transition: "transform 0.3s ease"
+                  transition: "transform 0.3s ease",
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.05)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
                 <Box
                   component="img"
@@ -77,19 +54,19 @@ export default function SimpleNavbar() {
                     objectFit: "contain",
                     mr: 2,
                     transition: "all 0.3s ease",
-                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
+                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
                   }}
                 />
                 <Typography
                   variant="h4"
-                  sx={{ 
-                    fontWeight: "bold", 
+                  sx={{
+                    fontWeight: "bold",
                     fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2rem" },
                     background: "linear-gradient(45deg, #EC407A, #F48FB1)",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    letterSpacing: "0.5px"
+                    letterSpacing: "0.5px",
                   }}
                 >
                   KiddyJoy
@@ -111,23 +88,11 @@ export default function SimpleNavbar() {
                 "&:hover": {
                   bgcolor: "rgba(236, 64, 122, 0.2)",
                   transform: "scale(1.1)",
-                  boxShadow: "0 4px 12px rgba(236, 64, 122, 0.3)"
-                }
+                  boxShadow: "0 4px 12px rgba(236, 64, 122, 0.3)",
+                },
               }}
             >
-              <Badge 
-                badgeContent={cartCount} 
-                color="error"
-                sx={{
-                  "& .MuiBadge-badge": {
-                    fontSize: "0.7rem",
-                    height: "18px",
-                    minWidth: "18px"
-                  }
-                }}
-              >
-                <ShoppingCartIcon sx={{ fontSize: "1.5rem" }} />
-              </Badge>
+              <ShoppingCartIcon sx={{ fontSize: "1.5rem" }} />
             </IconButton>
           </Toolbar>
         </Container>

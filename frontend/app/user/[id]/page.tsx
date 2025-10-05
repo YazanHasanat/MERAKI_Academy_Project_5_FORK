@@ -15,14 +15,21 @@ import {
   TextField,
   Typography,
   Chip,
+  Paper,
+  IconButton,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PaymentIcon from "@mui/icons-material/Payment";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import EditIcon from "@mui/icons-material/Edit";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Container from "@mui/material/Container";
 
 type UserType = {
   id: number;
@@ -55,6 +62,7 @@ const statusMap: { [key: string]: { label: string; color: string } } = {
 };
 
 const UserPage = () => {
+  const theme = useTheme();
   const [user, setUser] = useState<UserType[]>([]);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [open, setOpen] = useState(false);
@@ -66,7 +74,6 @@ const UserPage = () => {
     email: "",
   });
 
-  // جلب معلومات المستخدم
   const getInformation = async () => {
     try {
       const res = await axios.get("http://localhost:5000/users/mypage", {
@@ -78,7 +85,6 @@ const UserPage = () => {
     }
   };
 
-  // جلب الطلبات
   const getOrders = async () => {
     try {
       const res = await axios.get("http://localhost:5000/orders/userorders", {
@@ -129,14 +135,20 @@ const UserPage = () => {
         },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
+          const currentUserId = Number(localStorage.getItem("userId"));
+
+      if (selectedUser.id === currentUserId) {
+      localStorage.setItem("firstName", formData.firstname);
+    }
+window.dispatchEvent(new Event("storageUpdate"));
       handleClose();
       getInformation();
+      
     } catch (err) {
       console.error("Error updating user:", err);
     }
   };
 
-  // رفع الصورة وتحديث الواجهة مباشرة
   const handleAvatarChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     user: UserType
@@ -177,209 +189,337 @@ const UserPage = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        py: 5,
-        backgroundColor: "#fafafa",
+        py: 4,
+        px: { xs: 2, md: 4 },
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(
+          theme.palette.secondary.main,
+          0.05
+        )} 100%)`,
       }}
     >
-      <Stack spacing={3} sx={{ width: 700 }}>
-        {user.map((ele) => (
-          <Card
-            key={ele.id}
+      <Container maxWidth="lg">
+        <Stack spacing={4}>
+          {/* Profile Section */}
+          <Paper
+            elevation={4}
             sx={{
-              borderRadius: 3,
-              boxShadow: 4,
-              p: 3,
-              bgcolor: "#ffffff",
-              transition: "transform 0.2s",
-              "&:hover": { transform: "scale(1.02)", boxShadow: 6 },
+              borderRadius: 4,
+              overflow: "hidden",
+              background: "white",
+              boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
             }}
           >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Box sx={{ position: "relative", display: "inline-block" }}>
-                <Avatar
-                  src={ele.avatar || undefined}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    border: "3px solid #f06292",
-                    bgcolor: ele.avatar ? "transparent" : "#f06292",
-                    color: "white",
-                    fontSize: 32,
-                  }}
-                >
-                  {!ele.avatar && ele.firstname.charAt(0).toUpperCase()}
-                </Avatar>
-                <Button
-                  variant="contained"
-                  component="label"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    minWidth: 0,
-                    p: 0.5,
-                    borderRadius: "50%",
-                    backgroundColor: "#f06292",
-                    "&:hover": { backgroundColor: "#d81b60" },
-                  }}
-                >
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={(e) => handleAvatarChange(e, ele)}
-                  />
-                  <Typography sx={{ fontSize: 12 }}>✏️</Typography>
-                </Button>
-              </Box>
-
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" fontWeight="bold" color="#333">
-                  {ele.firstname} {ele.lastname}
-                </Typography>
-                <Typography variant="body2" color="gray">
-                  {ele.email}
-                </Typography>
-                <Stack direction="row" spacing={2} mt={1}>
-                  <Typography variant="body2" color="gray">
-                    Age: {ele.age}
-                  </Typography>
-                  <Typography variant="body2" color="gray">
-                    Country: {ele.country}
-                  </Typography>
-                </Stack>
-                <Typography
-                  variant="caption"
-                  color="gray"
-                  mt={1}
-                  display="block"
-                >
-                  Joined: {new Date(ele.created_at).toLocaleDateString("en-GB")}
-                </Typography>
-              </Box>
-
-              <Button
-                variant="contained"
-                onClick={() => handleOpenUpdate(ele)}
-                sx={{
-                  backgroundColor: "#f06292",
-                  borderRadius: 2,
-                  textTransform: "none",
-                  px: 3,
-                  "&:hover": { backgroundColor: "#d81b60" },
-                  height: 40,
-                }}
-              >
-                Update
-              </Button>
-            </Stack>
-          </Card>
-        ))}
-
-        {/* Order History */}
-        <Card sx={{ borderRadius: 4, boxShadow: 6, p: 2, bgcolor: "white" }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom color="black">
-              Order History
-            </Typography>
-            {orders.length > 0 ? (
-              <Stack spacing={2}>
-                {orders.map((order) => (
-                  <Card
-                    key={order.id}
-                    sx={{
-                      borderRadius: 3,
-                      boxShadow: 2,
-                      p: 2,
-                      bgcolor: "#f9f9f9",
-                    }}
-                  >
-                    <Stack spacing={1}>
-                      <Stack direction="row" justifyContent="space-between">
-                        <Typography variant="body1" fontWeight="bold">
-                          Order #{order.id}
-                        </Typography>
-                        <Chip
-                          label={statusMap[order.status]?.label || order.status}
-                          size="small"
-                          sx={{
-                            backgroundColor:
-                              statusMap[order.status]?.color || "#e0e0e0",
-                            color: "white",
-                            fontWeight: "bold",
-                          }}
-                        />
-                      </Stack>
-
-                      <Grid container spacing={2}>
-                        <Grid>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <CalendarTodayIcon sx={{ fontSize: 18 }} />
-                            <Typography variant="body2" color="gray">
-                              {new Date(order.created_at).toLocaleDateString(
-                                "en-GB"
-                              )}
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                        <Grid>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <PaymentIcon sx={{ fontSize: 18 }} />
-                            <Typography variant="body2" color="gray">
-                              {order.pay_method}
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                        <Grid>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <ShoppingCartIcon sx={{ fontSize: 18 }} />
-                            <Typography variant="body2" color="gray">
-                              {order.products?.length || 0} Products
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                        <Grid>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <LocationOnIcon sx={{ fontSize: 18 }} />
-                            <Typography variant="body2" color="gray">
-                              {order.address}
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                      </Grid>
-
-                      <Divider sx={{ my: 1 }} />
-
-                      <Typography variant="body2" fontWeight="bold">
-                        Total: ${order.total_price || 0}
-                      </Typography>
-                    </Stack>
-                  </Card>
-                ))}
-              </Stack>
-            ) : (
-              <Typography variant="body2" color="gray">
-                No orders found.
+            <Box
+              sx={{
+                p: 3,
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                color: "white",
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold">
+                My Profile
               </Typography>
-            )}
-          </CardContent>
-        </Card>
-      </Stack>
+            </Box>
+            <Box sx={{ p: 4 }}>
+              {user.map((ele) => (
+                <Stack
+                  key={ele.id}
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={4}
+                  alignItems="center"
+                >
+                  <Box sx={{ position: "relative" }}>
+                    <Avatar
+                      src={ele.avatar || undefined}
+                      sx={{
+                        width: 120,
+                        height: 120,
+                        border: "4px solid",
+                        borderColor: "primary.main",
+                        bgcolor: ele.avatar ? "transparent" : "primary.main",
+                        color: "white",
+                        fontSize: 48,
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                      }}
+                    >
+                      {!ele.avatar && ele.firstname.charAt(0).toUpperCase()}
+                    </Avatar>
+                    <IconButton
+                      component="label"
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        bgcolor: "primary.main",
+                        color: "white",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                        "&:hover": {
+                          bgcolor: "primary.dark",
+                        },
+                      }}
+                    >
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleAvatarChange(e, ele)}
+                      />
+                      <PhotoCameraIcon />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="h4" fontWeight="bold" color="text.primary" mb={1}>
+                      {ele.firstname} {ele.lastname}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" mb={2}>
+                      {ele.email}
+                    </Typography>
+                    <Stack direction="row" spacing={3} mb={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Age
+                        </Typography>
+                        <Typography variant="body1" fontWeight="medium">
+                          {ele.age}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Country
+                        </Typography>
+                        <Typography variant="body1" fontWeight="medium">
+                          {ele.country}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Member Since
+                        </Typography>
+                        <Typography variant="body1" fontWeight="medium">
+                          {new Date(ele.created_at).toLocaleDateString("en-GB")}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    <Button
+                      variant="contained"
+                      startIcon={<EditIcon />}
+                      onClick={() => handleOpenUpdate(ele)}
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: "none",
+                        px: 3,
+                        py: 1,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Edit Profile
+                    </Button>
+                  </Box>
+                </Stack>
+              ))}
+            </Box>
+          </Paper>
+
+          {/* Order History Section */}
+          <Paper
+            elevation={4}
+            sx={{
+              borderRadius: 4,
+              overflow: "hidden",
+              background: "white",
+              boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+            }}
+          >
+            <Box
+              sx={{
+                p: 3,
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                color: "white",
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold">
+                Order History
+              </Typography>
+            </Box>
+            <Box sx={{ p: 4 }}>
+              {orders.length > 0 ? (
+                <Stack spacing={3}>
+                  {orders.map((order) => (
+                    <Card
+                      key={order.id}
+                      elevation={2}
+                      sx={{
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        transition: "transform 0.2s, box-shadow 0.2s",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+                        },
+                      }}
+                    >
+                      <Box sx={{ p: 3 }}>
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={2}
+                        >
+                          <Typography variant="h6" fontWeight="bold">
+                            Order #{order.id}
+                          </Typography>
+                          <Chip
+                            label={statusMap[order.status]?.label || order.status}
+                            size="medium"
+                            sx={{
+                              backgroundColor:
+                                statusMap[order.status]?.color || "#e0e0e0",
+                              color: "white",
+                              fontWeight: "bold",
+                            }}
+                          />
+                        </Stack>
+
+                        <Grid container spacing={3} mb={2}>
+                          <Grid >
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <CalendarTodayIcon
+                                fontSize="small"
+                                color="action"
+                              />
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  Date
+                                </Typography>
+                                <Typography variant="body2">
+                                  {new Date(order.created_at).toLocaleDateString(
+                                    "en-GB"
+                                  )}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Grid>
+                          <Grid >
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <PaymentIcon fontSize="small" color="action" />
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  Payment
+                                </Typography>
+                                <Typography variant="body2">
+                                  {order.pay_method}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Grid>
+                          <Grid>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <ShoppingCartIcon
+                                fontSize="small"
+                                color="action"
+                              />
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  Products
+                                </Typography>
+                                <Typography variant="body2">
+                                  {order.products?.length || 0}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Grid>
+                          <Grid >
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <LocationOnIcon fontSize="small" color="action" />
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  Address
+                                </Typography>
+                                <Typography variant="body2">
+                                  {order.address}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Grid>
+                        </Grid>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Total Amount
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color="primary.main"
+                          >
+                            ${order.total_price || 0}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Box
+                  sx={{
+                    py: 8,
+                    textAlign: "center",
+                    color: "text.secondary",
+                  }}
+                >
+                  <ShoppingCartIcon
+                    sx={{ fontSize: 64, mb: 2, opacity: 0.5 }}
+                  />
+                  <Typography variant="h6" mb={1}>
+                    No orders found
+                  </Typography>
+                  <Typography variant="body2">
+                    You haven't placed any orders yet
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        </Stack>
+      </Container>
 
       {/* Update Dialog */}
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Update Profile</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} mt={1}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            pb: 2,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            color: "white",
+          }}
+        >
+          Update Profile
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Stack spacing={3}>
             <TextField
               label="First Name"
               name="firstname"
               value={formData.firstname}
               onChange={handleChange}
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Last Name"
@@ -387,6 +527,7 @@ const UserPage = () => {
               value={formData.lastname}
               onChange={handleChange}
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Country"
@@ -394,6 +535,7 @@ const UserPage = () => {
               value={formData.country}
               onChange={handleChange}
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Email"
@@ -401,20 +543,26 @@ const UserPage = () => {
               value={formData.email}
               onChange={handleChange}
               fullWidth
+              variant="outlined"
             />
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="inherit">
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            variant="outlined"
+            sx={{ borderRadius: 2 }}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleUpdate}
             variant="contained"
             startIcon={<SaveIcon />}
-            sx={{ backgroundColor: "#f06292", "&:hover": { backgroundColor: "#d81b60" } }}
+            sx={{ borderRadius: 2 }}
           >
-            Save
+            Save Changes
           </Button>
         </DialogActions>
       </Dialog>
