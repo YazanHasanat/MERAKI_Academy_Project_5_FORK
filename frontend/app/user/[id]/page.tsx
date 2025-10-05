@@ -133,17 +133,18 @@ const UserPage = () => {
           country: formData.country,
           email: formData.email,
         },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
-          const currentUserId = Number(localStorage.getItem("userId"));
+      const currentUserId = Number(localStorage.getItem("userId"));
 
       if (selectedUser.id === currentUserId) {
-      localStorage.setItem("firstName", formData.firstname);
-    }
-window.dispatchEvent(new Event("storageUpdate"));
+        localStorage.setItem("firstName", formData.firstname);
+      }
+      window.dispatchEvent(new Event("storageUpdate"));
       handleClose();
       getInformation();
-      
     } catch (err) {
       console.error("Error updating user:", err);
     }
@@ -172,7 +173,9 @@ window.dispatchEvent(new Event("storageUpdate"));
       await axios.put(
         `http://localhost:5000/users/avatar/${user.id}`,
         { avatar: uploadedUrl },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
 
       console.log("Avatar updated successfully ✅");
@@ -191,10 +194,10 @@ window.dispatchEvent(new Event("storageUpdate"));
         minHeight: "100vh",
         py: 4,
         px: { xs: 2, md: 4 },
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(
-          theme.palette.secondary.main,
+        background: `linear-gradient(135deg, ${alpha(
+          theme.palette.primary.main,
           0.05
-        )} 100%)`,
+        )} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
       }}
     >
       <Container maxWidth="lg">
@@ -269,7 +272,12 @@ window.dispatchEvent(new Event("storageUpdate"));
                   </Box>
 
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="h4" fontWeight="bold" color="text.primary" mb={1}>
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
+                      color="text.primary"
+                      mb={1}
+                    >
                       {ele.firstname} {ele.lastname}
                     </Typography>
                     <Typography variant="body1" color="text.secondary" mb={2}>
@@ -370,7 +378,9 @@ window.dispatchEvent(new Event("storageUpdate"));
                             Order #{order.id}
                           </Typography>
                           <Chip
-                            label={statusMap[order.status]?.label || order.status}
+                            label={
+                              statusMap[order.status]?.label || order.status
+                            }
                             size="medium"
                             sx={{
                               backgroundColor:
@@ -382,29 +392,43 @@ window.dispatchEvent(new Event("storageUpdate"));
                         </Stack>
 
                         <Grid container spacing={3} mb={2}>
-                          <Grid >
-                            <Stack direction="row" spacing={1} alignItems="center">
+                          <Grid>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
                               <CalendarTodayIcon
                                 fontSize="small"
                                 color="action"
                               />
                               <Box>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Date
                                 </Typography>
                                 <Typography variant="body2">
-                                  {new Date(order.created_at).toLocaleDateString(
-                                    "en-GB"
-                                  )}
+                                  {new Date(
+                                    order.created_at
+                                  ).toLocaleDateString("en-GB")}
                                 </Typography>
                               </Box>
                             </Stack>
                           </Grid>
-                          <Grid >
-                            <Stack direction="row" spacing={1} alignItems="center">
+                          <Grid>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
                               <PaymentIcon fontSize="small" color="action" />
                               <Box>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Payment
                                 </Typography>
                                 <Typography variant="body2">
@@ -414,13 +438,20 @@ window.dispatchEvent(new Event("storageUpdate"));
                             </Stack>
                           </Grid>
                           <Grid>
-                            <Stack direction="row" spacing={1} alignItems="center">
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
                               <ShoppingCartIcon
                                 fontSize="small"
                                 color="action"
                               />
                               <Box>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Products
                                 </Typography>
                                 <Typography variant="body2">
@@ -429,11 +460,18 @@ window.dispatchEvent(new Event("storageUpdate"));
                               </Box>
                             </Stack>
                           </Grid>
-                          <Grid >
-                            <Stack direction="row" spacing={1} alignItems="center">
+                          <Grid>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
                               <LocationOnIcon fontSize="small" color="action" />
                               <Box>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Address
                                 </Typography>
                                 <Typography variant="body2">
@@ -511,8 +549,8 @@ window.dispatchEvent(new Event("storageUpdate"));
         >
           Update Profile
         </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Stack spacing={3}>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 3 }}>
             <TextField
               label="First Name"
               name="firstname"
@@ -520,6 +558,7 @@ window.dispatchEvent(new Event("storageUpdate"));
               onChange={handleChange}
               fullWidth
               variant="outlined"
+              margin="normal"
             />
             <TextField
               label="Last Name"
@@ -528,6 +567,7 @@ window.dispatchEvent(new Event("storageUpdate"));
               onChange={handleChange}
               fullWidth
               variant="outlined"
+              margin="normal"
             />
             <TextField
               label="Country"
@@ -536,6 +576,7 @@ window.dispatchEvent(new Event("storageUpdate"));
               onChange={handleChange}
               fullWidth
               variant="outlined"
+              margin="normal"
             />
             <TextField
               label="Email"
@@ -544,6 +585,7 @@ window.dispatchEvent(new Event("storageUpdate"));
               onChange={handleChange}
               fullWidth
               variant="outlined"
+              margin="normal"
             />
           </Stack>
         </DialogContent>
