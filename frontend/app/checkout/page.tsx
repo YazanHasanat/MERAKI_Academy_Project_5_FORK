@@ -16,6 +16,8 @@ import {
   Divider,
   Snackbar,
   Alert,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import PaymentPage from "./PaymentPage";
 
@@ -32,6 +34,9 @@ const stripePromise = loadStripe(
 );
 
 const CheckoutPage = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -90,6 +95,7 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
+  
   const clearCart = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -101,6 +107,7 @@ const CheckoutPage = () => {
       console.error("Error clearing cart:", err);
     }
   };
+  
   const handlePlaceOrderCash = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -153,24 +160,25 @@ const CheckoutPage = () => {
         sx={{
           maxWidth: 900,
           mx: "auto",
-          mt: 6,
-          p: 4,
+          mt: isMobile ? 3 : 6,
+          p: isMobile ? 2 : 4,
           boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
           borderRadius: 4,
           display: "flex",
-          gap: 6,
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 3 : 6,
         }}
       >
         <Card
           sx={{
             flex: 1,
-            p: 4,
+            p: isMobile ? 2 : 4,
             display: "flex",
             flexDirection: "column",
             gap: 3,
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
+          <Typography variant={isMobile ? "h6" : "h5"} fontWeight="bold">
             Customer Info
           </Typography>
           <TextField
@@ -178,23 +186,30 @@ const CheckoutPage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
+            size={isMobile ? "small" : "medium"}
           />
           <TextField
             label="Phone Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             fullWidth
+            size={isMobile ? "small" : "medium"}
           />
 
-          <Typography variant="h6" mt={2}>
+          <Typography variant={isMobile ? "subtitle1" : "h6"} mt={2}>
             Payment Method
           </Typography>
           <RadioGroup
-            row
+            row={!isMobile}
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           >
-            <FormControlLabel value="cash" control={<Radio />} label="Cash" />
+            <FormControlLabel 
+              value="cash" 
+              control={<Radio />} 
+              label="Cash" 
+              sx={{ mb: isMobile ? 1 : 0 }}
+            />
             <FormControlLabel
               value="card"
               control={<Radio />}
@@ -215,20 +230,21 @@ const CheckoutPage = () => {
           ) : paymentMethod === "cash" ? (
             <Button
               variant="contained"
-              size="large"
+              size={isMobile ? "medium" : "large"}
               onClick={handlePlaceOrderCash}
               disabled={!name || !phone || cartItems.length === 0}
+              fullWidth={isMobile}
             >
               Place Order
             </Button>
           ) : null}
         </Card>
 
-        <Card sx={{ flex: 1, p: 4, display: "flex", flexDirection: "column" }}>
-          <Typography variant="h5" fontWeight="bold" mb={2}>
+        <Card sx={{ flex: 1, p: isMobile ? 2 : 4, display: "flex", flexDirection: "column" }}>
+          <Typography variant={isMobile ? "h6" : "h5"} fontWeight="bold" mb={2}>
             Order Summary
           </Typography>
-          <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
+          <Box sx={{ flex: 1, overflowY: "auto", mb: 2, maxHeight: isMobile ? 300 : 'auto' }}>
             {cartItems.length === 0 ? (
               <Typography>Your cart is empty.</Typography>
             ) : (
@@ -242,10 +258,10 @@ const CheckoutPage = () => {
                     mb: 2,
                     pb: 2,
                     borderBottom: "1px solid #eee",
-                    gap: 2,
+                    gap: isMobile ? 1 : 2,
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: isMobile ? 1 : 2 }}>
                     <img
                       src={
                         item.image_urls?.[0]
@@ -256,15 +272,19 @@ const CheckoutPage = () => {
                       }
                       alt={item.title}
                       style={{
-                        width: 60,
-                        height: 60,
+                        width: isMobile ? 40 : 60,
+                        height: isMobile ? 40 : 60,
                         objectFit: "cover",
                         borderRadius: 4,
                       }}
                     />
-                    <Typography>{item.title}</Typography>
+                    <Typography variant={isMobile ? "body2" : "body1"}>
+                      {isMobile && item.title.length > 15 
+                        ? `${item.title.substring(0, 15)}...` 
+                        : item.title}
+                    </Typography>
                   </Box>
-                  <Typography>
+                  <Typography variant={isMobile ? "body2" : "body1"}>
                     {item.quantity} × ${item.price}
                   </Typography>
                 </Box>
@@ -274,8 +294,12 @@ const CheckoutPage = () => {
 
           <Divider />
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-            <Typography fontWeight="bold">Total:</Typography>
-            <Typography fontWeight="bold">${totalPrice.toFixed(2)}</Typography>
+            <Typography fontWeight="bold" variant={isMobile ? "body1" : "body2"}>
+              Total:
+            </Typography>
+            <Typography fontWeight="bold" variant={isMobile ? "body1" : "body2"}>
+              ${totalPrice.toFixed(2)}
+            </Typography>
           </Box>
         </Card>
       </Box>
