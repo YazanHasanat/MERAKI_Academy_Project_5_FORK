@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react"; // *** تغيير: تم استيراد useEffect لاستخدامه في SortMenu ***
 import { useParams } from "next/navigation";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
@@ -31,6 +31,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Popover from "@mui/material/Popover";
 
 import SortIcon from "@mui/icons-material/Sort";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -97,12 +98,42 @@ const SortMenu = ({
   const currentSortLabel =
     sortOptions.find((o) => o.key === activeSort)?.label || "Recommended";
 
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSortChange = (sort: SortOption) => {
+    onSortChange(sort);
+    handleClose();
+  };
+
+  // *** تغيير: إغلاق القائمة عند التمرير ***
+  useEffect(() => {
+    const handleScroll = () => {
+      if (open) {
+        handleClose();
+      }
+    };
+
+    if (open) {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [open, handleClose]);
+
   return (
     <div>
       <Button
         variant="contained"
         startIcon={<SortIcon />}
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={handleClick}
         sx={{ 
           textTransform: "none",
           bgcolor: "#EC407A",
@@ -122,17 +153,25 @@ const SortMenu = ({
       >
         {currentSortLabel}
       </Button>
-      <Menu 
-        anchorEl={anchorEl} 
-        open={open} 
-        onClose={() => setAnchorEl(null)}
-        TransitionComponent={Fade}
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
         PaperProps={{
           sx: {
             mt: 1.5,
             borderRadius: 2,
             boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
             minWidth: 220,
+            p: 1,
           }
         }}
       >
@@ -140,13 +179,10 @@ const SortMenu = ({
           <MenuItem
             key={option.key}
             selected={option.key === activeSort}
-            onClick={() => {
-              onSortChange(option.key);
-              setAnchorEl(null);
-            }}
+            onClick={() => handleSortChange(option.key)}
             sx={{
               borderRadius: 1,
-              mx: 1,
+              mx: 0.5,
               my: 0.5,
               "&.Mui-selected": {
                 backgroundColor: "rgba(236, 64, 122, 0.08)",
@@ -157,11 +193,11 @@ const SortMenu = ({
               },
             }}
           >
-            <ListItemIcon sx={{ color: "inherit" }}>{option.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>{option.icon}</ListItemIcon>
             <ListItemText primary={option.label} />
           </MenuItem>
         ))}
-      </Menu>
+      </Popover>
     </div>
   );
 };
@@ -208,15 +244,16 @@ const PriceRangeSlider = ({
             min: 0,
             max: max,
             type: "number",
-            style: { textAlign: "center" }
+            style: { textAlign: "center", fontSize: "0.9rem" }
           }}
           sx={{ 
-            width: 70,
+            // *** تغيير: زيادة العرض من 85 إلى 110 بكسل ***
+            width: 110, 
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              fontSize: '0.875rem',
+              fontSize: '0.9rem',
               '&:hover fieldset': {
                 borderColor: '#EC407A',
               },
@@ -224,6 +261,10 @@ const PriceRangeSlider = ({
                 borderColor: '#EC407A',
                 borderWidth: 2,
               },
+              '& input': {
+                textAlign: 'center',
+                padding: '8px 4px',
+              }
             }
           }}
         />
@@ -238,15 +279,16 @@ const PriceRangeSlider = ({
             min: 0,
             max: max,
             type: "number",
-            style: { textAlign: "center" }
+            style: { textAlign: "center", fontSize: "0.9rem" }
           }}
           sx={{ 
-            width: 70,
+            // *** تغيير: زيادة العرض من 85 إلى 110 بكسل ***
+            width: 110,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              fontSize: '0.875rem',
+              fontSize: '0.9rem',
               '&:hover fieldset': {
                 borderColor: '#EC407A',
               },
@@ -254,6 +296,10 @@ const PriceRangeSlider = ({
                 borderColor: '#EC407A',
                 borderWidth: 2,
               },
+              '& input': {
+                textAlign: 'center',
+                padding: '8px 4px',
+              }
             }
           }}
         />
@@ -330,7 +376,6 @@ const QuickViewModal = ({
   open: boolean; 
   onClose: () => void;
 }) => {
-  // Check if product is null or undefined
   if (!product) {
     return null;
   }
@@ -364,7 +409,7 @@ const QuickViewModal = ({
           </IconButton>
         </Box>
         <Grid container spacing={3}>
-          <Grid>
+          <Grid item xs={12} md={6}>
             <CardMedia
               component="img"
               image={
@@ -378,7 +423,7 @@ const QuickViewModal = ({
               sx={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 2 }}
             />
           </Grid>
-          <Grid>
+          <Grid item xs={12} md={6}>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
               {product.description || "No description available"}
             </Typography>
@@ -502,7 +547,6 @@ const CategoryPage = () => {
     setHeroVisible(true);
   }, [id]);
 
-  // Get unique brands from products
   const brands = useMemo(() => {
     const brandSet = new Set<string>();
     products.forEach(p => {
@@ -513,27 +557,22 @@ const CategoryPage = () => {
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter((product) => {
-      // Search filter
       const matchesSearch = searchQuery === "" || 
         product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // Price filter
       const price = product.price || 0;
       const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
       
-      // Brand filter
       const matchesBrand = selectedBrands.length === 0 || 
         (product.brand && selectedBrands.includes(product.brand));
       
-      // Rating filter
       const rating = ratings[product.id]?.average || 0;
       const matchesRating = rating >= minRating;
       
       return matchesSearch && matchesPrice && matchesBrand && matchesRating;
     });
 
-    // Sort
     switch (sortOption) {
       case SortOption.PriceAsc:
         filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -563,7 +602,6 @@ const CategoryPage = () => {
 
   const closeQuickView = () => {
     setQuickViewOpen(false);
-    // Don't set to null immediately to avoid the error
     setTimeout(() => setQuickViewProduct(null), 300);
   };
 
@@ -653,7 +691,6 @@ const CategoryPage = () => {
           </Alert>
         </Snackbar>
         
-        {/* Search Bar */}
         <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
@@ -681,10 +718,8 @@ const CategoryPage = () => {
           />
         </Box>
         
-        {/* World-Class Filter Layout */}
         {products.length > 0 && (
           <Box sx={{ display: "flex", gap: 3, mb: 6, alignItems: "flex-start" }}>
-            {/* Left Sidebar - Filters */}
             <Paper
               sx={{
                 width: 280,
@@ -696,7 +731,6 @@ const CategoryPage = () => {
                 top: 20,
               }}
             >
-              {/* Sidebar Header */}
               <Box sx={{
                 p: 3,
                 background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
@@ -734,9 +768,7 @@ const CategoryPage = () => {
                 </Box>
               </Box>
 
-              {/* Filter Sections */}
               <Box sx={{ p: 3 }}>
-                {/* Price Filter */}
                 <Accordion 
                   defaultExpanded 
                   sx={{ 
@@ -746,6 +778,8 @@ const CategoryPage = () => {
                     borderRadius: 2,
                     mb: 2,
                   }}
+                  // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
+                  TransitionProps={{ timeout: 0 }}
                 >
                   <AccordionSummary 
                     expandIcon={<ExpandMoreIcon />}
@@ -770,7 +804,6 @@ const CategoryPage = () => {
                   </AccordionDetails>
                 </Accordion>
 
-                {/* Rating Filter */}
                 <Accordion 
                   defaultExpanded 
                   sx={{ 
@@ -780,6 +813,8 @@ const CategoryPage = () => {
                     borderRadius: 2,
                     mb: 2,
                   }}
+                  // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
+                  TransitionProps={{ timeout: 0 }}
                 >
                   <AccordionSummary 
                     expandIcon={<ExpandMoreIcon />}
@@ -833,7 +868,6 @@ const CategoryPage = () => {
                   </AccordionDetails>
                 </Accordion>
 
-                {/* Brands Filter */}
                 {brands.length > 0 && (
                   <Accordion 
                     defaultExpanded 
@@ -843,6 +877,8 @@ const CategoryPage = () => {
                       border: "1px solid rgba(0,0,0,0.08)",
                       borderRadius: 2,
                     }}
+                    // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
+                    TransitionProps={{ timeout: 0 }}
                   >
                     <AccordionSummary 
                       expandIcon={<ExpandMoreIcon />}
@@ -909,9 +945,7 @@ const CategoryPage = () => {
               </Box>
             </Paper>
 
-            {/* Main Content Area */}
             <Box sx={{ flex: 1 }}>
-              {/* Results Bar */}
               <Paper
                 sx={{
                   p: 2,
@@ -959,7 +993,6 @@ const CategoryPage = () => {
                 </Box>
               </Paper>
 
-              {/* Products Grid */}
               {filteredAndSortedProducts.length === 0 ? (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
                   <FilterListIcon sx={{ fontSize: 60, color: "#999", mb: 2 }} />
@@ -1029,7 +1062,6 @@ const CategoryPage = () => {
                           maxWidth: 300,
                         })}
                       >
-                        {/* Product Image Container */}
                         <Box sx={{ 
                           position: "relative", 
                           overflow: "hidden",
@@ -1056,7 +1088,6 @@ const CategoryPage = () => {
                             onError={handleImageError}
                           />
                           
-                          {/* Discount Badge */}
                           {product.discount && (
                             <Chip
                               label={`-${product.discount}%`}
@@ -1075,7 +1106,6 @@ const CategoryPage = () => {
                             />
                           )}
 
-                          {/* Quick Actions */}
                           <Box 
                             className="quick-actions"
                             sx={{ 
@@ -1109,14 +1139,12 @@ const CategoryPage = () => {
                           </Box>
                         </Box>
                         
-                        {/* Product Content */}
                         <CardContent sx={{ 
                           flexGrow: 1, 
                           p: 2.5,
                           display: "flex",
                           flexDirection: "column",
                         }}>
-                          {/* Product Title */}
                           <Typography
                             variant="h6"
                             sx={{
@@ -1135,7 +1163,6 @@ const CategoryPage = () => {
                             {product.title || "Untitled Product"}
                           </Typography>
 
-                          {/* Product Description */}
                           <Typography
                             variant="body2"
                             color="text.secondary"
@@ -1153,7 +1180,6 @@ const CategoryPage = () => {
                             {product.description || "No description available"}
                           </Typography>
 
-                          {/* Rating */}
                           <Box sx={{ 
                             display: "flex", 
                             alignItems: "center", 
@@ -1170,7 +1196,6 @@ const CategoryPage = () => {
                             </Typography>
                           </Box>
 
-                          {/* Price and Action */}
                           <Box sx={{ 
                             mt: "auto",
                             display: "flex",
@@ -1237,7 +1262,6 @@ const CategoryPage = () => {
         )}
       </Container>
 
-      {/* Quick View Modal - Only render if product is not null */}
       {quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}
