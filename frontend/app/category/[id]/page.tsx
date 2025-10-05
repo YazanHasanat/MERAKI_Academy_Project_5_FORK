@@ -20,13 +20,17 @@ import Container from "@mui/material/Container";
 import Fade from "@mui/material/Fade";
 import Slide from "@mui/material/Slide";
 import Slider from "@mui/material/Slider";
-import Input from "@mui/material/Input";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
 import Modal from "@mui/material/Modal";
 import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import SortIcon from "@mui/icons-material/Sort";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -45,6 +49,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const StarRating = ({ rating }: { rating: number }) => {
   rating = Math.min(5, Math.max(0, rating));
@@ -53,13 +58,13 @@ const StarRating = ({ rating }: { rating: number }) => {
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center">
+    <Box display="flex" alignItems="center" gap={0.25}>
       {[...Array(fullStars)].map((_, i) => (
-        <StarIconFull key={`full-${i}`} sx={{ color: "#FFC107" }} />
+        <StarIconFull key={`full-${i}`} sx={{ color: "#FFC107", fontSize: 16 }} />
       ))}
-      {hasHalfStar && <StarHalfIcon sx={{ color: "#FFC107" }} />}
+      {hasHalfStar && <StarHalfIcon sx={{ color: "#FFC107", fontSize: 16 }} />}
       {[...Array(emptyStars)].map((_, i) => (
-        <StarBorderIcon key={`empty-${i}`} sx={{ color: "#FFC107" }} />
+        <StarBorderIcon key={`empty-${i}`} sx={{ color: "#FFC107", fontSize: 16 }} />
       ))}
     </Box>
   );
@@ -99,26 +104,41 @@ const SortMenu = ({
   return (
     <div>
       <Button
-        variant="outlined"
+        variant="contained"
         startIcon={<SortIcon />}
         onClick={(e) => setAnchorEl(e.currentTarget)}
         sx={{ 
           textTransform: "none",
-          borderColor: "#EC407A",
-          color: "#EC407A",
+          bgcolor: "#EC407A",
+          color: "white",
+          borderRadius: 28,
+          px: 3,
+          py: 1.2,
+          fontWeight: 600,
+          boxShadow: "0 4px 12px rgba(236, 64, 122, 0.3)",
           "&:hover": {
-            borderColor: "#d53972",
-            backgroundColor: "rgba(236, 64, 122, 0.04)"
-          }
+            bgcolor: "#d53972",
+            boxShadow: "0 6px 16px rgba(236, 64, 122, 0.4)",
+            transform: "translateY(-2px)",
+          },
+          transition: "all 0.3s ease",
         }}
       >
-        Sort By: {currentSortLabel}
+        {currentSortLabel}
       </Button>
       <Menu 
         anchorEl={anchorEl} 
         open={open} 
         onClose={() => setAnchorEl(null)}
         TransitionComponent={Fade}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            borderRadius: 2,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+            minWidth: 220,
+          }
+        }}
       >
         {sortOptions.map((option) => (
           <MenuItem
@@ -128,8 +148,20 @@ const SortMenu = ({
               onSortChange(option.key);
               setAnchorEl(null);
             }}
+            sx={{
+              borderRadius: 1,
+              mx: 1,
+              my: 0.5,
+              "&.Mui-selected": {
+                backgroundColor: "rgba(236, 64, 122, 0.08)",
+                color: "#EC407A",
+                "&:hover": {
+                  backgroundColor: "rgba(236, 64, 122, 0.12)",
+                },
+              },
+            }}
           >
-            <ListItemIcon>{option.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: "inherit" }}>{option.icon}</ListItemIcon>
             <ListItemText primary={option.label} />
           </MenuItem>
         ))}
@@ -156,12 +188,23 @@ const PriceRangeSlider = ({
   };
 
   return (
-    <Box sx={{ px: 2 }}>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        Price Range (JD)
-      </Typography>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Input
+    <Box sx={{ width: "100%" }}>
+      
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#333" }}>
+          Price Range
+        </Typography>
+        <Typography variant="subtitle1" color="#EC407A" sx={{ ml: 1, fontWeight: 700 }}>
+          (JD)
+        </Typography>
+      </Box>
+
+      
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}>
+          Min
+        </Typography>
+        <TextField
           value={value[0]}
           size="small"
           onChange={handleInputChange(0)}
@@ -169,10 +212,57 @@ const PriceRangeSlider = ({
             min: 0,
             max: max,
             type: "number",
-            "aria-labelledby": "input-slider",
+            style: { textAlign: "center" }
           }}
-          sx={{ width: 70 }}
+          sx={{ 
+            width: 70,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              fontSize: '0.875rem',
+              '&:hover fieldset': {
+                borderColor: '#EC407A',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#EC407A',
+                borderWidth: 2,
+              },
+            }
+          }}
         />
+        <Typography variant="body2" sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}>
+          Max
+        </Typography>
+        <TextField
+          value={value[1]}
+          size="small"
+          onChange={handleInputChange(1)}
+          inputProps={{
+            min: 0,
+            max: max,
+            type: "number",
+            style: { textAlign: "center" }
+          }}
+          sx={{ 
+            width: 70,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              fontSize: '0.875rem',
+              '&:hover fieldset': {
+                borderColor: '#EC407A',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#EC407A',
+                borderWidth: 2,
+              },
+            }
+          }}
+        />
+      </Box>
+      <Box sx={{ px: 1, py: 2 }}>
         <Slider
           value={value}
           onChange={(_, newValue) => onChange(newValue as [number, number])}
@@ -181,24 +271,53 @@ const PriceRangeSlider = ({
           max={max}
           sx={{
             color: "#EC407A",
+            height: 8,
             "& .MuiSlider-thumb": {
-              width: 20,
-              height: 20,
+              width: 18,
+              height: 18,
+              backgroundColor: "#fff",
+              border: "3px solid #EC407A",
+              boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+              "&:hover": {
+                boxShadow: "0 3px 12px rgba(236, 64, 122, 0.5)",
+                transform: "scale(1.1)",
+              },
+              "&.Mui-active": {
+                boxShadow: "0 3px 12px rgba(236, 64, 122, 0.6)",
+              },
+            },
+            "& .MuiSlider-track": {
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: "#EC407A",
+            },
+            "& .MuiSlider-rail": {
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: "rgba(0, 0, 0, 0.15)",
+            },
+            "& .MuiSlider-valueLabel": {
+              backgroundColor: "#EC407A",
+              borderRadius: 6,
+              fontWeight: 600,
+              fontSize: "0.7rem",
+              padding: "3px 6px",
             },
           }}
         />
-        <Input
-          value={value[1]}
-          size="small"
-          onChange={handleInputChange(1)}
-          inputProps={{
-            min: 0,
-            max: max,
-            type: "number",
-            "aria-labelledby": "input-slider",
-          }}
-          sx={{ width: 70 }}
-        />
+      </Box>
+
+   
+      <Box sx={{ 
+        mt: 2, 
+        p: 1.5, 
+        backgroundColor: "rgba(236, 64, 122, 0.05)", 
+        borderRadius: 2,
+        border: "1px solid rgba(236, 64, 122, 0.1)"
+      }}>
+        <Typography variant="body2" sx={{ textAlign: "center", fontWeight: 600, color: "#666" }}>
+          Current Range: {value[0]} - {value[1]} JD
+        </Typography>
       </Box>
     </Box>
   );
@@ -213,7 +332,6 @@ const QuickViewModal = ({
   open: boolean; 
   onClose: () => void;
 }) => {
-  // Check if product is null or undefined
   if (!product) {
     return null;
   }
@@ -541,8 +659,7 @@ const CategoryPage = () => {
             {error}
           </Alert>
         </Snackbar>
-        
-        {/* Search Bar */}
+       
         <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
@@ -570,140 +687,530 @@ const CategoryPage = () => {
           />
         </Box>
         
-        {/* Filter and Sort Card */}
+        
         {products.length > 0 && (
-          <Card
-            sx={{
-              mb: 6,
-              p: 3,
-              background: "linear-gradient(145deg, #ffffff, #f5f5f5)",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-              borderRadius: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-              <TuneIcon sx={{ mr: 1, color: "#EC407A" }} />
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Filters & Sorting
-              </Typography>
-              <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                <IconButton 
-                  onClick={() => setViewMode("grid")}
-                  color={viewMode === "grid" ? "primary" : "default"}
-                >
-                  <ViewModuleIcon />
-                </IconButton>
-                <IconButton 
-                  onClick={() => setViewMode("list")}
-                  color={viewMode === "list" ? "primary" : "default"}
-                >
-                  <ViewListIcon />
-                </IconButton>
-              </Box>
-            </Box>
+          <Box sx={{ display: "flex", gap: 3, mb: 6, alignItems: "flex-start" }}>
             
-            <Grid container spacing={3}>
-              <Grid>
-                <PriceRangeSlider
-                  value={priceRange}
-                  onChange={setPriceRange}
-                  min={0}
-                  max={maxPrice}
-                />
-              </Grid>
-              
-              <Grid>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Minimum Rating
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  {[0, 1, 2, 3, 4].map((rating) => (
-                    <Chip
-                      key={rating}
-                      label={`${rating}+`}
-                      onClick={() => setMinRating(rating)}
-                      color={minRating === rating ? "primary" : "default"}
-                      variant={minRating === rating ? "filled" : "outlined"}
-                      size="small"
-                    />
-                  ))}
-                </Box>
-              </Grid>
-              
-              {brands.length > 0 && (
-                <Grid>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Brands
+            <Paper
+              sx={{
+                width: 280,
+                p: 0,
+                borderRadius: 3,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                overflow: "hidden",
+                position: "sticky",
+                top: 20,
+              }}
+            >
+              <Box sx={{
+                p: 3,
+                background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
+                color: "white",
+              }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <TuneIcon sx={{ mr: 2, fontSize: 24 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Filters
                   </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {brands.map((brand) => (
-                      <Chip
-                        key={brand}
-                        label={brand}
-                        onClick={() => {
-                          setSelectedBrands(prev => 
-                            prev.includes(brand) 
-                              ? prev.filter(b => b !== brand)
-                              : [...prev, brand]
-                          );
-                        }}
-                        color={selectedBrands.includes(brand) ? "primary" : "default"}
-                        variant={selectedBrands.includes(brand) ? "filled" : "outlined"}
-                        size="small"
-                      />
-                    ))}
-                  </Box>
+                </Box>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setPriceRange([0, maxPrice]);
+                      setSelectedBrands([]);
+                      setMinRating(0);
+                      setSortOption(SortOption.Default);
+                    }}
+                    sx={{ 
+                      color: "white",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
+                  >
+                    Reset All
+                  </Button>
+                </Box>
+              </Box>
+              <Box sx={{ p: 3 }}>
+                <Accordion 
+                  defaultExpanded 
+                  sx={{ 
+                    boxShadow: "none", 
+                    "&:before": { display: "none" },
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 2,
+                    mb: 2,
+                  }}
+                >
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      minHeight: 48,
+                      "& .MuiAccordionSummary-content": {
+                        margin: "12px 0",
+                      }
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Price Range
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ pt: 0, pb: 2 }}>
+                    <PriceRangeSlider
+                      value={priceRange}
+                      onChange={setPriceRange}
+                      min={0}
+                      max={maxPrice}
+                    />
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion 
+                  defaultExpanded 
+                  sx={{ 
+                    boxShadow: "none", 
+                    "&:before": { display: "none" },
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 2,
+                    mb: 2,
+                  }}
+                >
+                  <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon />}
+                    sx={{ 
+                      minHeight: 48,
+                      "& .MuiAccordionSummary-content": {
+                        margin: "12px 0",
+                      }
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Customer Rating
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ pt: 0 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      {[4, 3, 2, 1].map((rating) => (
+                        <Box
+                          key={rating}
+                          onClick={() => setMinRating(rating)}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            p: 1.5,
+                            borderRadius: 2,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                            "&:hover": {
+                              backgroundColor: "rgba(0,0,0,0.04)",
+                            },
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon
+                                key={i}
+                                sx={{
+                                  fontSize: 18,
+                                  color: i < rating ? "#FFC107" : "rgba(0,0,0,0.2)",
+                                }}
+                              />
+                            ))}
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            & Up
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
+
+                {/* Brands Filter */}
+                {brands.length > 0 && (
+                  <Accordion 
+                    defaultExpanded 
+                    sx={{ 
+                      boxShadow: "none", 
+                      "&:before": { display: "none" },
+                      border: "1px solid rgba(0,0,0,0.08)",
+                      borderRadius: 2,
+                    }}
+                  >
+                    <AccordionSummary 
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{ 
+                        minHeight: 48,
+                        "& .MuiAccordionSummary-content": {
+                          margin: "12px 0",
+                        }
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        Brands
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ pt: 0 }}>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: "auto" }}>
+                        {brands.map((brand) => (
+                          <Box
+                            key={brand}
+                            onClick={() => {
+                              setSelectedBrands(prev => 
+                                prev.includes(brand) 
+                                  ? prev.filter(b => b !== brand)
+                                  : [...prev, brand]
+                              );
+                            }}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              p: 1,
+                              borderRadius: 1,
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                              "&:hover": {
+                                backgroundColor: "rgba(0,0,0,0.04)",
+                              },
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: "50%",
+                                border: "2px solid #EC407A",
+                                backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
+                                mr: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {selectedBrands.includes(brand) && (
+                                <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+                              )}
+                            </Box>
+                            <Typography variant="body2">{brand}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </AccordionDetails>
+                  </Accordion>
+                )}
+              </Box>
+            </Paper>
+
+            
+            <Box sx={{ flex: 1 }}>
+              
+              <Paper
+                sx={{
+                  p: 2,
+                  mb: 3,
+                  borderRadius: 2,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                }}
+              >
+                <Typography variant="body1" color="text.secondary">
+                  Showing <Box component="span" sx={{ color: "#EC407A", fontWeight: 700 }}>{filteredAndSortedProducts.length}</Box> of{" "}
+                  <Box component="span" sx={{ fontWeight: 700 }}>{products.length}</Box> products
+                </Typography>
+                <Box sx={{ display: "flex", gap: 0.5, bgcolor: "rgba(0,0,0,0.04)", p: 0.5, borderRadius: 2 }}>
+                  <IconButton 
+                    onClick={() => setViewMode("grid")}
+                    color={viewMode === "grid" ? "primary" : "default"}
+                    sx={{ 
+                      borderRadius: 1.5,
+                      bgcolor: viewMode === "grid" ? "#EC407A" : "transparent",
+                      color: viewMode === "grid" ? "white" : "text.secondary",
+                      "&:hover": {
+                        bgcolor: viewMode === "grid" ? "#d53972" : "rgba(0,0,0,0.04)",
+                      }
+                    }}
+                  >
+                    <ViewModuleIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton 
+                    onClick={() => setViewMode("list")}
+                    color={viewMode === "list" ? "primary" : "default"}
+                    sx={{ 
+                      borderRadius: 1.5,
+                      bgcolor: viewMode === "list" ? "#EC407A" : "transparent",
+                      color: viewMode === "list" ? "white" : "text.secondary",
+                      "&:hover": {
+                        bgcolor: viewMode === "list" ? "#d53972" : "rgba(0,0,0,0.04)",
+                      }
+                    }}
+                  >
+                    <ViewListIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Paper>
+
+              
+              {filteredAndSortedProducts.length === 0 ? (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
+                  <FilterListIcon sx={{ fontSize: 60, color: "#999", mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" mb={2}>
+                    No products found matching your filters.
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => {
+                      setSearchQuery("");
+                      setPriceRange([0, maxPrice]);
+                      setSelectedBrands([]);
+                      setMinRating(0);
+                    }}
+                    sx={{ borderColor: "#EC407A", color: "#EC407A" }}
+                  >
+                    Clear All Filters
+                  </Button>
+                </Box>
+              ) : (
+                <Grid container spacing={3}>
+                  {filteredAndSortedProducts.map((product: any, index) => (
+                    <Grid 
+                      
+                      key={product.id}
+                      sx={{ 
+                        display: 'flex',
+                        justifyContent: 'center',
+                        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                        "@keyframes fadeInUp": {
+                          "0%": {
+                            opacity: 0,
+                            transform: "translateY(30px)",
+                          },
+                          "100%": {
+                            opacity: 1,
+                            transform: "translateY(0)",
+                          },
+                        },
+                      }}
+                    >
+                      <Card
+                        sx={(theme) => ({
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                          borderRadius: 3,
+                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                          border: "1px solid rgba(0,0,0,0.06)",
+                          position: "relative",
+                          overflow: "hidden",
+                          "&:hover": {
+                            transform: "translateY(-6px)",
+                            boxShadow: "0 12px 28px rgba(0,0,0,0.15)",
+                            "& .product-image": {
+                              transform: "scale(1.05)",
+                            },
+                            "& .quick-actions": {
+                              opacity: 1,
+                              transform: "translateX(0)",
+                            },
+                          },
+                          bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                          width: "100%",
+                          maxWidth: 300,
+                        })}
+                      >
+                        
+                        <Box sx={{ 
+                          position: "relative", 
+                          overflow: "hidden",
+                          height: 280,
+                          backgroundColor: "#f8f9fa",
+                        }}>
+                          <CardMedia
+                            component="img"
+                            className="product-image"
+                            image={
+                              product.image_urls && product.image_urls.length > 0
+                                ? product.image_urls[0].startsWith("http")
+                                  ? product.image_urls[0]
+                                  : `/assets/${product.image_urls[0]}`
+                                : "/assets/home.png"
+                            }
+                            alt={product.title || "Product image"}
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              transition: "transform 0.5s ease",
+                            }}
+                            onError={handleImageError}
+                          />
+                          
+                          {product.discount && (
+                            <Chip
+                              label={`-${product.discount}%`}
+                              color="error"
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 12,
+                                left: 12,
+                                fontWeight: 700,
+                                fontSize: "0.75rem",
+                                height: 28,
+                                borderRadius: 14,
+                                zIndex: 2,
+                              }}
+                            />
+                          )}
+                          <Box 
+                            className="quick-actions"
+                            sx={{ 
+                              position: "absolute", 
+                              top: 12, 
+                              right: 12, 
+                              display: "flex", 
+                              flexDirection: "column", 
+                              gap: 1,
+                              opacity: 0,
+                              transform: "translateX(20px)",
+                              transition: "all 0.3s ease",
+                              zIndex: 2,
+                            }}
+                          >
+                            <IconButton 
+                              sx={{ 
+                                bgcolor: "white", 
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                "&:hover": { 
+                                  bgcolor: "#EC407A",
+                                  color: "white",
+                                  transform: "scale(1.1)",
+                                },
+                                transition: "all 0.2s ease",
+                              }}
+                              onClick={() => openQuickView(product)}
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                        <CardContent sx={{ 
+                          flexGrow: 1, 
+                          p: 2.5,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 600,
+                              color: "#212529",
+                              fontSize: "1rem",
+                              lineHeight: 1.4,
+                              mb: 1,
+                              height: 56,
+                              overflow: "hidden",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                            }}
+                          >
+                            {product.title || "Untitled Product"}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ 
+                              mb: 2,
+                              fontSize: "0.875rem",
+                              lineHeight: 1.5,
+                              height: 42,
+                              overflow: "hidden",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                            }}
+                          >
+                            {product.description || "No description available"}
+                          </Typography>
+                          <Box sx={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: 1,
+                            mb: 2,
+                          }}>
+                            <StarRating rating={ratings[product.id]?.average || 0} />
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ fontWeight: 500 }}
+                            >
+                              ({ratings[product.id]?.count || 0})
+                            </Typography>
+                          </Box>
+                          <Box sx={{ 
+                            mt: "auto",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1.5,
+                          }}>
+                            <Typography
+                              variant="h5"
+                              sx={{
+                                fontWeight: 700,
+                                color: "#EC407A",
+                                fontSize: "1.5rem",
+                              }}
+                            >
+                              {product.price ? `${product.price} JD` : "Price not available"}
+                            </Typography>
+                            
+                            <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                              <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{
+                                  textTransform: "none",
+                                  borderRadius: 2.5,
+                                  py: 1.2,
+                                  fontWeight: 600,
+                                  fontSize: "0.95rem",
+                                  bgcolor: "#EC407A",
+                                  color: "white",
+                                  boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+                                  "&:hover": {
+                                    bgcolor: "#d53972",
+                                    boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
+                                    transform: "translateY(-1px)",
+                                  },
+                                  transition: "all 0.2s ease",
+                                }}
+                              >
+                                View Details
+                              </Button>
+                            </Link>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
                 </Grid>
               )}
-              
-              <Grid sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
-              </Grid>
-            </Grid>
-            
-            <Divider sx={{ my: 2 }} />
-            
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="caption" color="text.secondary">
-                Showing {filteredAndSortedProducts.length} of {products.length} products
-              </Typography>
-              <Button
-                size="small"
-                onClick={() => {
-                  setSearchQuery("");
-                  setPriceRange([0, maxPrice]);
-                  setSelectedBrands([]);
-                  setMinRating(0);
-                  setSortOption(SortOption.Default);
-                }}
-                sx={{ color: "#EC407A" }}
-              >
-                Clear All Filters
-              </Button>
             </Box>
-          </Card>
+          </Box>
         )}
         
-        {filteredAndSortedProducts.length === 0 && products.length > 0 ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
-            <FilterListIcon sx={{ fontSize: 60, color: "#999", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" mb={2}>
-              No products found matching your filters.
-            </Typography>
-            <Button 
-              variant="outlined" 
-              onClick={() => {
-                setSearchQuery("");
-                setPriceRange([0, maxPrice]);
-                setSelectedBrands([]);
-                setMinRating(0);
-              }}
-              sx={{ borderColor: "#EC407A", color: "#EC407A" }}
-            >
-              Clear All Filters
-            </Button>
-          </Box>
-        ) : products.length === 0 ? (
+        {products.length === 0 && (
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
             <Typography variant="h6" color="text.secondary" mb={2}>
               No products found in this category.
@@ -714,188 +1221,8 @@ const CategoryPage = () => {
               </Button>
             </Link>
           </Box>
-        ) : (
-          <Grid container spacing={4} justifyContent="center">
-            {filteredAndSortedProducts.map((product: any, index) => (
-              <Grid 
-                key={product.id}
-                sx={{ 
-                  display: 'flex',
-                  justifyContent: 'center',
-                  animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
-                  "@keyframes fadeInUp": {
-                    "0%": {
-                      opacity: 0,
-                      transform: "translateY(30px)",
-                    },
-                    "100%": {
-                      opacity: 1,
-                      transform: "translateY(0)",
-                    },
-                  },
-                }}
-              >
-                <Card
-                  sx={(theme) => ({
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: viewMode === "grid" ? "column" : "row",
-                    boxShadow: 6,
-                    borderRadius: 4,
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    "&:hover": {
-                      transform: "translateY(-12px) scale(1.02)",
-                      boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
-                    },
-                    bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-                    maxWidth: viewMode === "grid" ? 380 : "100%",
-                    width: "100%",
-                  })}
-                >
-                  <Box sx={{ position: "relative" }}>
-                    <CardMedia
-                      component="img"
-                      image={
-                        product.image_urls && product.image_urls.length > 0
-                          ? product.image_urls[0].startsWith("http")
-                            ? product.image_urls[0]
-                            : `/assets/${product.image_urls[0]}`
-                          : "/assets/home.png"
-                      }
-                      alt={product.title || "Product image"}
-                      sx={{
-                        width: viewMode === "grid" ? "100%" : 300,
-                        height: viewMode === "grid" ? 220 : "auto",
-                        objectFit: "cover",
-                        borderTopLeftRadius: 4,
-                        borderTopRightRadius: viewMode === "grid" ? 4 : 0,
-                        borderBottomLeftRadius: viewMode === "grid" ? 0 : 4,
-                      }}
-                      onError={handleImageError}
-                    />
-                    {/* Quick Actions */}
-                    <Box sx={{ 
-                      position: "absolute", 
-                      top: 10, 
-                      right: 10, 
-                      display: "flex", 
-                      flexDirection: "column", 
-                      gap: 1 
-                    }}>
-                      <IconButton 
-                        sx={{ 
-                          bgcolor: "white", 
-                          "&:hover": { bgcolor: "#f5f5f5" },
-                          boxShadow: 2
-                        }}
-                        onClick={() => openQuickView(product)}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Box>
-                    {/* Discount Badge */}
-                    {product.discount && (
-                      <Chip
-                        label={`-${product.discount}%`}
-                        color="error"
-                        size="small"
-                        sx={{
-                          position: "absolute",
-                          top: 10,
-                          left: 10,
-                          fontWeight: "bold",
-                        }}
-                      />
-                    )}
-                  </Box>
-                  
-                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                    <Typography
-                      gutterBottom
-                      variant="h6"
-                      sx={{
-                        fontWeight: 700,
-                        color: "#333",
-                        textAlign: viewMode === "grid" ? "center" : "left",
-                        minHeight: 56,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: viewMode === "grid" ? "center" : "flex-start",
-                      }}
-                    >
-                      {product.title || "Untitled Product"}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ 
-                        mb: 2, 
-                        textAlign: viewMode === "grid" ? "center" : "left",
-                        minHeight: 48,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: viewMode === "grid" ? "center" : "flex-start",
-                      }}
-                    >
-                      {product.description ? `${product.description.slice(0, 60)}...` : "No description available"}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                        textAlign: viewMode === "grid" ? "center" : "left",
-                        color: "#EC407A",
-                        mb: 2,
-                      }}
-                    >
-                      {product.price ? `${product.price} JD` : "Price not available"}
-                    </Typography>
-                    <Box sx={{ mt: 2, textAlign: viewMode === "grid" ? "center" : "left" }}>
-                      <StarRating rating={ratings[product.id]?.average || 0} />
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                        sx={{ mt: 1 }}
-                      >
-                        {ratings[product.id]?.average?.toFixed(1) || 0} ⭐ (
-                        {ratings[product.id]?.count || 0})
-                      </Typography>
-                    </Box>
-                  </CardContent>
-
-                  <Box sx={{ p: 3, textAlign: "center", pt: 0 }}>
-                    <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        sx={(theme) => ({
-                          textTransform: "none",
-                          borderRadius: 25,
-                          py: 1.5,
-                          fontWeight: "bold",
-                          fontSize: "1rem",
-                          bgcolor: theme.palette.mode === "light" ? "#EC407A" : "#d81b60",
-                          "&:hover": {
-                            bgcolor: theme.palette.mode === "light" ? "#d53972" : "#ad1457",
-                            transform: "scale(1.05)",
-                          },
-                          transition: "all 0.3s ease",
-                        })}
-                      >
-                        View Details
-                      </Button>
-                    </Link>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
         )}
       </Container>
-
-      {/* Quick View Modal - Only render if product is not null */}
       {quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}
