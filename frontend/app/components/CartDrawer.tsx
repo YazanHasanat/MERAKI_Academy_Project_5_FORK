@@ -14,6 +14,15 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import IconButton from "@mui/material/IconButton";
+import Divider from "@mui/material/Divider";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface CartDrawerProps {
   open: boolean;
@@ -40,6 +49,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const [openDialog, setOpenDialog] = React.useState(false);
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [updatingItems, setUpdatingItems] = React.useState<Set<number>>(new Set());
   const [myLocation, setMyLocation] = React.useState<any>(null);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
@@ -101,19 +111,35 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   const handleDeleteItem = async (product_id: number) => {
     try {
+      // تحديث الحالة محلياً فوراً
+      setCart(prevCart => prevCart.filter(item => item.product_id !== product_id));
+      
       await axios.delete(`http://localhost:5000/cart/item/${product_id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      await getcart();
     } catch (err: any) {
       console.error("Error deleting item:", err.message);
+      // في حالة الخطأ، أعد جلب البيانات
+      getcart();
     }
   };
 
   const handleUpdateQuantity = async (product_id: number, quantity: number) => {
+    if (quantity < 1) return;
+    
     try {
+      // إضافة المنتج إلى قائمة التحديث
+      setUpdatingItems(prev => new Set(prev).add(product_id));
+      
+      // تحديث الحالة محلياً فوراً
+      setCart(prevCart => 
+        prevCart.map(item => 
+          item.product_id === product_id ? { ...item, quantity } : item
+        )
+      );
+      
       await axios.put(
         "http://localhost:5000/cart/update",
         { product_id, quantity },
@@ -123,9 +149,17 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           },
         }
       );
-      await getcart();
     } catch (err: any) {
       console.error("Error updating quantity:", err.message);
+      // في حالة الخطأ، أعد جلب البيانات
+      getcart();
+    } finally {
+      // إزالة المنتج من قائمة التحديث
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(product_id);
+        return newSet;
+      });
     }
   };
 
@@ -145,38 +179,91 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   return (
     <>
-      <Drawer anchor="right" open={open} onClose={onClose}>
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={onClose}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", sm: 400 },
+            borderTopLeftRadius: { xs: 0, sm: 16 },
+            borderBottomLeftRadius: { xs: 0, sm: 16 },
+          },
+        }}
+      >
         <Box
           sx={{
-            width: 350,
-            p: 2,
+            height: "100%",
             display: "flex",
             flexDirection: "column",
-            height: "100%",
+            bgcolor: "#f9f9f9",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography variant="h6">Your Cart</Typography>
-            <Button onClick={onClose} sx={{ textTransform: "none" }}>
-              Close
-            </Button>
+          {/* Header */}
+          <Box
+            sx={{
+              p: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: "white",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <ShoppingBagIcon sx={{ mr: 1, color: "#EC407A" }} />
+              <Typography variant="h6" fontWeight="bold">
+                Your Cart
+              </Typography>
+            </Box>
+            <IconButton onClick={onClose} size="small">
+              <CloseIcon />
+            </IconButton>
           </Box>
-          <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+
+          {/* Cart Items */}
+          <Box sx={{ flexGrow: 1, overflowY: "auto", p: 2 }}>
             {loading ? (
-              <Typography>Loading...</Typography>
+              <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+                <Typography>Loading...</Typography>
+              </Box>
             ) : cart.length === 0 ? (
-              <Typography variant="body1">Cart is empty</Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  py: 8,
+                }}
+              >
+                <ShoppingBagIcon
+                  sx={{ fontSize: 64, color: "#ccc", mb: 2 }}
+                />
+                <Typography variant="h6" color="text.secondary">
+                  Your cart is empty
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Add some products to get started
+                </Typography>
+              </Box>
             ) : (
               cart.map((item) => (
                 <Box
-                  key={item.product_id}
+                  key={`cart-item-${item.product_id}`} // مفتاح فريد وثابت
                   sx={{
                     mb: 2,
-                    p: 1,
-                    borderBottom: "1px solid #eee",
+                    p: 2,
+                    bgcolor: "white",
+                    borderRadius: 2,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    },
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                     <Box
                       component="img"
                       src={
@@ -187,24 +274,46 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                           : "/assets/home.png"
                       }
                       alt={item.title}
-                      sx={{ width: 60, height: 60, borderRadius: 2, mr: 2 }}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 2,
+                        objectFit: "cover",
+                        mr: 2,
+                      }}
                     />
                     <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle1">{item.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {item.quantity} × ${item.price}
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        ${item.price} each
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: "bold",
+                          mt: 1,
+                          color: "#EC407A",
+                        }}
+                      >
+                        ${(item.quantity * item.price).toFixed(2)}
                       </Typography>
                     </Box>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontWeight: "bold",
-                        minWidth: 60,
-                        textAlign: "right",
-                      }}
-                    >
-                      ${(item.quantity * item.price).toFixed(2)}
-                    </Typography>
                   </Box>
 
                   <Box
@@ -212,22 +321,18 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      mt: 1,
+                      mt: 2,
                     }}
                   >
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        border: "1px solid #ccc",
+                        bgcolor: "#f5f5f5",
                         borderRadius: "50px",
-                        px: 1.5,
-                        py: 0.5,
-                        gap: 1.5,
                       }}
                     >
-                      <Button
-                        variant="text"
+                      <IconButton
                         size="small"
                         onClick={() =>
                           handleUpdateQuantity(
@@ -235,12 +340,24 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                             item.quantity - 1
                           )
                         }
+                        disabled={item.quantity <= 1 || updatingItems.has(item.product_id)}
+                        sx={{
+                          color: item.quantity <= 1 || updatingItems.has(item.product_id) ? "#ccc" : "#EC407A",
+                        }}
                       >
-                        −
-                      </Button>
-                      <Typography>{item.quantity}</Typography>
-                      <Button
-                        variant="text"
+                        {updatingItems.has(item.product_id) ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <RemoveIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                      <Typography
+                        variant="body1"
+                        sx={{ minWidth: 30, textAlign: "center" }}
+                      >
+                        {item.quantity}
+                      </Typography>
+                      <IconButton
                         size="small"
                         onClick={() =>
                           handleUpdateQuantity(
@@ -248,51 +365,88 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                             item.quantity + 1
                           )
                         }
+                        disabled={updatingItems.has(item.product_id)}
+                        sx={{ color: updatingItems.has(item.product_id) ? "#ccc" : "#EC407A" }}
                       >
-                        +
-                      </Button>
+                        {updatingItems.has(item.product_id) ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <AddIcon fontSize="small" />
+                        )}
+                      </IconButton>
                     </Box>
 
-                    <Button
-                      variant="text"
-                      color="error"
+                    <IconButton
                       size="small"
                       onClick={() => handleDeleteItem(item.product_id)}
+                      sx={{ color: "#E53935" }}
                     >
-                      🗑️
-                    </Button>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </Box>
                 </Box>
               ))
             )}
           </Box>
 
+          {/* Footer */}
           {cart.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography
-                variant="h6"
-                sx={{ mb: 2, textAlign: "right", fontWeight: "bold" }}
-              >
-                Total: ${total.toFixed(2)}
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleDialogOpen}
-                fullWidth
-              >
-                Add Location
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                sx={{ mt: 1 }}
-                fullWidth
-                onClick={handleProceedToCheckout}
-              >
-                Proceed to Checkout
-              </Button>
-            </Box>
+            <>
+              <Divider />
+              <Box sx={{ p: 2, bgcolor: "white" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6">Total:</Typography>
+                  <Typography variant="h6" fontWeight="bold" color="#EC407A">
+                    ${total.toFixed(2)}
+                  </Typography>
+                </Box>
+
+                <Button
+                  variant="contained"
+                  startIcon={<LocationOnIcon />}
+                  onClick={handleDialogOpen}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    mb: 1,
+                    bgcolor: "#f5f5f5",
+                    color: "#333",
+                    fontWeight: "bold",
+                    borderRadius: 2,
+                    "&:hover": {
+                      bgcolor: "#e0e0e0",
+                    },
+                  }}
+                >
+                  {myLocation ? "Change Location" : "Add Location"}
+                </Button>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleProceedToCheckout}
+                  sx={{
+                    py: 1.5,
+                    bgcolor: "#EC407A",
+                    color: "white",
+                    fontWeight: "bold",
+                    borderRadius: 2,
+                    boxShadow: "0 4px 8px rgba(236, 64, 122, 0.3)",
+                    "&:hover": {
+                      bgcolor: "#D81B60",
+                      boxShadow: "0 6px 12px rgba(236, 64, 122, 0.4)",
+                    },
+                  }}
+                >
+                  Proceed to Checkout
+                </Button>
+              </Box>
+            </>
           )}
         </Box>
       </Drawer>
@@ -303,8 +457,19 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         onClose={handleDialogCloseAndRefresh}
         fullWidth
         maxWidth="md"
+        PaperProps={{
+          sx: { borderRadius: 3 },
+        }}
       >
-        <DialogTitle>Location</DialogTitle>
+        <DialogTitle
+          sx={{
+            bgcolor: "#EC407A",
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          Delivery Location
+        </DialogTitle>
         <DialogContent dividers>
           <GetAddress onClose={handleDialogCloseAndRefresh} />
         </DialogContent>
@@ -323,7 +488,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         <Alert
           onClose={handleSnackbarClose}
           severity="warning"
-          sx={{ backgroundColor: "red", color: "white" }}
+          sx={{ backgroundColor: "#EC407A", color: "white" }}
         >
           Please add a location before proceeding to checkout.
         </Alert>
