@@ -80,9 +80,9 @@ export default function Navbar() {
 
   React.useEffect(() => {
     // Load from localStorage when component mounts
-    const storedFirstName = localStorage.getItem("firstName");
+    
     const storedUserId = localStorage.getItem("userId");
-    setFirstName(storedFirstName);
+    setFirstName(localStorage.getItem("firstName"));
     setUserId(storedUserId);
 
     // Get cart item count

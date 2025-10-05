@@ -17,10 +17,7 @@ export default function Sidebar({ selected, onSelect }: { selected: string; onSe
     localStorage.removeItem("userId");
     localStorage.removeItem("token");
     localStorage.removeItem("role_id");
-    localStorage.removeItem("avatar");
-    setTimeout(() => {
-      window.location.reload();
-    }, 200);
+    window.dispatchEvent(new Event("storageUpdate"));
     router.push("/");
   };
 
