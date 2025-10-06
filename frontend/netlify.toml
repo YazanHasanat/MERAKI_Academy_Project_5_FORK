@@ -1,0 +1,17 @@
+# ==============================
+# Netlify config for Next.js App Router
+# ==============================
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# إعادة توجيه كل المسارات للـ Next.js handler
+# هذا يمنع ظهور 404 على صفحات App Router
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/next"
+  status = 200
