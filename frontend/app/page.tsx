@@ -363,7 +363,11 @@ export default function HeroSection() {
                 >
                   <CardMedia
                     component="img"
-                    image={`/assets/${prod.image_urls[0]}`}
+                    image={prod.image_urls?.[0]
+                          ? prod.image_urls[0].startsWith("http")
+                            ? prod.image_urls[0]
+                            : `/assets/${prod.image_urls[0]}`
+                          : "/assets/home.png"}
                     alt={prod.title}
                     sx={{
                       height: "100%",
