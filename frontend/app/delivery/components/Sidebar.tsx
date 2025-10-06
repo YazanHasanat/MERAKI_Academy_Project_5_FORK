@@ -1,6 +1,5 @@
 "use client";
-import { Box, Button, Typography, Stack } from "@mui/material";
-import Link from "next/link";
+import { Box, Button, Typography, Stack, Drawer } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 const navItems = [
@@ -10,8 +9,16 @@ const navItems = [
   { label: "Completed Orders", key: "completed" },
 ];
 
-export default function Sidebar({ selected, onSelect }: { selected: string; onSelect: (key: string) => void }) {
+export default function Sidebar({ selected, onSelect, open, onClose, variant, isMobile }: { 
+  selected: string; 
+  onSelect: (key: string) => void;
+  open: boolean;
+  onClose: () => void;
+  variant: "temporary" | "persistent";
+  isMobile: boolean;
+}) {
   const router = useRouter();
+  
   const handleLogout = () => {
     localStorage.removeItem("firstName");
     localStorage.removeItem("userId");
@@ -21,22 +28,24 @@ export default function Sidebar({ selected, onSelect }: { selected: string; onSe
     router.push("/");
   };
 
-  return (
+  const handleSelect = (key: string) => {
+    onSelect(key);
+    if (isMobile) {
+      onClose();
+    }
+  };
+
+  const drawerContent = (
     <Box
       sx={{
         width: 220,
         background: "#fff",
-        boxShadow: 2,
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
         py: 4,
         px: 2,
-        position: "fixed",
-        top: 0,
-        left: 0,
         height: "100vh",
-        zIndex: 1200,
       }}
     >
       <Typography variant="h6" mb={2} textAlign="center" color="primary">
@@ -47,7 +56,7 @@ export default function Sidebar({ selected, onSelect }: { selected: string; onSe
           <Button
             key={item.key}
             variant={selected === item.key ? "contained" : "outlined"}
-            onClick={() => onSelect(item.key)}
+            onClick={() => handleSelect(item.key)}
             sx={{ mb: 1 }}
             fullWidth
           >
@@ -60,5 +69,25 @@ export default function Sidebar({ selected, onSelect }: { selected: string; onSe
         Logout
       </Button>
     </Box>
+  );
+
+  return (
+    <Drawer
+      variant={variant}
+      open={open}
+      onClose={onClose}
+      ModalProps={variant === 'temporary' ? { keepMounted: true } : undefined}
+      sx={{
+        width: 220,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 220,
+          boxSizing: 'border-box',
+          ...(variant === 'persistent' && { borderRight: '1px solid rgba(0, 0, 0, 0.12)' }),
+        },
+      }}
+    >
+      {drawerContent}
+    </Drawer>
   );
 }

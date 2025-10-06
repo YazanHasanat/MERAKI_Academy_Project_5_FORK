@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery, useTheme, IconButton, AppBar, Toolbar, Typography } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "./components/Sidebar";
 import UserInfo from "./components/UserInfo";
 import PendingOrders from "./components/PendingOrders";
@@ -36,7 +37,11 @@ export default function DeliveryPage() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [selected, setSelected] = useState<string>("userinfo");
-const router=useRouter()
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -65,31 +70,93 @@ const router=useRouter()
       .finally(() => setLoadingOrders(false));
   }, []);
 
-  const handleChangeStatus = async (orderId: number, newStatus: string) => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await axios.put(
-        "http://localhost:5000/orders/status",
-        { order_id: orderId, status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId ? { ...o, status: res.data.order.status } : o
-        )
-      );
-    } catch (err) {
-      console.error("Error updating status:", err);
-    }
-  };
-const role=typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null
-  if (role!==3) {
-    router.push("/unauthorized")
+  
+const handleChangeStatus = async (orderId: number, newStatus: string) => {
+  const token = localStorage.getItem("token");
+  
+  setOrders((prevOrders) =>
+    prevOrders.map((order) =>
+      order.id === orderId
+        ? { ...order, status: newStatus, driver_id: user?.id } 
+        : order
+    )
+  );
+
+  if (newStatus === "on the way") {
+    setSelected("myorders");
   }
+
+  try {
+    await axios.put(
+      "http://localhost:5000/orders/status",
+      { order_id: orderId, status: newStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log("Order status updated successfully on the server.");
+  } catch (err) {
+    console.error("Error updating status:", err);
+  }
+};
+  const role = typeof window !== "undefined" && localStorage.getItem("role_id") ? Number(localStorage.getItem("role_id")) : null;
+  
+  if (role !== 3) {
+    router.push("/unauthorized");
+    return null;
+  }
+
+  const handleDrawerToggle = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
-      <Sidebar selected={selected} onSelect={setSelected} />
-      <Box sx={{ flex: 1, p: 4, marginLeft: '220px' }}>
+      {/* Mobile App Bar */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          sx={{
+            zIndex: theme.zIndex.drawer + 1, 
+            bgcolor: "primary.main",
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              Delivery Dashboard
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Sidebar/Drawer */}
+      <Sidebar
+        selected={selected}
+        onSelect={setSelected}
+        open={isMobile ? drawerOpen : true} 
+        onClose={handleDrawerToggle}
+        variant={isMobile ? "temporary" : "persistent"} 
+        isMobile={isMobile}
+      />
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3, md: 4 },
+          width: { md: `calc(100% - 220px)` },
+          marginTop: { xs: "56px", md: 0 },
+        }}
+      >
         {selected === "userinfo" && <UserInfo user={user} />}
         {selected === "pending" && (
           <PendingOrders

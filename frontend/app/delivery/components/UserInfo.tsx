@@ -55,7 +55,6 @@ export default function UserInfo({ user }: { user: UserType | null }) {
         }}
       >
         <Box sx={{ p: 4, bgcolor: "#ffffff" }}>
-          {/* Avatar and Name Section - Side by Side */}
           <Box sx={{ 
             display: "flex", 
             alignItems: "center", 

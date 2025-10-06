@@ -28,7 +28,7 @@ export default function CompletedOrders({ orders, driverId }: CompletedOrdersPro
 
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 5 }}>
-      <CardContent>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", color: "#333" }}>
           ✅ Completed Orders
         </Typography>
@@ -40,10 +40,10 @@ export default function CompletedOrders({ orders, driverId }: CompletedOrdersPro
             {myCompletedOrders.map(order => (
               <Card
                 key={order.id}
-                sx={{ p: 2, borderRadius: 2, border: "1px solid #eee", bgcolor: "#fafafa" }}
+                sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: "1px solid #eee", bgcolor: "#fafafa" }}
               >
                 <Typography variant="body1">Order #{order.id}</Typography>
-                <Typography variant="body2">Address: {order.address}</Typography>
+                <Typography variant="body2" sx={{ wordBreak: "break-word" }}>Address: {order.address}</Typography>
                 <Typography variant="body2" color="gray">Total: ${order.total_price}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   Last updated: {order.updated_at ? new Date(order.updated_at).toLocaleString() : new Date(order.created_at).toLocaleString()}

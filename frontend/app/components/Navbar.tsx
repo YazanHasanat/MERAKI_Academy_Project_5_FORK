@@ -67,9 +67,9 @@ export default function Navbar() {
   const [search, setSearch] = React.useState("");
   const [searchFocused, setSearchFocused] = React.useState(false);
 
-  //  useState instead of reading directly from localStorage
   const [firstName, setFirstName] = React.useState<string | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
+  const [role, setRole] = React.useState<number | null>(null); 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = React.useState(false);
@@ -78,35 +78,13 @@ export default function Navbar() {
   const [openCart, setOpenCart] = React.useState(false);
   const [cartItemCount, setCartItemCount] = React.useState(0);
 
-  React.useEffect(() => {
-    // Load from localStorage when component mounts
-    
-    const storedUserId = localStorage.getItem("userId");
-    setFirstName(localStorage.getItem("firstName"));
-    setUserId(storedUserId);
-
-    // Get cart item count
-    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    setCartItemCount(cartItems.length);
-
-    // Fetch categories
-    async function fetchCategories() {
-      try {
-        const response = await axios.get("http://localhost:5000/categories");
-        setCategories(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchCategories();
-  }, []);
-
-  React.useEffect(() => {
+    React.useEffect(() => {
     const loadUser = () => {
+      const storedRole = localStorage.getItem("role_id");
       setFirstName(localStorage.getItem("firstName"));
       setUserId(localStorage.getItem("userId"));
+      setRole(storedRole ? Number(storedRole) : null); 
       
-      // Update cart count when storage changes
       const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
       setCartItemCount(cartItems.length);
     };
@@ -115,11 +93,20 @@ export default function Navbar() {
 
     window.addEventListener("storageUpdate", loadUser);
 
+    async function fetchCategories() {
+      try {
+        const response = await axios.get("http://localhost:5000/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    }
+    fetchCategories(); 
+
     return () => {
       window.removeEventListener("storageUpdate", loadUser);
     };
   }, []);
-
   const getPrcucts = async () => {
     const results = await axios.get("http://localhost:5000/products");
     setProducts(results.data.products);
@@ -142,6 +129,7 @@ export default function Navbar() {
 
     setFirstName(null);
     setUserId(null);
+    setRole(null); 
     handleCloseUserMenu();
     router.push("/");
   };
@@ -161,10 +149,7 @@ export default function Navbar() {
     return <ChildCareIcon />;
   };
 
-  const role =
-    typeof window !== "undefined" && localStorage.getItem("role_id")
-      ? Number(localStorage.getItem("role_id"))
-      : null;
+
   if (role == 2 || role == 3 || pathname.startsWith("/unauthorized"))
     return <div></div>;
   if (pathname.startsWith("/checkout")) return <SimpleNavbar />;
@@ -636,10 +621,10 @@ export default function Navbar() {
             <ListItem disablePadding>
               <ListItemButton
                 component={Link}
-                href="/contact"
+                href="/contactus"
                 onClick={() => setMobileMenuOpen(false)}
                 sx={{
-                  color: pathname === "/contact" ? "#EC407A" : "#666",
+                  color: pathname === "/contactus" ? "#EC407A" : "#666",
                   "&:hover": { bgcolor: "rgba(236, 64, 122, 0.04)" },
                 }}
               >
