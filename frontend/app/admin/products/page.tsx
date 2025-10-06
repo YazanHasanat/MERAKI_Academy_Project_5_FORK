@@ -77,7 +77,7 @@ const ProductDashBoard: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get<Category[]>("http://localhost:5000/categories");
+        const response = await axios.get<Category[]>("https://meraki-academy-project-5-xtxg.onrender.com/categories");
         setCategories(response.data);
       } catch (error) {
         console.error(error);
@@ -89,7 +89,7 @@ const ProductDashBoard: React.FC = () => {
   // Fetch Products
   const fetchProducts = async () => {
     try {
-      const response = await axios.get<{ products: Product[] }>("http://localhost:5000/products");
+      const response = await axios.get<{ products: Product[] }>("https://meraki-academy-project-5-xtxg.onrender.com/products");
       setProducts(response.data.products);
     } catch (error) {
       console.error(error);
@@ -166,7 +166,7 @@ const ProductDashBoard: React.FC = () => {
       image_urls: imageUrls.length ? imageUrls : [],
     };
 
-    await axios.post("http://localhost:5000/products", productData, {
+    await axios.post("https://meraki-academy-project-5-xtxg.onrender.com/products", productData, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -204,7 +204,7 @@ const ProductDashBoard: React.FC = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/products/${selectedProductToDelete}`, {
+      await axios.delete(`https://meraki-academy-project-5-xtxg.onrender.com/products/${selectedProductToDelete}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

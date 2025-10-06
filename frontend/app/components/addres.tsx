@@ -94,7 +94,7 @@ export default function GetAddress({ onClose }: GetAddressProps) {
 
         if (myLocation) {
           result = await axios.put(
-            "http://localhost:5000/location",
+            "https://meraki-academy-project-5-xtxg.onrender.com/location",
             {
               address: locationText,
               latitude: marker.lat,
@@ -108,7 +108,7 @@ export default function GetAddress({ onClose }: GetAddressProps) {
           );
         } else {
           result = await axios.post(
-            "http://localhost:5000/location",
+            "https://meraki-academy-project-5-xtxg.onrender.com/location",
             {
               address: locationText,
               latitude: marker.lat,
@@ -160,7 +160,7 @@ export default function GetAddress({ onClose }: GetAddressProps) {
 
   const getLocationById = async () => {
     try {
-      const result = await axios.get("http://localhost:5000/location", {
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/location", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

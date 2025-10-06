@@ -47,7 +47,7 @@ export default function DeliveryPage() {
     if (!token) return;
 
     axios
-      .get("http://localhost:5000/users/mypage", {
+      .get("https://meraki-academy-project-5-xtxg.onrender.com/users/mypage", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -57,7 +57,7 @@ export default function DeliveryPage() {
       .finally(() => setLoadingUser(false));
 
     axios
-      .get("http://localhost:5000/orders", {
+      .get("https://meraki-academy-project-5-xtxg.onrender.com/orders", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -88,7 +88,7 @@ const handleChangeStatus = async (orderId: number, newStatus: string) => {
 
   try {
     await axios.put(
-      "http://localhost:5000/orders/status",
+      "https://meraki-academy-project-5-xtxg.onrender.com/orders/status",
       { order_id: orderId, status: newStatus },
       { headers: { Authorization: `Bearer ${token}` } }
     );

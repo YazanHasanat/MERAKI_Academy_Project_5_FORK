@@ -76,10 +76,10 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         const [catRes, prodRes, orderRes, userRes] = await Promise.all([
-          axios.get("http://localhost:5000/categories"),
-          axios.get("http://localhost:5000/products"),
-          axios.get("http://localhost:5000/orders/info"),
-          axios.get("http://localhost:5000/users/get"),
+          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories"),
+          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/products"),
+          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/orders/info"),
+          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/get"),
         ]);
 
         setCategories(catRes.data);

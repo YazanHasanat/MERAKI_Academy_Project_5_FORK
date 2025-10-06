@@ -35,7 +35,7 @@ const PaymentPage = ({
   const clearCart = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete("http://localhost:5000/cart/clear", {
+      await axios.delete("https://meraki-academy-project-5-xtxg.onrender.com/cart/clear", {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
@@ -63,7 +63,7 @@ const PaymentPage = ({
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/orders",
+        "https://meraki-academy-project-5-xtxg.onrender.com/orders",
         {
           products: cartItems.map(({ product_id, quantity }) => ({
             product_id,

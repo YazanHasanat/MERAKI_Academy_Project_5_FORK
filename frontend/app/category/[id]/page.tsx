@@ -543,7 +543,7 @@ const CategoryPage = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/products/category/${id}`
+        `https://meraki-academy-project-5-xtxg.onrender.com/products/category/${id}`
       );
       const data = res.data.products || res.data;
 
@@ -572,7 +572,7 @@ const CategoryPage = () => {
       const ratingsPromises = data.map(async (product: any) => {
         try {
           const ratingRes = await axios.get(
-            `http://localhost:5000/products/${product.id}/ratings`,
+            `https://meraki-academy-project-5-xtxg.onrender.com/products/${product.id}/ratings`,
             { params: { userId: user.id } }
           );
           return {

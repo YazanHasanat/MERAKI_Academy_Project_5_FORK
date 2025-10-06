@@ -43,7 +43,7 @@ export default function CartPage() {
   const getcart = async () => {
     try {
       setLoading(true);
-      const result = await axios.get("http://localhost:5000/cart", {
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/cart", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -65,7 +65,7 @@ export default function CartPage() {
 
   const handleDeleteItem = async (product_id: number) => {
     try {
-      await axios.delete(`http://localhost:5000/cart/item/${product_id}`, {
+      await axios.delete(`https://meraki-academy-project-5-xtxg.onrender.com/cart/item/${product_id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -80,7 +80,7 @@ export default function CartPage() {
     if (quantity < 1) return;
     try {
       await axios.put(
-        "http://localhost:5000/cart/update",
+        "https://meraki-academy-project-5-xtxg.onrender.com/cart/update",
         { product_id, quantity },
         {
           headers: {
