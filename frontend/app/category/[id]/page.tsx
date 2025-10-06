@@ -10,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -53,7 +52,6 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import RefreshIcon from "@mui/icons-material/Refresh";
 
 const StarRating = ({ rating }: { rating: number }) => {
   rating = Math.min(5, Math.max(0, rating));
@@ -64,11 +62,17 @@ const StarRating = ({ rating }: { rating: number }) => {
   return (
     <Box display="flex" alignItems="center" gap={0.25}>
       {[...Array(fullStars)].map((_, i) => (
-        <StarIconFull key={`full-${i}`} sx={{ color: "#FFC107", fontSize: 16 }} />
+        <StarIconFull
+          key={`full-${i}`}
+          sx={{ color: "#FFC107", fontSize: 16 }}
+        />
       ))}
       {hasHalfStar && <StarHalfIcon sx={{ color: "#FFC107", fontSize: 16 }} />}
       {[...Array(emptyStars)].map((_, i) => (
-        <StarBorderIcon key={`empty-${i}`} sx={{ color: "#FFC107", fontSize: 16 }} />
+        <StarBorderIcon
+          key={`empty-${i}`}
+          sx={{ color: "#FFC107", fontSize: 16 }}
+        />
       ))}
     </Box>
   );
@@ -92,10 +96,26 @@ const SortMenu = ({
   const open = Boolean(anchorEl);
 
   const sortOptions = [
-    { key: SortOption.Default, label: "Recommended", icon: <SortIcon fontSize="small" /> },
-    { key: SortOption.PriceAsc, label: "Price: Low to High", icon: <ArrowUpwardIcon fontSize="small" /> },
-    { key: SortOption.PriceDesc, label: "Price: High to Low", icon: <ArrowDownwardIcon fontSize="small" /> },
-    { key: SortOption.TopRated, label: "Top Rated", icon: <StarIcon fontSize="small" /> },
+    {
+      key: SortOption.Default,
+      label: "Recommended",
+      icon: <SortIcon fontSize="small" />,
+    },
+    {
+      key: SortOption.PriceAsc,
+      label: "Price: Low to High",
+      icon: <ArrowUpwardIcon fontSize="small" />,
+    },
+    {
+      key: SortOption.PriceDesc,
+      label: "Price: High to Low",
+      icon: <ArrowDownwardIcon fontSize="small" />,
+    },
+    {
+      key: SortOption.TopRated,
+      label: "Top Rated",
+      icon: <StarIcon fontSize="small" />,
+    },
   ];
 
   const currentSortLabel =
@@ -120,7 +140,7 @@ const SortMenu = ({
         variant="contained"
         startIcon={<SortIcon />}
         onClick={handleClick}
-        sx={{ 
+        sx={{
           textTransform: "none",
           bgcolor: "#EC407A",
           color: "white",
@@ -145,12 +165,12 @@ const SortMenu = ({
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
+          vertical: "bottom",
+          horizontal: "left",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
+          vertical: "top",
+          horizontal: "left",
         }}
         PaperProps={{
           sx: {
@@ -159,7 +179,7 @@ const SortMenu = ({
             boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
             minWidth: 220,
             p: 1,
-          }
+          },
         }}
       >
         {sortOptions.map((option) => (
@@ -180,7 +200,9 @@ const SortMenu = ({
               },
             }}
           >
-            <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>{option.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>
+              {option.icon}
+            </ListItemIcon>
             <ListItemText primary={option.label} />
           </MenuItem>
         ))}
@@ -200,11 +222,12 @@ const PriceRangeSlider = ({
   min: number;
   max: number;
 }) => {
-  const handleInputChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = [...value] as [number, number];
-    newValue[index] = Number(event.target.value);
-    onChange(newValue);
-  };
+  const handleInputChange =
+    (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = [...value] as [number, number];
+      newValue[index] = Number(event.target.value);
+      onChange(newValue);
+    };
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -213,14 +236,21 @@ const PriceRangeSlider = ({
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#333" }}>
           Price Range
         </Typography>
-        <Typography variant="subtitle1" color="#EC407A" sx={{ ml: 1, fontWeight: 700 }}>
+        <Typography
+          variant="subtitle1"
+          color="#EC407A"
+          sx={{ ml: 1, fontWeight: 700 }}
+        >
           ($)
         </Typography>
       </Box>
 
       {/* Price Inputs */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
-        <Typography variant="body2" sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}
+        >
           Min
         </Typography>
         <TextField
@@ -231,30 +261,33 @@ const PriceRangeSlider = ({
             min: 0,
             max: max,
             type: "number",
-            style: { textAlign: "center", fontSize: "0.9rem" }
+            style: { textAlign: "center", fontSize: "0.9rem" },
           }}
-          sx={{ 
+          sx={{
             width: 110,
-            '& .MuiOutlinedInput-root': {
+            "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              fontSize: '0.9rem',
-              '&:hover fieldset': {
-                borderColor: '#EC407A',
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              fontSize: "0.9rem",
+              "&:hover fieldset": {
+                borderColor: "#EC407A",
               },
-              '&.Mui-focused fieldset': {
-                borderColor: '#EC407A',
+              "&.Mui-focused fieldset": {
+                borderColor: "#EC407A",
                 borderWidth: 2,
               },
-              '& input': {
-                textAlign: 'center',
-                padding: '8px 4px',
-              }
-            }
+              "& input": {
+                textAlign: "center",
+                padding: "8px 4px",
+              },
+            },
           }}
         />
-        <Typography variant="body2" sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 600, color: "#666", minWidth: 35 }}
+        >
           Max
         </Typography>
         <TextField
@@ -265,27 +298,27 @@ const PriceRangeSlider = ({
             min: 0,
             max: max,
             type: "number",
-            style: { textAlign: "center", fontSize: "0.9rem" }
+            style: { textAlign: "center", fontSize: "0.9rem" },
           }}
-          sx={{ 
+          sx={{
             width: 110,
-            '& .MuiOutlinedInput-root': {
+            "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              fontSize: '0.9rem',
-              '&:hover fieldset': {
-                borderColor: '#EC407A',
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              fontSize: "0.9rem",
+              "&:hover fieldset": {
+                borderColor: "#EC407A",
               },
-              '&.Mui-focused fieldset': {
-                borderColor: '#EC407A',
+              "&.Mui-focused fieldset": {
+                borderColor: "#EC407A",
                 borderWidth: 2,
               },
-              '& input': {
-                textAlign: 'center',
-                padding: '8px 4px',
-              }
-            }
+              "& input": {
+                textAlign: "center",
+                padding: "8px 4px",
+              },
+            },
           }}
         />
       </Box>
@@ -337,27 +370,33 @@ const PriceRangeSlider = ({
       </Box>
 
       {/* Current Range Display */}
-      <Box sx={{ 
-        mt: 2, 
-        p: 1.5, 
-        backgroundColor: "rgba(236, 64, 122, 0.05)", 
-        borderRadius: 2,
-        border: "1px solid rgba(236, 64, 122, 0.1)"
-      }}>
-        <Typography variant="body2" sx={{ textAlign: "center", fontWeight: 600, color: "#666" }}>
-          Current Range: {value[0]} - {value[1]} $         </Typography>
+      <Box
+        sx={{
+          mt: 2,
+          p: 1.5,
+          backgroundColor: "rgba(236, 64, 122, 0.05)",
+          borderRadius: 2,
+          border: "1px solid rgba(236, 64, 122, 0.1)",
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{ textAlign: "center", fontWeight: 600, color: "#666" }}
+        >
+          Current Range: {value[0]} - {value[1]} ${" "}
+        </Typography>
       </Box>
     </Box>
   );
 };
 
-const QuickViewModal = ({ 
-  product, 
-  open, 
-  onClose 
-}: { 
-  product: any; 
-  open: boolean; 
+const QuickViewModal = ({
+  product,
+  open,
+  onClose,
+}: {
+  product: any;
+  open: boolean;
   onClose: () => void;
 }) => {
   if (!product) {
@@ -371,21 +410,34 @@ const QuickViewModal = ({
       aria-labelledby="quick-view-modal"
       aria-describedby="quick-view-product-details"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '95%', sm: '90%', md: 600 },
-        maxHeight: '90vh',
-        overflow: 'auto',
-        bgcolor: 'background.paper',
-        borderRadius: 3,
-        boxShadow: 24,
-        p: { xs: 2, sm: 3, md: 4 },
-      }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" component="h2" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "95%", sm: "90%", md: 600 },
+          maxHeight: "90vh",
+          overflow: "auto",
+          bgcolor: "background.paper",
+          borderRadius: 3,
+          boxShadow: 24,
+          p: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h2"
+            sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" } }}
+          >
             {product.title || "Product Details"}
           </Typography>
           <IconButton onClick={onClose}>
@@ -393,7 +445,7 @@ const QuickViewModal = ({
           </IconButton>
         </Box>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid>
             <CardMedia
               component="img"
               image={
@@ -404,14 +456,30 @@ const QuickViewModal = ({
                   : "/assets/home.png"
               }
               alt={product.title || "Product image"}
-              sx={{ width: '100%', height: { xs: 200, sm: 250, md: 300 }, objectFit: 'cover', borderRadius: 2 }}
+              sx={{
+                width: "100%",
+                height: { xs: 200, sm: 250, md: 300 },
+                objectFit: "cover",
+                borderRadius: 2,
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+          <Grid>
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ mb: 2, fontSize: { xs: "0.9rem", sm: "1rem" } }}
+            >
               {product.description || "No description available"}
             </Typography>
-            <Typography variant="h4" color="#EC407A" sx={{ mb: 2, fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}>
+            <Typography
+              variant="h4"
+              color="#EC407A"
+              sx={{
+                mb: 2,
+                fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+              }}
+            >
               {product.price ? `${product.price} $` : "Price not available"}
             </Typography>
             <Box sx={{ mb: 2 }}>
@@ -420,8 +488,11 @@ const QuickViewModal = ({
                 ({product.ratingsCount || 0} reviews)
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-              <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+              <Link
+                href={`/product/${product.id}`}
+                style={{ textDecoration: "none" }}
+              >
                 <Button
                   variant="contained"
                   fullWidth
@@ -441,11 +512,13 @@ const QuickViewModal = ({
 const CategoryPage = () => {
   const { id } = useParams();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
-  const [categoryDesc, setCategoryDesc] = useState(""); 
-  const [ratings, setRatings] = useState<{ [key: string]: { average: number; count: number } }>({});
+  const [categoryDesc, setCategoryDesc] = useState("");
+  const [ratings, setRatings] = useState<{
+    [key: string]: { average: number; count: number };
+  }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>(SortOption.Default);
@@ -464,25 +537,30 @@ const CategoryPage = () => {
 
   const CategoryData = async () => {
     if (!id) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const res = await axios.get(`http://localhost:5000/products/category/${id}`);
+      const res = await axios.get(
+        `http://localhost:5000/products/category/${id}`
+      );
       const data = res.data.products || res.data;
-      
+
       if (!Array.isArray(data)) {
         throw new Error("Invalid data format received from server");
       }
-      
+
       setProducts(data);
 
       if (data?.length > 0) {
         setCategoryName(data[0].category_name || "Unknown Category");
-        setCategoryDesc(data[0].category_description || "Shop the best products in this category.");
-        
-        const prices = data.map(p => p.price || 0);
+        setCategoryDesc(
+          data[0].category_description ||
+            "Shop the best products in this category."
+        );
+
+        const prices = data.map((p) => p.price || 0);
         const maxProductPrice = Math.max(...prices, 1000);
         setMaxPrice(maxProductPrice);
         setPriceRange([0, maxProductPrice]);
@@ -503,7 +581,10 @@ const CategoryPage = () => {
             count: ratingRes.data.ratingsCount || 0,
           };
         } catch (err) {
-          console.error(`Failed to fetch ratings for product ${product.id}:`, err);
+          console.error(
+            `Failed to fetch ratings for product ${product.id}:`,
+            err
+          );
           return { id: product.id, average: 0, count: 0 };
         }
       });
@@ -536,7 +617,7 @@ const CategoryPage = () => {
 
   const brands = useMemo(() => {
     const brandSet = new Set<string>();
-    products.forEach(p => {
+    products.forEach((p) => {
       if (p.brand) brandSet.add(p.brand);
     });
     return Array.from(brandSet);
@@ -544,19 +625,21 @@ const CategoryPage = () => {
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter((product) => {
-      const matchesSearch = searchQuery === "" || 
+      const matchesSearch =
+        searchQuery === "" ||
         product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const price = product.price || 0;
       const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
-      
-      const matchesBrand = selectedBrands.length === 0 || 
+
+      const matchesBrand =
+        selectedBrands.length === 0 ||
         (product.brand && selectedBrands.includes(product.brand));
-      
+
       const rating = ratings[product.id]?.average || 0;
       const matchesRating = rating >= minRating;
-      
+
       return matchesSearch && matchesPrice && matchesBrand && matchesRating;
     });
 
@@ -569,14 +652,23 @@ const CategoryPage = () => {
         break;
       case SortOption.TopRated:
         filtered.sort(
-          (a, b) => (ratings[b.id]?.average || 0) - (ratings[a.id]?.average || 0)
+          (a, b) =>
+            (ratings[b.id]?.average || 0) - (ratings[a.id]?.average || 0)
         );
         break;
       default:
         break;
     }
     return filtered;
-  }, [products, ratings, sortOption, priceRange, searchQuery, selectedBrands, minRating]);
+  }, [
+    products,
+    ratings,
+    sortOption,
+    priceRange,
+    searchQuery,
+    selectedBrands,
+    minRating,
+  ]);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = "/assets/home.png";
@@ -592,39 +684,53 @@ const CategoryPage = () => {
     setTimeout(() => setQuickViewProduct(null), 300);
   };
 
-  const toggleFilterDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' ||
-        (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return;
-    }
-    setFilterDrawerOpen(open);
-  };
+  const toggleFilterDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
+      setFilterDrawerOpen(open);
+    };
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "50vh",
+        }}
+      >
         <Typography variant="h6">Loading products...</Typography>
       </Box>
     );
   }
 
-  // Mobile Filter Drawer
   const FilterDrawer = () => (
     <Drawer
       anchor="left"
       open={filterDrawerOpen}
       onClose={toggleFilterDrawer(false)}
       sx={{
-        '& .MuiDrawer-paper': {
-          width: { xs: '85%', sm: 300 },
-          boxSizing: 'border-box',
+        "& .MuiDrawer-paper": {
+          width: { xs: "85%", sm: 300 },
+          boxSizing: "border-box",
         },
       }}
     >
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Filters
         </Typography>
@@ -633,11 +739,11 @@ const CategoryPage = () => {
         </IconButton>
       </Box>
       <Divider />
-      <Box sx={{ p: 2, overflowY: 'auto', height: 'calc(100% - 64px)' }}>
-        <Accordion 
-          defaultExpanded 
-          sx={{ 
-            boxShadow: "none", 
+      <Box sx={{ p: 2, overflowY: "auto", height: "calc(100% - 64px)" }}>
+        <Accordion
+          defaultExpanded
+          sx={{
+            boxShadow: "none",
             "&:before": { display: "none" },
             border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: 2,
@@ -645,13 +751,13 @@ const CategoryPage = () => {
           }}
           TransitionProps={{ timeout: 0 }}
         >
-          <AccordionSummary 
+          <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ 
+            sx={{
               minHeight: 48,
               "& .MuiAccordionSummary-content": {
                 margin: "12px 0",
-              }
+              },
             }}
           >
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -663,10 +769,10 @@ const CategoryPage = () => {
           </AccordionDetails>
         </Accordion>
 
-        <Accordion 
-          defaultExpanded 
-          sx={{ 
-            boxShadow: "none", 
+        <Accordion
+          defaultExpanded
+          sx={{
+            boxShadow: "none",
             "&:before": { display: "none" },
             border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: 2,
@@ -674,13 +780,13 @@ const CategoryPage = () => {
           }}
           TransitionProps={{ timeout: 0 }}
         >
-          <AccordionSummary 
+          <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ 
+            sx={{
               minHeight: 48,
               "& .MuiAccordionSummary-content": {
                 margin: "12px 0",
-              }
+              },
             }}
           >
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -697,10 +803,10 @@ const CategoryPage = () => {
           </AccordionDetails>
         </Accordion>
 
-        <Accordion 
-          defaultExpanded 
-          sx={{ 
-            boxShadow: "none", 
+        <Accordion
+          defaultExpanded
+          sx={{
+            boxShadow: "none",
             "&:before": { display: "none" },
             border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: 2,
@@ -708,13 +814,13 @@ const CategoryPage = () => {
           }}
           TransitionProps={{ timeout: 0 }}
         >
-          <AccordionSummary 
+          <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ 
+            sx={{
               minHeight: 48,
               "& .MuiAccordionSummary-content": {
                 margin: "12px 0",
-              }
+              },
             }}
           >
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -734,7 +840,10 @@ const CategoryPage = () => {
                     borderRadius: 2,
                     cursor: "pointer",
                     transition: "all 0.2s ease",
-                    backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                    backgroundColor:
+                      minRating === rating
+                        ? "rgba(236, 64, 122, 0.08)"
+                        : "transparent",
                     "&:hover": {
                       backgroundColor: "rgba(0,0,0,0.04)",
                     },
@@ -761,23 +870,23 @@ const CategoryPage = () => {
         </Accordion>
 
         {brands.length > 0 && (
-          <Accordion 
-            defaultExpanded 
-            sx={{ 
-              boxShadow: "none", 
+          <Accordion
+            defaultExpanded
+            sx={{
+              boxShadow: "none",
               "&:before": { display: "none" },
               border: "1px solid rgba(0,0,0,0.08)",
               borderRadius: 2,
             }}
             TransitionProps={{ timeout: 0 }}
           >
-            <AccordionSummary 
+            <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
-              sx={{ 
+              sx={{
                 minHeight: 48,
                 "& .MuiAccordionSummary-content": {
                   margin: "12px 0",
-                }
+                },
               }}
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -785,14 +894,22 @@ const CategoryPage = () => {
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ pt: 0 }}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: 'auto' }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                  maxHeight: 200,
+                  overflowY: "auto",
+                }}
+              >
                 {brands.map((brand) => (
                   <Box
                     key={brand}
                     onClick={() => {
-                      setSelectedBrands(prev => 
-                        prev.includes(brand) 
-                          ? prev.filter(b => b !== brand)
+                      setSelectedBrands((prev) =>
+                        prev.includes(brand)
+                          ? prev.filter((b) => b !== brand)
                           : [...prev, brand]
                       );
                     }}
@@ -803,7 +920,9 @@ const CategoryPage = () => {
                       borderRadius: 1,
                       cursor: "pointer",
                       transition: "all 0.2s ease",
-                      backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                      backgroundColor: selectedBrands.includes(brand)
+                        ? "rgba(236, 64, 122, 0.08)"
+                        : "transparent",
                       "&:hover": {
                         backgroundColor: "rgba(0,0,0,0.04)",
                       },
@@ -815,7 +934,9 @@ const CategoryPage = () => {
                         height: 16,
                         borderRadius: "50%",
                         border: "2px solid #EC407A",
-                        backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
+                        backgroundColor: selectedBrands.includes(brand)
+                          ? "#EC407A"
+                          : "white",
                         mr: 2,
                         display: "flex",
                         alignItems: "center",
@@ -823,7 +944,14 @@ const CategoryPage = () => {
                       }}
                     >
                       {selectedBrands.includes(brand) && (
-                        <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: "white",
+                          }}
+                        />
                       )}
                     </Box>
                     <Typography variant="body2">{brand}</Typography>
@@ -845,13 +973,13 @@ const CategoryPage = () => {
               setMinRating(0);
               setSortOption(SortOption.Default);
             }}
-            sx={{ 
-              borderColor: "#EC407A", 
+            sx={{
+              borderColor: "#EC407A",
               color: "#EC407A",
               "&:hover": {
                 borderColor: "#d53972",
                 backgroundColor: "rgba(236, 64, 122, 0.04)",
-              }
+              },
             }}
           >
             Reset All Filters
@@ -877,7 +1005,8 @@ const CategoryPage = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.05\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')",
+            background:
+              'url(\'data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\')',
             animation: "float 20s infinite linear",
           },
           "@keyframes float": {
@@ -890,7 +1019,9 @@ const CategoryPage = () => {
           <Fade in={heroVisible} timeout={1000}>
             <Box textAlign="center" color="white">
               <Box sx={{ mb: 3, animation: "pulse 2s infinite" }}>
-                <ShoppingBagIcon sx={{ fontSize: { xs: 40, sm: 50, md: 60 }, opacity: 0.9 }} />
+                <ShoppingBagIcon
+                  sx={{ fontSize: { xs: 40, sm: 50, md: 60 }, opacity: 0.9 }}
+                />
               </Box>
               <Typography
                 variant="h2"
@@ -899,7 +1030,7 @@ const CategoryPage = () => {
                   mb: 2,
                   textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
                   animation: "slideInFromTop 0.8s ease-out",
-                  fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' }
+                  fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
                 }}
               >
                 {categoryName}
@@ -911,36 +1042,44 @@ const CategoryPage = () => {
                   mx: "auto",
                   opacity: 0.95,
                   animation: "slideInFromBottom 0.8s ease-out",
-                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                  fontSize: { xs: "0.9rem", sm: "1rem", md: "1.25rem" },
                 }}
               >
                 {categoryDesc}
               </Typography>
               <Box sx={{ mt: 4 }}>
-                <LocalOfferIcon sx={{ fontSize: { xs: 24, sm: 27, md: 30 }, animation: "bounce 2s infinite" }} />
+                <LocalOfferIcon
+                  sx={{
+                    fontSize: { xs: 24, sm: 27, md: 30 },
+                    animation: "bounce 2s infinite",
+                  }}
+                />
               </Box>
             </Box>
           </Fade>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 }, py: { xs: 3, sm: 4, md: 6 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ px: { xs: 2, sm: 3, md: 4 }, py: { xs: 3, sm: 4, md: 6 } }}
+      >
         <Snackbar
           open={!!error}
           autoHideDuration={6000}
           onClose={() => setError(null)}
           TransitionComponent={Slide}
         >
-          <Alert 
-            onClose={() => setError(null)} 
-            severity="error" 
+          <Alert
+            onClose={() => setError(null)}
+            severity="error"
             sx={{ width: "100%" }}
             icon={<ErrorOutlineIcon />}
           >
             {error}
           </Alert>
         </Snackbar>
-        
+
         <Box sx={{ mb: { xs: 3, sm: 4 } }}>
           <TextField
             fullWidth
@@ -967,17 +1106,24 @@ const CategoryPage = () => {
             }}
           />
         </Box>
-        
+
         {products.length > 0 && (
-          <Box sx={{ display: "flex", gap: { xs: 0, sm: 3 }, mb: { xs: 4, sm: 6 }, alignItems: "flex-start" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: { xs: 0, sm: 3 },
+              mb: { xs: 4, sm: 6 },
+              alignItems: "flex-start",
+            }}
+          >
             {/* Mobile Filter Button */}
             {isMobile && (
-              <Box sx={{ width: '100%', mb: 2 }}>
+              <Box sx={{ width: "100%", mb: 2 }}>
                 <Button
                   variant="contained"
                   startIcon={<FilterListIcon />}
                   onClick={toggleFilterDrawer(true)}
-                  sx={{ 
+                  sx={{
                     textTransform: "none",
                     bgcolor: "#EC407A",
                     color: "white",
@@ -991,8 +1137,8 @@ const CategoryPage = () => {
                       boxShadow: "0 6px 16px rgba(236, 64, 122, 0.4)",
                     },
                     transition: "all 0.3s ease",
-                    width: '100%',
-                    justifyContent: 'flex-start'
+                    width: "100%",
+                    justifyContent: "flex-start",
                   }}
                 >
                   Filters & Sort
@@ -1013,19 +1159,31 @@ const CategoryPage = () => {
                   top: 20,
                 }}
               >
-                <Box sx={{
-                  p: 3,
-                  background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
-                  color: "white",
-                }}>
+                <Box
+                  sx={{
+                    p: 3,
+                    background:
+                      "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
+                    color: "white",
+                  }}
+                >
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <TuneIcon sx={{ mr: 2, fontSize: 24 }} />
                     <Typography variant="h6" sx={{ fontWeight: 700 }}>
                       Filters
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <SortMenu
+                      activeSort={sortOption}
+                      onSortChange={setSortOption}
+                    />
                     <Button
                       variant="text"
                       size="small"
@@ -1036,7 +1194,7 @@ const CategoryPage = () => {
                         setMinRating(0);
                         setSortOption(SortOption.Default);
                       }}
-                      sx={{ 
+                      sx={{
                         color: "white",
                         fontWeight: 600,
                         textTransform: "none",
@@ -1051,10 +1209,10 @@ const CategoryPage = () => {
                 </Box>
 
                 <Box sx={{ p: 3 }}>
-                  <Accordion 
-                    defaultExpanded 
-                    sx={{ 
-                      boxShadow: "none", 
+                  <Accordion
+                    defaultExpanded
+                    sx={{
+                      boxShadow: "none",
                       "&:before": { display: "none" },
                       border: "1px solid rgba(0,0,0,0.08)",
                       borderRadius: 2,
@@ -1062,13 +1220,13 @@ const CategoryPage = () => {
                     }}
                     TransitionProps={{ timeout: 0 }}
                   >
-                    <AccordionSummary 
+                    <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
-                      sx={{ 
+                      sx={{
                         minHeight: 48,
                         "& .MuiAccordionSummary-content": {
                           margin: "12px 0",
-                        }
+                        },
                       }}
                     >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -1085,10 +1243,10 @@ const CategoryPage = () => {
                     </AccordionDetails>
                   </Accordion>
 
-                  <Accordion 
-                    defaultExpanded 
-                    sx={{ 
-                      boxShadow: "none", 
+                  <Accordion
+                    defaultExpanded
+                    sx={{
+                      boxShadow: "none",
                       "&:before": { display: "none" },
                       border: "1px solid rgba(0,0,0,0.08)",
                       borderRadius: 2,
@@ -1096,13 +1254,13 @@ const CategoryPage = () => {
                     }}
                     TransitionProps={{ timeout: 0 }}
                   >
-                    <AccordionSummary 
+                    <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
-                      sx={{ 
+                      sx={{
                         minHeight: 48,
                         "& .MuiAccordionSummary-content": {
                           margin: "12px 0",
-                        }
+                        },
                       }}
                     >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -1110,7 +1268,13 @@ const CategoryPage = () => {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={{ pt: 0 }}>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
                         {[4, 3, 2, 1].map((rating) => (
                           <Box
                             key={rating}
@@ -1122,24 +1286,39 @@ const CategoryPage = () => {
                               borderRadius: 2,
                               cursor: "pointer",
                               transition: "all 0.2s ease",
-                              backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                              backgroundColor:
+                                minRating === rating
+                                  ? "rgba(236, 64, 122, 0.08)"
+                                  : "transparent",
                               "&:hover": {
                                 backgroundColor: "rgba(0,0,0,0.04)",
                               },
                             }}
                           >
-                            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                mr: 2,
+                              }}
+                            >
                               {[...Array(5)].map((_, i) => (
                                 <StarIcon
                                   key={i}
                                   sx={{
                                     fontSize: 18,
-                                    color: i < rating ? "#FFC107" : "rgba(0,0,0,0.2)",
+                                    color:
+                                      i < rating
+                                        ? "#FFC107"
+                                        : "rgba(0,0,0,0.2)",
                                   }}
                                 />
                               ))}
                             </Box>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 500 }}
+                            >
                               & Up
                             </Typography>
                           </Box>
@@ -1149,38 +1328,49 @@ const CategoryPage = () => {
                   </Accordion>
 
                   {brands.length > 0 && (
-                    <Accordion 
-                      defaultExpanded 
-                      sx={{ 
-                        boxShadow: "none", 
+                    <Accordion
+                      defaultExpanded
+                      sx={{
+                        boxShadow: "none",
                         "&:before": { display: "none" },
                         border: "1px solid rgba(0,0,0,0.08)",
                         borderRadius: 2,
                       }}
                       TransitionProps={{ timeout: 0 }}
                     >
-                      <AccordionSummary 
+                      <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
-                        sx={{ 
+                        sx={{
                           minHeight: 48,
                           "& .MuiAccordionSummary-content": {
                             margin: "12px 0",
-                          }
+                          },
                         }}
                       >
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600 }}
+                        >
                           Brands
                         </Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ pt: 0 }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: 'auto' }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                            maxHeight: 200,
+                            overflowY: "auto",
+                          }}
+                        >
                           {brands.map((brand) => (
                             <Box
                               key={brand}
                               onClick={() => {
-                                setSelectedBrands(prev => 
-                                  prev.includes(brand) 
-                                    ? prev.filter(b => b !== brand)
+                                setSelectedBrands((prev) =>
+                                  prev.includes(brand)
+                                    ? prev.filter((b) => b !== brand)
                                     : [...prev, brand]
                                 );
                               }}
@@ -1191,7 +1381,9 @@ const CategoryPage = () => {
                                 borderRadius: 1,
                                 cursor: "pointer",
                                 transition: "all 0.2s ease",
-                                backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                                backgroundColor: selectedBrands.includes(brand)
+                                  ? "rgba(236, 64, 122, 0.08)"
+                                  : "transparent",
                                 "&:hover": {
                                   backgroundColor: "rgba(0,0,0,0.04)",
                                 },
@@ -1203,7 +1395,11 @@ const CategoryPage = () => {
                                   height: 16,
                                   borderRadius: "50%",
                                   border: "2px solid #EC407A",
-                                  backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
+                                  backgroundColor: selectedBrands.includes(
+                                    brand
+                                  )
+                                    ? "#EC407A"
+                                    : "white",
                                   mr: 2,
                                   display: "flex",
                                   alignItems: "center",
@@ -1211,7 +1407,14 @@ const CategoryPage = () => {
                                 }}
                               >
                                 {selectedBrands.includes(brand) && (
-                                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+                                  <Box
+                                    sx={{
+                                      width: 8,
+                                      height: 8,
+                                      borderRadius: "50%",
+                                      backgroundColor: "white",
+                                    }}
+                                  />
                                 )}
                               </Box>
                               <Typography variant="body2">{brand}</Typography>
@@ -1228,7 +1431,7 @@ const CategoryPage = () => {
             {/* Mobile Filter Drawer */}
             <FilterDrawer />
 
-            <Box sx={{ flex: 1, width: { xs: '100%', md: 'auto' } }}>
+            <Box sx={{ flex: 1, width: { xs: "100%", md: "auto" } }}>
               <Paper
                 sx={{
                   p: 2,
@@ -1238,39 +1441,63 @@ const CategoryPage = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: { xs: 2, sm: 0 }
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: { xs: 2, sm: 0 },
                 }}
               >
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                  Showing <Box component="span" sx={{ color: "#EC407A", fontWeight: 700 }}>{filteredAndSortedProducts.length}</Box> of{" "}
-                  <Box component="span" sx={{ fontWeight: 700 }}>{products.length}</Box> products
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                >
+                  Showing{" "}
+                  <Box
+                    component="span"
+                    sx={{ color: "#EC407A", fontWeight: 700 }}
+                  >
+                    {filteredAndSortedProducts.length}
+                  </Box>{" "}
+                  of{" "}
+                  <Box component="span" sx={{ fontWeight: 700 }}>
+                    {products.length}
+                  </Box>{" "}
+                  products
                 </Typography>
-                <Box sx={{ display: "flex", gap: 0.5, bgcolor: "rgba(0,0,0,0.04)", p: 0.5, borderRadius: 2 }}>
-                  <IconButton 
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 0.5,
+                    bgcolor: "rgba(0,0,0,0.04)",
+                    p: 0.5,
+                    borderRadius: 2,
+                  }}
+                >
+                  <IconButton
                     onClick={() => setViewMode("grid")}
                     color={viewMode === "grid" ? "primary" : "default"}
-                    sx={{ 
+                    sx={{
                       borderRadius: 1.5,
                       bgcolor: viewMode === "grid" ? "#EC407A" : "transparent",
                       color: viewMode === "grid" ? "white" : "text.secondary",
                       "&:hover": {
-                        bgcolor: viewMode === "grid" ? "#d53972" : "rgba(0,0,0,0.04)",
-                      }
+                        bgcolor:
+                          viewMode === "grid" ? "#d53972" : "rgba(0,0,0,0.04)",
+                      },
                     }}
                   >
                     <ViewModuleIcon fontSize="small" />
                   </IconButton>
-                  <IconButton 
+                  <IconButton
                     onClick={() => setViewMode("list")}
                     color={viewMode === "list" ? "primary" : "default"}
-                    sx={{ 
+                    sx={{
                       borderRadius: 1.5,
                       bgcolor: viewMode === "list" ? "#EC407A" : "transparent",
                       color: viewMode === "list" ? "white" : "text.secondary",
                       "&:hover": {
-                        bgcolor: viewMode === "list" ? "#d53972" : "rgba(0,0,0,0.04)",
-                      }
+                        bgcolor:
+                          viewMode === "list" ? "#d53972" : "rgba(0,0,0,0.04)",
+                      },
                     }}
                   >
                     <ViewListIcon fontSize="small" />
@@ -1279,13 +1506,20 @@ const CategoryPage = () => {
               </Paper>
 
               {filteredAndSortedProducts.length === 0 ? (
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    mt: 8,
+                  }}
+                >
                   <FilterListIcon sx={{ fontSize: 60, color: "#999", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" mb={2}>
                     No products found matching your filters.
                   </Typography>
-                  <Button 
-                    variant="outlined" 
+                  <Button
+                    variant="outlined"
                     onClick={() => {
                       setSearchQuery("");
                       setPriceRange([0, maxPrice]);
@@ -1303,14 +1537,14 @@ const CategoryPage = () => {
                   {viewMode === "grid" ? (
                     <Grid container spacing={{ xs: 2, sm: 3 }}>
                       {filteredAndSortedProducts.map((product: any, index) => (
-                        <Grid 
-                          item 
+                        <Grid
                           key={product.id}
-                          xs={12} sm={6} md={4} lg={3}
-                          sx={{ 
-                            display: 'flex',
-                            justifyContent: 'center',
-                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            animation: `fadeInUp 0.6s ease-out ${
+                              index * 0.1
+                            }s both`,
                             "@keyframes fadeInUp": {
                               "0%": {
                                 opacity: 0,
@@ -1330,7 +1564,8 @@ const CategoryPage = () => {
                               flexDirection: "column",
                               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                               borderRadius: 3,
-                              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                              transition:
+                                "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                               border: "1px solid rgba(0,0,0,0.06)",
                               position: "relative",
                               overflow: "hidden",
@@ -1345,22 +1580,28 @@ const CategoryPage = () => {
                                   transform: "translateX(0)",
                                 },
                               },
-                              bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                              bgcolor:
+                                theme.palette.mode === "light"
+                                  ? "#fff"
+                                  : "#1e1e1e",
                               width: "100%",
-                              maxWidth: { xs: '100%', sm: 300 },
+                              maxWidth: { xs: "100%", sm: 300 },
                             })}
                           >
-                            <Box sx={{ 
-                              position: "relative", 
-                              overflow: "hidden",
-                              height: { xs: 200, sm: 240, md: 280 },
-                              backgroundColor: "#f8f9fa",
-                            }}>
+                            <Box
+                              sx={{
+                                position: "relative",
+                                overflow: "hidden",
+                                height: { xs: 200, sm: 240, md: 280 },
+                                backgroundColor: "#f8f9fa",
+                              }}
+                            >
                               <CardMedia
                                 component="img"
                                 className="product-image"
                                 image={
-                                  product.image_urls && product.image_urls.length > 0
+                                  product.image_urls &&
+                                  product.image_urls.length > 0
                                     ? product.image_urls[0].startsWith("http")
                                       ? product.image_urls[0]
                                       : `/assets/${product.image_urls[0]}`
@@ -1375,7 +1616,7 @@ const CategoryPage = () => {
                                 }}
                                 onError={handleImageError}
                               />
-                              
+
                               {product.discount && (
                                 <Chip
                                   label={`-${product.discount}%`}
@@ -1394,14 +1635,14 @@ const CategoryPage = () => {
                                 />
                               )}
 
-                              <Box 
+                              <Box
                                 className="quick-actions"
-                                sx={{ 
-                                  position: "absolute", 
-                                  top: 12, 
-                                  right: 12, 
-                                  display: "flex", 
-                                  flexDirection: "column", 
+                                sx={{
+                                  position: "absolute",
+                                  top: 12,
+                                  right: 12,
+                                  display: "flex",
+                                  flexDirection: "column",
                                   gap: 1,
                                   opacity: 0,
                                   transform: "translateX(20px)",
@@ -1409,11 +1650,11 @@ const CategoryPage = () => {
                                   zIndex: 2,
                                 }}
                               >
-                                <IconButton 
-                                  sx={{ 
-                                    bgcolor: "white", 
+                                <IconButton
+                                  sx={{
+                                    bgcolor: "white",
                                     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                    "&:hover": { 
+                                    "&:hover": {
                                       bgcolor: "#EC407A",
                                       color: "white",
                                       transform: "scale(1.1)",
@@ -1426,13 +1667,15 @@ const CategoryPage = () => {
                                 </IconButton>
                               </Box>
                             </Box>
-                            
-                            <CardContent sx={{ 
-                              flexGrow: 1, 
-                              p: { xs: 1.5, sm: 2, md: 2.5 },
-                              display: "flex",
-                              flexDirection: "column",
-                            }}>
+
+                            <CardContent
+                              sx={{
+                                flexGrow: 1,
+                                p: { xs: 1.5, sm: 2, md: 2.5 },
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
+                            >
                               <Typography
                                 variant="h6"
                                 sx={{
@@ -1454,7 +1697,7 @@ const CategoryPage = () => {
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
-                                sx={{ 
+                                sx={{
                                   mb: 2,
                                   fontSize: { xs: "0.8rem", sm: "0.875rem" },
                                   lineHeight: 1.5,
@@ -1465,16 +1708,21 @@ const CategoryPage = () => {
                                   WebkitBoxOrient: "vertical",
                                 }}
                               >
-                                {product.description || "No description available"}
+                                {product.description ||
+                                  "No description available"}
                               </Typography>
 
-                              <Box sx={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                gap: 1,
-                                mb: 2,
-                              }}>
-                                <StarRating rating={ratings[product.id]?.average || 0} />
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  mb: 2,
+                                }}
+                              >
+                                <StarRating
+                                  rating={ratings[product.id]?.average || 0}
+                                />
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
@@ -1484,12 +1732,14 @@ const CategoryPage = () => {
                                 </Typography>
                               </Box>
 
-                              <Box sx={{ 
-                                mt: "auto",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 1.5,
-                              }}>
+                              <Box
+                                sx={{
+                                  mt: "auto",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 1.5,
+                                }}
+                              >
                                 <Typography
                                   variant="h5"
                                   sx={{
@@ -1498,10 +1748,15 @@ const CategoryPage = () => {
                                     fontSize: { xs: "1.2rem", sm: "1.5rem" },
                                   }}
                                 >
-                                  {product.price ? `${product.price} $` : "Price not available"}
+                                  {product.price
+                                    ? `${product.price} $`
+                                    : "Price not available"}
                                 </Typography>
-                                
-                                <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+
+                                <Link
+                                  href={`/product/${product.id}`}
+                                  style={{ textDecoration: "none" }}
+                                >
                                   <Button
                                     variant="contained"
                                     fullWidth
@@ -1510,13 +1765,18 @@ const CategoryPage = () => {
                                       borderRadius: 2.5,
                                       py: { xs: 1, sm: 1.2 },
                                       fontWeight: 600,
-                                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                                      fontSize: {
+                                        xs: "0.85rem",
+                                        sm: "0.95rem",
+                                      },
                                       bgcolor: "#EC407A",
                                       color: "white",
-                                      boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+                                      boxShadow:
+                                        "0 2px 8px rgba(236, 64, 122, 0.3)",
                                       "&:hover": {
                                         bgcolor: "#d53972",
-                                        boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
+                                        boxShadow:
+                                          "0 4px 12px rgba(236, 64, 122, 0.4)",
                                         transform: "translateY(-1px)",
                                       },
                                       transition: "all 0.2s ease",
@@ -1532,13 +1792,15 @@ const CategoryPage = () => {
                       ))}
                     </Grid>
                   ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    >
                       {filteredAndSortedProducts.map((product: any, index) => (
                         <Card
                           key={product.id}
                           sx={(theme) => ({
-                            display: 'flex',
-                            flexDirection: { xs: 'column', sm: 'row' },
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
                             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                             borderRadius: 3,
                             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -1549,8 +1811,13 @@ const CategoryPage = () => {
                               boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                               transform: "translateY(-4px)",
                             },
-                            bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                            bgcolor:
+                              theme.palette.mode === "light"
+                                ? "#fff"
+                                : "#1e1e1e",
+                            animation: `fadeInUp 0.6s ease-out ${
+                              index * 0.1
+                            }s both`,
                             "@keyframes fadeInUp": {
                               "0%": {
                                 opacity: 0,
@@ -1563,18 +1830,21 @@ const CategoryPage = () => {
                             },
                           })}
                         >
-                          <Box sx={{ 
-                            position: "relative", 
-                            overflow: "hidden",
-                            width: { xs: '100%', sm: 200, md: 240 },
-                            height: { xs: 200, sm: 'auto' },
-                            backgroundColor: "#f8f9fa",
-                          }}>
+                          <Box
+                            sx={{
+                              position: "relative",
+                              overflow: "hidden",
+                              width: { xs: "100%", sm: 200, md: 240 },
+                              height: { xs: 200, sm: "auto" },
+                              backgroundColor: "#f8f9fa",
+                            }}
+                          >
                             <CardMedia
                               component="img"
                               className="product-image"
                               image={
-                                product.image_urls && product.image_urls.length > 0
+                                product.image_urls &&
+                                product.image_urls.length > 0
                                   ? product.image_urls[0].startsWith("http")
                                     ? product.image_urls[0]
                                     : `/assets/${product.image_urls[0]}`
@@ -1583,13 +1853,13 @@ const CategoryPage = () => {
                               alt={product.title || "Product image"}
                               sx={{
                                 width: "100%",
-                                height: { xs: 200, sm: '100%' },
+                                height: { xs: 200, sm: "100%" },
                                 objectFit: "cover",
                                 transition: "transform 0.5s ease",
                               }}
                               onError={handleImageError}
                             />
-                            
+
                             {product.discount && (
                               <Chip
                                 label={`-${product.discount}%`}
@@ -1608,14 +1878,14 @@ const CategoryPage = () => {
                               />
                             )}
 
-                            <Box 
+                            <Box
                               className="quick-actions"
-                              sx={{ 
-                                position: "absolute", 
-                                top: 12, 
-                                right: 12, 
-                                display: "flex", 
-                                flexDirection: "column", 
+                              sx={{
+                                position: "absolute",
+                                top: 12,
+                                right: 12,
+                                display: "flex",
+                                flexDirection: "column",
                                 gap: 1,
                                 opacity: 0,
                                 transform: "translateX(20px)",
@@ -1623,11 +1893,11 @@ const CategoryPage = () => {
                                 zIndex: 2,
                               }}
                             >
-                              <IconButton 
-                                sx={{ 
-                                  bgcolor: "white", 
+                              <IconButton
+                                sx={{
+                                  bgcolor: "white",
                                   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                  "&:hover": { 
+                                  "&:hover": {
                                     bgcolor: "#EC407A",
                                     color: "white",
                                     transform: "scale(1.1)",
@@ -1640,14 +1910,16 @@ const CategoryPage = () => {
                               </IconButton>
                             </Box>
                           </Box>
-                          
-                          <CardContent sx={{ 
-                            flexGrow: 1, 
-                            p: { xs: 2, sm: 3 },
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                          }}>
+
+                          <CardContent
+                            sx={{
+                              flexGrow: 1,
+                              p: { xs: 2, sm: 3 },
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                            }}
+                          >
                             <Box>
                               <Typography
                                 variant="h6"
@@ -1665,22 +1937,27 @@ const CategoryPage = () => {
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
-                                sx={{ 
+                                sx={{
                                   mb: 2,
                                   fontSize: { xs: "0.85rem", sm: "0.9rem" },
                                   lineHeight: 1.5,
                                 }}
                               >
-                                {product.description || "No description available"}
+                                {product.description ||
+                                  "No description available"}
                               </Typography>
 
-                              <Box sx={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                gap: 1,
-                                mb: 2,
-                              }}>
-                                <StarRating rating={ratings[product.id]?.average || 0} />
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  mb: 2,
+                                }}
+                              >
+                                <StarRating
+                                  rating={ratings[product.id]?.average || 0}
+                                />
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
@@ -1691,12 +1968,14 @@ const CategoryPage = () => {
                               </Box>
                             </Box>
 
-                            <Box sx={{ 
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              mt: 2,
-                            }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mt: 2,
+                              }}
+                            >
                               <Typography
                                 variant="h5"
                                 sx={{
@@ -1705,10 +1984,15 @@ const CategoryPage = () => {
                                   fontSize: { xs: "1.3rem", sm: "1.5rem" },
                                 }}
                               >
-                                {product.price ? `${product.price} $` : "Price not available"}
+                                {product.price
+                                  ? `${product.price} $`
+                                  : "Price not available"}
                               </Typography>
-                              
-                              <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+
+                              <Link
+                                href={`/product/${product.id}`}
+                                style={{ textDecoration: "none" }}
+                              >
                                 <Button
                                   variant="contained"
                                   sx={{
@@ -1720,10 +2004,12 @@ const CategoryPage = () => {
                                     fontSize: { xs: "0.85rem", sm: "0.95rem" },
                                     bgcolor: "#EC407A",
                                     color: "white",
-                                    boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+                                    boxShadow:
+                                      "0 2px 8px rgba(236, 64, 122, 0.3)",
                                     "&:hover": {
                                       bgcolor: "#d53972",
-                                      boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
+                                      boxShadow:
+                                        "0 4px 12px rgba(236, 64, 122, 0.4)",
                                       transform: "translateY(-1px)",
                                     },
                                     transition: "all 0.2s ease",
@@ -1738,20 +2024,29 @@ const CategoryPage = () => {
                       ))}
                     </Box>
                   )}
-                  {/* --- END OF MODIFIED SECTION --- */}
                 </>
               )}
             </Box>
           </Box>
         )}
-        
+
         {products.length === 0 && (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 8 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              mt: 8,
+            }}
+          >
             <Typography variant="h6" color="text.secondary" mb={2}>
               No products found in this category.
             </Typography>
             <Link href="/" style={{ textDecoration: "none" }}>
-              <Button variant="contained" sx={{ bgcolor: "#EC407A", "&:hover": { bgcolor: "#d53972" } }}>
+              <Button
+                variant="contained"
+                sx={{ bgcolor: "#EC407A", "&:hover": { bgcolor: "#d53972" } }}
+              >
                 Browse Other Categories
               </Button>
             </Link>
@@ -1769,16 +2064,21 @@ const CategoryPage = () => {
 
       <style jsx>{`
         @keyframes pulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
           }
           50% {
             transform: scale(1.1);
           }
         }
-        
+
         @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% {
+          0%,
+          20%,
+          50%,
+          80%,
+          100% {
             transform: translateY(0);
           }
           40% {
@@ -1788,7 +2088,7 @@ const CategoryPage = () => {
             transform: translateY(-5px);
           }
         }
-        
+
         @keyframes slideInFromTop {
           0% {
             opacity: 0;
@@ -1799,7 +2099,7 @@ const CategoryPage = () => {
             transform: translateY(0);
           }
         }
-        
+
         @keyframes slideInFromBottom {
           0% {
             opacity: 0;
@@ -1815,4 +2115,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage; 
+export default CategoryPage;
