@@ -102,7 +102,7 @@ const CategoryDashBoard: React.FC = () => {
     try {
       const imageUrl = await uploadImage();
       const categoryData = { ...form, image: imageUrl };
-      await axios.post("http://localhost:5000/categories", categoryData, {
+      await axios.post("https://meraki-academy-project-5-xtxg.onrender.com/categories", categoryData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSnackbarMessage("Category added successfully!");
