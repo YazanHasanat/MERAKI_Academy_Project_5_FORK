@@ -1,0 +1,36 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const jwt = require("jsonwebtoken");
+// This function checks if the user logged in
+const authentication = (req, res, next) => {
+    try {
+        if (!req.headers.authorization) {
+            return res.status(403).json({
+                success: false,
+                message: `Forbidden`,
+            });
+        }
+        const token = req.headers.authorization.split(" ").pop();
+        jwt.verify(token, process.env.JWT_SECRET, (err, result) => {
+            if (err) {
+                res.status(403).json({
+                    success: false,
+                    message: `The token is invalid or expired`,
+                });
+            }
+            else {
+                req.user = result;
+                next();
+            }
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            success: false,
+            message: `Server Error`,
+            err: err.message,
+        });
+    }
+};
+module.exports = authentication;
+//# sourceMappingURL=authentication.js.map
