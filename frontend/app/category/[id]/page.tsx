@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react"; // *** تغيير: تم استيراد useEffect لاستخدامه في SortMenu ***
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
@@ -111,23 +111,6 @@ const SortMenu = ({
     handleClose();
   };
 
-  // *** تغيير: إغلاق القائمة عند التمرير ***
-  useEffect(() => {
-    const handleScroll = () => {
-      if (open) {
-        handleClose();
-      }
-    };
-
-    if (open) {
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [open, handleClose]);
-
   return (
     <div>
       <Button
@@ -227,7 +210,7 @@ const PriceRangeSlider = ({
           Price Range
         </Typography>
         <Typography variant="subtitle1" color="#EC407A" sx={{ ml: 1, fontWeight: 700 }}>
-          (JD)
+          ($)
         </Typography>
       </Box>
 
@@ -360,7 +343,7 @@ const PriceRangeSlider = ({
         border: "1px solid rgba(236, 64, 122, 0.1)"
       }}>
         <Typography variant="body2" sx={{ textAlign: "center", fontWeight: 600, color: "#666" }}>
-          Current Range: {value[0]} - {value[1]} JD
+          Current Range: {value[0]} - {value[1]} $
         </Typography>
       </Box>
     </Box>
@@ -428,7 +411,7 @@ const QuickViewModal = ({
               {product.description || "No description available"}
             </Typography>
             <Typography variant="h4" color="#EC407A" sx={{ mb: 2 }}>
-              {product.price ? `${product.price} JD` : "Price not available"}
+              {product.price ? `${product.price} $` : "Price not available"}
             </Typography>
             <Box sx={{ mb: 2 }}>
               <StarRating rating={product.averageRating || 0} />
@@ -1210,7 +1193,7 @@ const CategoryPage = () => {
                                 fontSize: "1.5rem",
                               }}
                             >
-                              {product.price ? `${product.price} JD` : "Price not available"}
+                              {product.price ? `${product.price} $` : "Price not available"}
                             </Typography>
                             
                             <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
