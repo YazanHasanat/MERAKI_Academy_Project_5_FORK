@@ -250,7 +250,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             ) : (
               cart.map((item) => (
                 <Box
-                  key={`cart-item-${item.product_id}`} // مفتاح فريد وثابت
+                  key={`cart-item-${item.product_id}`}
                   sx={{
                     mb: 2,
                     p: 2,

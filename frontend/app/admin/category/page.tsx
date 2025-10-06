@@ -14,6 +14,8 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 type Category = {
@@ -24,8 +26,9 @@ type Category = {
 };
 
 const CategoryDashBoard: React.FC = () => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState<{ name: string; description: string }>({
@@ -155,7 +158,12 @@ const CategoryDashBoard: React.FC = () => {
   };
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 700, margin: "auto", mt: 4 }}>
+    <Paper sx={{ 
+      p: { xs: 2, md: 4 }, 
+      maxWidth: { xs: "100%", md: 700 }, 
+      margin: "auto", 
+      mt: 4 
+    }}>
       <Typography variant="h4" mb={3}>
         Admin Dashboard - Categories
       </Typography>
@@ -164,7 +172,7 @@ const CategoryDashBoard: React.FC = () => {
       <Box
         component="form"
         onSubmit={handleAddCategory}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}
       >
         <TextField
           label="Category Name"
@@ -172,6 +180,7 @@ const CategoryDashBoard: React.FC = () => {
           value={form.name}
           onChange={handleChange}
           required
+          fullWidth
         />
         <TextField
           label="Description"
@@ -180,9 +189,10 @@ const CategoryDashBoard: React.FC = () => {
           onChange={handleChange}
           multiline
           rows={3}
+          fullWidth
         />
 
-        <Button variant="outlined" component="label">
+        <Button variant="outlined" component="label" fullWidth>
           Upload Image
           <input
             type="file"
@@ -193,16 +203,27 @@ const CategoryDashBoard: React.FC = () => {
         </Button>
 
         {preview && (
-          <Box>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
             <img
               src={preview}
               alt="preview"
-              style={{ width: "150px", borderRadius: "8px" }}
+              style={{ 
+                width: isMobile ? "100%" : "150px", 
+                borderRadius: "8px",
+                maxHeight: "200px",
+                objectFit: "contain"
+              }}
             />
           </Box>
         )}
 
-        <Button type="submit" variant="contained" color="primary" disabled={loadingAdd}>
+        <Button 
+          type="submit" 
+          variant="contained" 
+          color="primary" 
+          disabled={loadingAdd}
+          fullWidth
+        >
           {loadingAdd ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Add Category"}
         </Button>
       </Box>
@@ -211,7 +232,7 @@ const CategoryDashBoard: React.FC = () => {
       <Box
         component="form"
         onSubmit={handleDeleteCategory}
-        sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 4 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
         <FormControl fullWidth>
           <InputLabel>Select Category to Delete</InputLabel>
@@ -232,8 +253,8 @@ const CategoryDashBoard: React.FC = () => {
           type="submit"
           variant="contained"
           color="error"
-          sx={{ width: "250px", textAlign: "center", margin: "auto" }}
           disabled={loadingDelete}
+          fullWidth
         >
           {loadingDelete ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Delete Category"}
         </Button>

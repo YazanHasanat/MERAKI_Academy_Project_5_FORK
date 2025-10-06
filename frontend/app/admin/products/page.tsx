@@ -17,6 +17,8 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 // Types
@@ -44,6 +46,8 @@ interface FormState {
 }
 
 const ProductDashBoard: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -103,12 +107,27 @@ const ProductDashBoard: React.FC = () => {
     const { name, value } = e.target;
     if (!name) return;
 
-    const isCheckbox = (e.target as HTMLInputElement).type === "checkbox";
-    const checked = (e.target as HTMLInputElement).checked;
+    // Handle checkbox separately
+    if (name === "isFeatured") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setForm({
+        ...form,
+        [name]: checked,
+      });
+      return;
+    }
 
     setForm({
       ...form,
-      [name]: isCheckbox ? checked : value,
+      [name]: value,
+    });
+  };
+
+  // Separate handler for checkbox to ensure proper handling
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setForm({
+      ...form,
+      isFeatured: e.target.checked,
     });
   };
 
@@ -134,48 +153,47 @@ const ProductDashBoard: React.FC = () => {
   };
 
   const handleAddProduct = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const imageUrls = await uploadImages();
-      const productData = {
-        title: form.title,
-        description: form.description,
-        price: parseFloat(form.price),
-        category_id: form.category_id,
-        isFeatured: form.isFeatured,
-        image_urls: imageUrls.length ? imageUrls : [],
-      };
+  e.preventDefault();
+  setLoading(true);
+  try {
+    const imageUrls = await uploadImages();
+    const productData = {
+      title: form.title,
+      description: form.description,
+      price: parseFloat(form.price),
+      category_id: form.category_id,
+      is_feature: form.isFeatured,
+      image_urls: imageUrls.length ? imageUrls : [],
+    };
 
-      await axios.post("http://localhost:5000/products", productData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    await axios.post("http://localhost:5000/products", productData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      setSnackbarMessage("Product added successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+    setSnackbarMessage("Product added successfully!");
+    setSnackbarSeverity("success");
+    setSnackbarOpen(true);
 
-      setForm({
-        title: "",
-        description: "",
-        price: "",
-        category_id: "",
-        isFeatured: false,
-      });
-      setImages([]);
-      setPreview([]);
+    setForm({
+      title: "",
+      description: "",
+      price: "",
+      category_id: "",
+      isFeatured: false,
+    });
+    setImages([]);
+    setPreview([]);
 
-      await fetchProducts(); 
-    } catch (err) {
-      console.error("Error creating product:", err);
-      setSnackbarMessage("Failed to add product");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    await fetchProducts(); 
+  } catch (err) {
+    console.error("Error creating product:", err);
+    setSnackbarMessage("Failed to add product");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleDeleteProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedProductToDelete) {
@@ -195,7 +213,7 @@ const ProductDashBoard: React.FC = () => {
       setSnackbarOpen(true);
       setSelectedProductToDelete("");
 
-      await fetchProducts(); // تحديث المنتجات بعد الحذف
+      await fetchProducts();
     } catch (err) {
       console.error(err);
       setSnackbarMessage("Failed to delete product");
@@ -205,7 +223,12 @@ const ProductDashBoard: React.FC = () => {
   };
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 700, margin: "auto", mt: 4 }}>
+    <Paper sx={{ 
+      p: { xs: 2, md: 4 }, 
+      maxWidth: { xs: "100%", md: 700 }, 
+      margin: "auto", 
+      mt: 4 
+    }}>
       <Typography variant="h4" mb={3}>
         Admin Dashboard - Add Product
       </Typography>
@@ -214,7 +237,7 @@ const ProductDashBoard: React.FC = () => {
       <Box
         component="form"
         onSubmit={handleAddProduct}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}
       >
         <TextField
           label="Product Name"
@@ -222,6 +245,7 @@ const ProductDashBoard: React.FC = () => {
           value={form.title}
           onChange={handleChange}
           required
+          fullWidth
         />
         <TextField
           label="Description"
@@ -230,6 +254,7 @@ const ProductDashBoard: React.FC = () => {
           onChange={handleChange}
           multiline
           rows={3}
+          fullWidth
         />
         <TextField
           label="Price"
@@ -238,6 +263,7 @@ const ProductDashBoard: React.FC = () => {
           value={form.price}
           onChange={handleChange}
           required
+          fullWidth
         />
 
         <FormControl fullWidth>
@@ -258,27 +284,38 @@ const ProductDashBoard: React.FC = () => {
         </FormControl>
 
         <FormControlLabel
-          control={<Checkbox checked={form.isFeatured} onChange={handleChange} name="isFeatured" />}
+          control={
+            <Checkbox 
+              checked={form.isFeatured} 
+              onChange={handleCheckboxChange} 
+              name="isFeatured" 
+            />
+          }
           label="Featured"
         />
 
-        <Button variant="outlined" component="label">
+        <Button variant="outlined" component="label" fullWidth>
           Upload Images
           <input type="file" hidden multiple accept="image/*" onChange={handleImageChange} />
         </Button>
 
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, justifyContent: "center" }}>
           {preview.map((src, idx) => (
             <img
               key={idx}
               src={src}
               alt={`preview-${idx}`}
-              style={{ width: "100px", borderRadius: "8px" }}
+              style={{ 
+                width: isMobile ? "80px" : "100px", 
+                height: isMobile ? "80px" : "100px",
+                borderRadius: "8px",
+                objectFit: "cover"
+              }}
             />
           ))}
         </Box>
 
-        <Button type="submit" variant="contained" color="primary" disabled={loading}>
+        <Button type="submit" variant="contained" color="primary" disabled={loading} fullWidth>
           {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Add Product"}
         </Button>
       </Box>
@@ -287,7 +324,7 @@ const ProductDashBoard: React.FC = () => {
       <Box
         component="form"
         onSubmit={handleDeleteProduct}
-        sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 4 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
         <FormControl fullWidth>
           <InputLabel>Select Product to Delete</InputLabel>
@@ -307,7 +344,7 @@ const ProductDashBoard: React.FC = () => {
           type="submit"
           variant="contained"
           color="error"
-          sx={{ width: "250px", textAlign: "center", margin: "auto" }}
+          fullWidth
         >
           Delete Product
         </Button>
