@@ -40,6 +40,7 @@ app.post("/create-payment-intent", async (req:any, res:any) => {
   } 
 });
 
+
 // Routes Middleware
   app.use("/products", productRouter);
   app.use("/categories", categoryRouter);
