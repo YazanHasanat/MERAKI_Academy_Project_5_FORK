@@ -52,7 +52,7 @@ const CategoryDashBoard: React.FC = () => {
 
   const getAllCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/categories");
+      const response = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories");
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
