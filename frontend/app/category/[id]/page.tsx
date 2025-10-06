@@ -32,6 +32,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Popover from "@mui/material/Popover";
+import Drawer from "@mui/material/Drawer";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 import SortIcon from "@mui/icons-material/Sort";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -122,8 +125,8 @@ const SortMenu = ({
           bgcolor: "#EC407A",
           color: "white",
           borderRadius: 28,
-          px: 3,
-          py: 1.2,
+          px: 2,
+          py: 1,
           fontWeight: 600,
           boxShadow: "0 4px 12px rgba(236, 64, 122, 0.3)",
           "&:hover": {
@@ -132,6 +135,7 @@ const SortMenu = ({
             transform: "translateY(-2px)",
           },
           transition: "all 0.3s ease",
+          fontSize: { xs: "0.8rem", sm: "0.9rem" },
         }}
       >
         {currentSortLabel}
@@ -230,8 +234,7 @@ const PriceRangeSlider = ({
             style: { textAlign: "center", fontSize: "0.9rem" }
           }}
           sx={{ 
-            // *** تغيير: زيادة العرض من 85 إلى 110 بكسل ***
-            width: 110, 
+            width: 110,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -265,7 +268,6 @@ const PriceRangeSlider = ({
             style: { textAlign: "center", fontSize: "0.9rem" }
           }}
           sx={{ 
-            // *** تغيير: زيادة العرض من 85 إلى 110 بكسل ***
             width: 110,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -343,8 +345,7 @@ const PriceRangeSlider = ({
         border: "1px solid rgba(236, 64, 122, 0.1)"
       }}>
         <Typography variant="body2" sx={{ textAlign: "center", fontWeight: 600, color: "#666" }}>
-          Current Range: {value[0]} - {value[1]} $
-        </Typography>
+          Current Range: {value[0]} - {value[1]} $         </Typography>
       </Box>
     </Box>
   );
@@ -375,16 +376,16 @@ const QuickViewModal = ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', md: 600 },
+        width: { xs: '95%', sm: '90%', md: 600 },
         maxHeight: '90vh',
         overflow: 'auto',
         bgcolor: 'background.paper',
         borderRadius: 3,
         boxShadow: 24,
-        p: 4,
+        p: { xs: 2, sm: 3, md: 4 },
       }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" component="h2">
+          <Typography variant="h5" component="h2" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
             {product.title || "Product Details"}
           </Typography>
           <IconButton onClick={onClose}>
@@ -403,14 +404,14 @@ const QuickViewModal = ({
                   : "/assets/home.png"
               }
               alt={product.title || "Product image"}
-              sx={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 2 }}
+              sx={{ width: '100%', height: { xs: 200, sm: 250, md: 300 }, objectFit: 'cover', borderRadius: 2 }}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
               {product.description || "No description available"}
             </Typography>
-            <Typography variant="h4" color="#EC407A" sx={{ mb: 2 }}>
+            <Typography variant="h4" color="#EC407A" sx={{ mb: 2, fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}>
               {product.price ? `${product.price} $` : "Price not available"}
             </Typography>
             <Box sx={{ mb: 2 }}>
@@ -439,6 +440,8 @@ const QuickViewModal = ({
 
 const CategoryPage = () => {
   const { id } = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
   const [categoryDesc, setCategoryDesc] = useState(""); 
@@ -455,6 +458,7 @@ const CategoryPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   const user = { id: 1 };
 
@@ -588,6 +592,17 @@ const CategoryPage = () => {
     setTimeout(() => setQuickViewProduct(null), 300);
   };
 
+  const toggleFilterDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+    setFilterDrawerOpen(open);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
@@ -596,13 +611,263 @@ const CategoryPage = () => {
     );
   }
 
+  // Mobile Filter Drawer
+  const FilterDrawer = () => (
+    <Drawer
+      anchor="left"
+      open={filterDrawerOpen}
+      onClose={toggleFilterDrawer(false)}
+      sx={{
+        '& .MuiDrawer-paper': {
+          width: { xs: '85%', sm: 300 },
+          boxSizing: 'border-box',
+        },
+      }}
+    >
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Filters
+        </Typography>
+        <IconButton onClick={toggleFilterDrawer(false)}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
+      <Box sx={{ p: 2, overflowY: 'auto', height: 'calc(100% - 64px)' }}>
+        <Accordion 
+          defaultExpanded 
+          sx={{ 
+            boxShadow: "none", 
+            "&:before": { display: "none" },
+            border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 2,
+            mb: 2,
+          }}
+          TransitionProps={{ timeout: 0 }}
+        >
+          <AccordionSummary 
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ 
+              minHeight: 48,
+              "& .MuiAccordionSummary-content": {
+                margin: "12px 0",
+              }
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Sort By
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 0, pb: 2 }}>
+            <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion 
+          defaultExpanded 
+          sx={{ 
+            boxShadow: "none", 
+            "&:before": { display: "none" },
+            border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 2,
+            mb: 2,
+          }}
+          TransitionProps={{ timeout: 0 }}
+        >
+          <AccordionSummary 
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ 
+              minHeight: 48,
+              "& .MuiAccordionSummary-content": {
+                margin: "12px 0",
+              }
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Price Range
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 0, pb: 2 }}>
+            <PriceRangeSlider
+              value={priceRange}
+              onChange={setPriceRange}
+              min={0}
+              max={maxPrice}
+            />
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion 
+          defaultExpanded 
+          sx={{ 
+            boxShadow: "none", 
+            "&:before": { display: "none" },
+            border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 2,
+            mb: 2,
+          }}
+          TransitionProps={{ timeout: 0 }}
+        >
+          <AccordionSummary 
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ 
+              minHeight: 48,
+              "& .MuiAccordionSummary-content": {
+                margin: "12px 0",
+              }
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Customer Rating
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 0 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {[4, 3, 2, 1].map((rating) => (
+                <Box
+                  key={rating}
+                  onClick={() => setMinRating(rating)}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    p: 1.5,
+                    borderRadius: 2,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                    "&:hover": {
+                      backgroundColor: "rgba(0,0,0,0.04)",
+                    },
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        sx={{
+                          fontSize: 18,
+                          color: i < rating ? "#FFC107" : "rgba(0,0,0,0.2)",
+                        }}
+                      />
+                    ))}
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    & Up
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+
+        {brands.length > 0 && (
+          <Accordion 
+            defaultExpanded 
+            sx={{ 
+              boxShadow: "none", 
+              "&:before": { display: "none" },
+              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 2,
+            }}
+            TransitionProps={{ timeout: 0 }}
+          >
+            <AccordionSummary 
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ 
+                minHeight: 48,
+                "& .MuiAccordionSummary-content": {
+                  margin: "12px 0",
+                }
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                Brands
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: 'auto' }}>
+                {brands.map((brand) => (
+                  <Box
+                    key={brand}
+                    onClick={() => {
+                      setSelectedBrands(prev => 
+                        prev.includes(brand) 
+                          ? prev.filter(b => b !== brand)
+                          : [...prev, brand]
+                      );
+                    }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                      "&:hover": {
+                        backgroundColor: "rgba(0,0,0,0.04)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        border: "2px solid #EC407A",
+                        backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
+                        mr: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {selectedBrands.includes(brand) && (
+                        <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+                      )}
+                    </Box>
+                    <Typography variant="body2">{brand}</Typography>
+                  </Box>
+                ))}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        )}
+
+        <Box sx={{ mt: 3, p: 2 }}>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => {
+              setSearchQuery("");
+              setPriceRange([0, maxPrice]);
+              setSelectedBrands([]);
+              setMinRating(0);
+              setSortOption(SortOption.Default);
+            }}
+            sx={{ 
+              borderColor: "#EC407A", 
+              color: "#EC407A",
+              "&:hover": {
+                borderColor: "#d53972",
+                backgroundColor: "rgba(236, 64, 122, 0.04)",
+              }
+            }}
+          >
+            Reset All Filters
+          </Button>
+        </Box>
+      </Box>
+    </Drawer>
+  );
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* Hero Section with Animation */}
       <Box
         sx={{
           background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
-          py: 8,
+          py: { xs: 4, sm: 6, md: 8 },
           position: "relative",
           overflow: "hidden",
           "&::before": {
@@ -625,7 +890,7 @@ const CategoryPage = () => {
           <Fade in={heroVisible} timeout={1000}>
             <Box textAlign="center" color="white">
               <Box sx={{ mb: 3, animation: "pulse 2s infinite" }}>
-                <ShoppingBagIcon sx={{ fontSize: 60, opacity: 0.9 }} />
+                <ShoppingBagIcon sx={{ fontSize: { xs: 40, sm: 50, md: 60 }, opacity: 0.9 }} />
               </Box>
               <Typography
                 variant="h2"
@@ -634,6 +899,7 @@ const CategoryPage = () => {
                   mb: 2,
                   textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
                   animation: "slideInFromTop 0.8s ease-out",
+                  fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' }
                 }}
               >
                 {categoryName}
@@ -645,19 +911,20 @@ const CategoryPage = () => {
                   mx: "auto",
                   opacity: 0.95,
                   animation: "slideInFromBottom 0.8s ease-out",
+                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
                 }}
               >
                 {categoryDesc}
               </Typography>
               <Box sx={{ mt: 4 }}>
-                <LocalOfferIcon sx={{ fontSize: 30, animation: "bounce 2s infinite" }} />
+                <LocalOfferIcon sx={{ fontSize: { xs: 24, sm: 27, md: 30 }, animation: "bounce 2s infinite" }} />
               </Box>
             </Box>
           </Fade>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ px: 4, py: 6 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 }, py: { xs: 3, sm: 4, md: 6 } }}>
         <Snackbar
           open={!!error}
           autoHideDuration={6000}
@@ -674,7 +941,7 @@ const CategoryPage = () => {
           </Alert>
         </Snackbar>
         
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: { xs: 3, sm: 4 } }}>
           <TextField
             fullWidth
             placeholder="Search products..."
@@ -702,156 +969,88 @@ const CategoryPage = () => {
         </Box>
         
         {products.length > 0 && (
-          <Box sx={{ display: "flex", gap: 3, mb: 6, alignItems: "flex-start" }}>
-            <Paper
-              sx={{
-                width: 280,
-                p: 0,
-                borderRadius: 3,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                overflow: "hidden",
-                position: "sticky",
-                top: 20,
-              }}
-            >
-              <Box sx={{
-                p: 3,
-                background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
-                color: "white",
-              }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <TuneIcon sx={{ mr: 2, fontSize: 24 }} />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Filters
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setPriceRange([0, maxPrice]);
-                      setSelectedBrands([]);
-                      setMinRating(0);
-                      setSortOption(SortOption.Default);
-                    }}
-                    sx={{ 
-                      color: "white",
-                      fontWeight: 600,
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                    }}
-                  >
-                    Reset All
-                  </Button>
-                </Box>
+          <Box sx={{ display: "flex", gap: { xs: 0, sm: 3 }, mb: { xs: 4, sm: 6 }, alignItems: "flex-start" }}>
+            {/* Mobile Filter Button */}
+            {isMobile && (
+              <Box sx={{ width: '100%', mb: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<FilterListIcon />}
+                  onClick={toggleFilterDrawer(true)}
+                  sx={{ 
+                    textTransform: "none",
+                    bgcolor: "#EC407A",
+                    color: "white",
+                    borderRadius: 28,
+                    px: 3,
+                    py: 1.2,
+                    fontWeight: 600,
+                    boxShadow: "0 4px 12px rgba(236, 64, 122, 0.3)",
+                    "&:hover": {
+                      bgcolor: "#d53972",
+                      boxShadow: "0 6px 16px rgba(236, 64, 122, 0.4)",
+                    },
+                    transition: "all 0.3s ease",
+                    width: '100%',
+                    justifyContent: 'flex-start'
+                  }}
+                >
+                  Filters & Sort
+                </Button>
               </Box>
+            )}
 
-              <Box sx={{ p: 3 }}>
-                <Accordion 
-                  defaultExpanded 
-                  sx={{ 
-                    boxShadow: "none", 
-                    "&:before": { display: "none" },
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    borderRadius: 2,
-                    mb: 2,
-                  }}
-                  // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
-                  TransitionProps={{ timeout: 0 }}
-                >
-                  <AccordionSummary 
-                    expandIcon={<ExpandMoreIcon />}
-                    sx={{ 
-                      minHeight: 48,
-                      "& .MuiAccordionSummary-content": {
-                        margin: "12px 0",
-                      }
-                    }}
-                  >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      Price Range
+            {/* Desktop Sidebar */}
+            {!isMobile && (
+              <Paper
+                sx={{
+                  width: 280,
+                  p: 0,
+                  borderRadius: 3,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                  overflow: "hidden",
+                  position: "sticky",
+                  top: 20,
+                }}
+              >
+                <Box sx={{
+                  p: 3,
+                  background: "linear-gradient(135deg, #EC407A 0%, #F48FB1 100%)",
+                  color: "white",
+                }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <TuneIcon sx={{ mr: 2, fontSize: 24 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      Filters
                     </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ pt: 0, pb: 2 }}>
-                    <PriceRangeSlider
-                      value={priceRange}
-                      onChange={setPriceRange}
-                      min={0}
-                      max={maxPrice}
-                    />
-                  </AccordionDetails>
-                </Accordion>
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <SortMenu activeSort={sortOption} onSortChange={setSortOption} />
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setPriceRange([0, maxPrice]);
+                        setSelectedBrands([]);
+                        setMinRating(0);
+                        setSortOption(SortOption.Default);
+                      }}
+                      sx={{ 
+                        color: "white",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                      }}
+                    >
+                      Reset All
+                    </Button>
+                  </Box>
+                </Box>
 
-                <Accordion 
-                  defaultExpanded 
-                  sx={{ 
-                    boxShadow: "none", 
-                    "&:before": { display: "none" },
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    borderRadius: 2,
-                    mb: 2,
-                  }}
-                  // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
-                  TransitionProps={{ timeout: 0 }}
-                >
-                  <AccordionSummary 
-                    expandIcon={<ExpandMoreIcon />}
-                    sx={{ 
-                      minHeight: 48,
-                      "& .MuiAccordionSummary-content": {
-                        margin: "12px 0",
-                      }
-                    }}
-                  >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      Customer Rating
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ pt: 0 }}>
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                      {[4, 3, 2, 1].map((rating) => (
-                        <Box
-                          key={rating}
-                          onClick={() => setMinRating(rating)}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            p: 1.5,
-                            borderRadius: 2,
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
-                            "&:hover": {
-                              backgroundColor: "rgba(0,0,0,0.04)",
-                            },
-                          }}
-                        >
-                          <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-                            {[...Array(5)].map((_, i) => (
-                              <StarIcon
-                                key={i}
-                                sx={{
-                                  fontSize: 18,
-                                  color: i < rating ? "#FFC107" : "rgba(0,0,0,0.2)",
-                                }}
-                              />
-                            ))}
-                          </Box>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            & Up
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </AccordionDetails>
-                </Accordion>
-
-                {brands.length > 0 && (
+                <Box sx={{ p: 3 }}>
                   <Accordion 
                     defaultExpanded 
                     sx={{ 
@@ -859,8 +1058,8 @@ const CategoryPage = () => {
                       "&:before": { display: "none" },
                       border: "1px solid rgba(0,0,0,0.08)",
                       borderRadius: 2,
+                      mb: 2,
                     }}
-                    // *** تغيير: إضافة هذه الخاصية لإيقاف الحركة عند التمرير ***
                     TransitionProps={{ timeout: 0 }}
                   >
                     <AccordionSummary 
@@ -873,62 +1072,163 @@ const CategoryPage = () => {
                       }}
                     >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        Brands
+                        Price Range
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ pt: 0, pb: 2 }}>
+                      <PriceRangeSlider
+                        value={priceRange}
+                        onChange={setPriceRange}
+                        min={0}
+                        max={maxPrice}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion 
+                    defaultExpanded 
+                    sx={{ 
+                      boxShadow: "none", 
+                      "&:before": { display: "none" },
+                      border: "1px solid rgba(0,0,0,0.08)",
+                      borderRadius: 2,
+                      mb: 2,
+                    }}
+                    TransitionProps={{ timeout: 0 }}
+                  >
+                    <AccordionSummary 
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{ 
+                        minHeight: 48,
+                        "& .MuiAccordionSummary-content": {
+                          margin: "12px 0",
+                        }
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        Customer Rating
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={{ pt: 0 }}>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: "auto" }}>
-                        {brands.map((brand) => (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        {[4, 3, 2, 1].map((rating) => (
                           <Box
-                            key={brand}
-                            onClick={() => {
-                              setSelectedBrands(prev => 
-                                prev.includes(brand) 
-                                  ? prev.filter(b => b !== brand)
-                                  : [...prev, brand]
-                              );
-                            }}
+                            key={rating}
+                            onClick={() => setMinRating(rating)}
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              p: 1,
-                              borderRadius: 1,
+                              p: 1.5,
+                              borderRadius: 2,
                               cursor: "pointer",
                               transition: "all 0.2s ease",
-                              backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                              backgroundColor: minRating === rating ? "rgba(236, 64, 122, 0.08)" : "transparent",
                               "&:hover": {
                                 backgroundColor: "rgba(0,0,0,0.04)",
                               },
                             }}
                           >
-                            <Box
-                              sx={{
-                                width: 16,
-                                height: 16,
-                                borderRadius: "50%",
-                                border: "2px solid #EC407A",
-                                backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
-                                mr: 2,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              {selectedBrands.includes(brand) && (
-                                <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
-                              )}
+                            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                              {[...Array(5)].map((_, i) => (
+                                <StarIcon
+                                  key={i}
+                                  sx={{
+                                    fontSize: 18,
+                                    color: i < rating ? "#FFC107" : "rgba(0,0,0,0.2)",
+                                  }}
+                                />
+                              ))}
                             </Box>
-                            <Typography variant="body2">{brand}</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              & Up
+                            </Typography>
                           </Box>
                         ))}
                       </Box>
                     </AccordionDetails>
                   </Accordion>
-                )}
-              </Box>
-            </Paper>
 
-            <Box sx={{ flex: 1 }}>
+                  {brands.length > 0 && (
+                    <Accordion 
+                      defaultExpanded 
+                      sx={{ 
+                        boxShadow: "none", 
+                        "&:before": { display: "none" },
+                        border: "1px solid rgba(0,0,0,0.08)",
+                        borderRadius: 2,
+                      }}
+                      TransitionProps={{ timeout: 0 }}
+                    >
+                      <AccordionSummary 
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{ 
+                          minHeight: 48,
+                          "& .MuiAccordionSummary-content": {
+                            margin: "12px 0",
+                          }
+                        }}
+                      >
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                          Brands
+                        </Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ pt: 0 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 200, overflowY: 'auto' }}>
+                          {brands.map((brand) => (
+                            <Box
+                              key={brand}
+                              onClick={() => {
+                                setSelectedBrands(prev => 
+                                  prev.includes(brand) 
+                                    ? prev.filter(b => b !== brand)
+                                    : [...prev, brand]
+                                );
+                              }}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                p: 1,
+                                borderRadius: 1,
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                                backgroundColor: selectedBrands.includes(brand) ? "rgba(236, 64, 122, 0.08)" : "transparent",
+                                "&:hover": {
+                                  backgroundColor: "rgba(0,0,0,0.04)",
+                                },
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 16,
+                                  height: 16,
+                                  borderRadius: "50%",
+                                  border: "2px solid #EC407A",
+                                  backgroundColor: selectedBrands.includes(brand) ? "#EC407A" : "white",
+                                  mr: 2,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                {selectedBrands.includes(brand) && (
+                                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+                                )}
+                              </Box>
+                              <Typography variant="body2">{brand}</Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+                  )}
+                </Box>
+              </Paper>
+            )}
+
+            {/* Mobile Filter Drawer */}
+            <FilterDrawer />
+
+            <Box sx={{ flex: 1, width: { xs: '100%', md: 'auto' } }}>
               <Paper
                 sx={{
                   p: 2,
@@ -938,9 +1238,11 @@ const CategoryPage = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 2, sm: 0 }
                 }}
               >
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                   Showing <Box component="span" sx={{ color: "#EC407A", fontWeight: 700 }}>{filteredAndSortedProducts.length}</Box> of{" "}
                   <Box component="span" sx={{ fontWeight: 700 }}>{products.length}</Box> products
                 </Typography>
@@ -996,236 +1298,448 @@ const CategoryPage = () => {
                   </Button>
                 </Box>
               ) : (
-                <Grid container spacing={3}>
-                  {filteredAndSortedProducts.map((product: any, index) => (
-                    <Grid 
-                      item 
-                      key={product.id}
-                      xs={12} sm={6} md={4} lg={3}
-                      sx={{ 
-                        display: 'flex',
-                        justifyContent: 'center',
-                        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
-                        "@keyframes fadeInUp": {
-                          "0%": {
-                            opacity: 0,
-                            transform: "translateY(30px)",
-                          },
-                          "100%": {
-                            opacity: 1,
-                            transform: "translateY(0)",
-                          },
-                        },
-                      }}
-                    >
-                      <Card
-                        sx={(theme) => ({
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                          borderRadius: 3,
-                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                          border: "1px solid rgba(0,0,0,0.06)",
-                          position: "relative",
-                          overflow: "hidden",
-                          "&:hover": {
-                            transform: "translateY(-6px)",
-                            boxShadow: "0 12px 28px rgba(0,0,0,0.15)",
-                            "& .product-image": {
-                              transform: "scale(1.05)",
+                <>
+                  {/* --- START OF MODIFIED SECTION --- */}
+                  {viewMode === "grid" ? (
+                    <Grid container spacing={{ xs: 2, sm: 3 }}>
+                      {filteredAndSortedProducts.map((product: any, index) => (
+                        <Grid 
+                          item 
+                          key={product.id}
+                          xs={12} sm={6} md={4} lg={3}
+                          sx={{ 
+                            display: 'flex',
+                            justifyContent: 'center',
+                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                            "@keyframes fadeInUp": {
+                              "0%": {
+                                opacity: 0,
+                                transform: "translateY(30px)",
+                              },
+                              "100%": {
+                                opacity: 1,
+                                transform: "translateY(0)",
+                              },
                             },
-                            "& .quick-actions": {
-                              opacity: 1,
-                              transform: "translateX(0)",
-                            },
-                          },
-                          bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
-                          width: "100%",
-                          maxWidth: 300,
-                        })}
-                      >
-                        <Box sx={{ 
-                          position: "relative", 
-                          overflow: "hidden",
-                          height: 280,
-                          backgroundColor: "#f8f9fa",
-                        }}>
-                          <CardMedia
-                            component="img"
-                            className="product-image"
-                            image={
-                              product.image_urls && product.image_urls.length > 0
-                                ? product.image_urls[0].startsWith("http")
-                                  ? product.image_urls[0]
-                                  : `/assets/${product.image_urls[0]}`
-                                : "/assets/home.png"
-                            }
-                            alt={product.title || "Product image"}
-                            sx={{
-                              width: "100%",
+                          }}
+                        >
+                          <Card
+                            sx={(theme) => ({
                               height: "100%",
-                              objectFit: "cover",
-                              transition: "transform 0.5s ease",
-                            }}
-                            onError={handleImageError}
-                          />
-                          
-                          {product.discount && (
-                            <Chip
-                              label={`-${product.discount}%`}
-                              color="error"
-                              size="small"
+                              display: "flex",
+                              flexDirection: "column",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                              borderRadius: 3,
+                              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                              border: "1px solid rgba(0,0,0,0.06)",
+                              position: "relative",
+                              overflow: "hidden",
+                              "&:hover": {
+                                transform: "translateY(-6px)",
+                                boxShadow: "0 12px 28px rgba(0,0,0,0.15)",
+                                "& .product-image": {
+                                  transform: "scale(1.05)",
+                                },
+                                "& .quick-actions": {
+                                  opacity: 1,
+                                  transform: "translateX(0)",
+                                },
+                              },
+                              bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                              width: "100%",
+                              maxWidth: { xs: '100%', sm: 300 },
+                            })}
+                          >
+                            <Box sx={{ 
+                              position: "relative", 
+                              overflow: "hidden",
+                              height: { xs: 200, sm: 240, md: 280 },
+                              backgroundColor: "#f8f9fa",
+                            }}>
+                              <CardMedia
+                                component="img"
+                                className="product-image"
+                                image={
+                                  product.image_urls && product.image_urls.length > 0
+                                    ? product.image_urls[0].startsWith("http")
+                                      ? product.image_urls[0]
+                                      : `/assets/${product.image_urls[0]}`
+                                    : "/assets/home.png"
+                                }
+                                alt={product.title || "Product image"}
+                                sx={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  transition: "transform 0.5s ease",
+                                }}
+                                onError={handleImageError}
+                              />
+                              
+                              {product.discount && (
+                                <Chip
+                                  label={`-${product.discount}%`}
+                                  color="error"
+                                  size="small"
+                                  sx={{
+                                    position: "absolute",
+                                    top: 12,
+                                    left: 12,
+                                    fontWeight: 700,
+                                    fontSize: "0.75rem",
+                                    height: 28,
+                                    borderRadius: 14,
+                                    zIndex: 2,
+                                  }}
+                                />
+                              )}
+
+                              <Box 
+                                className="quick-actions"
+                                sx={{ 
+                                  position: "absolute", 
+                                  top: 12, 
+                                  right: 12, 
+                                  display: "flex", 
+                                  flexDirection: "column", 
+                                  gap: 1,
+                                  opacity: 0,
+                                  transform: "translateX(20px)",
+                                  transition: "all 0.3s ease",
+                                  zIndex: 2,
+                                }}
+                              >
+                                <IconButton 
+                                  sx={{ 
+                                    bgcolor: "white", 
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                    "&:hover": { 
+                                      bgcolor: "#EC407A",
+                                      color: "white",
+                                      transform: "scale(1.1)",
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                  onClick={() => openQuickView(product)}
+                                >
+                                  <VisibilityIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                            
+                            <CardContent sx={{ 
+                              flexGrow: 1, 
+                              p: { xs: 1.5, sm: 2, md: 2.5 },
+                              display: "flex",
+                              flexDirection: "column",
+                            }}>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "#212529",
+                                  fontSize: { xs: "0.9rem", sm: "1rem" },
+                                  lineHeight: 1.4,
+                                  mb: 1,
+                                  height: { xs: 40, sm: 56 },
+                                  overflow: "hidden",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                }}
+                              >
+                                {product.title || "Untitled Product"}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ 
+                                  mb: 2,
+                                  fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                                  lineHeight: 1.5,
+                                  height: { xs: 36, sm: 42 },
+                                  overflow: "hidden",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                }}
+                              >
+                                {product.description || "No description available"}
+                              </Typography>
+
+                              <Box sx={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: 1,
+                                mb: 2,
+                              }}>
+                                <StarRating rating={ratings[product.id]?.average || 0} />
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ fontWeight: 500 }}
+                                >
+                                  ({ratings[product.id]?.count || 0})
+                                </Typography>
+                              </Box>
+
+                              <Box sx={{ 
+                                mt: "auto",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1.5,
+                              }}>
+                                <Typography
+                                  variant="h5"
+                                  sx={{
+                                    fontWeight: 700,
+                                    color: "#EC407A",
+                                    fontSize: { xs: "1.2rem", sm: "1.5rem" },
+                                  }}
+                                >
+                                  {product.price ? `${product.price} $` : "Price not available"}
+                                </Typography>
+                                
+                                <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                                  <Button
+                                    variant="contained"
+                                    fullWidth
+                                    sx={{
+                                      textTransform: "none",
+                                      borderRadius: 2.5,
+                                      py: { xs: 1, sm: 1.2 },
+                                      fontWeight: 600,
+                                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                                      bgcolor: "#EC407A",
+                                      color: "white",
+                                      boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+                                      "&:hover": {
+                                        bgcolor: "#d53972",
+                                        boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
+                                        transform: "translateY(-1px)",
+                                      },
+                                      transition: "all 0.2s ease",
+                                    }}
+                                  >
+                                    View Details
+                                  </Button>
+                                </Link>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {filteredAndSortedProducts.map((product: any, index) => (
+                        <Card
+                          key={product.id}
+                          sx={(theme) => ({
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                            borderRadius: 3,
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                            border: "1px solid rgba(0,0,0,0.06)",
+                            position: "relative",
+                            overflow: "hidden",
+                            "&:hover": {
+                              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                              transform: "translateY(-4px)",
+                            },
+                            bgcolor: theme.palette.mode === "light" ? "#fff" : "#1e1e1e",
+                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
+                            "@keyframes fadeInUp": {
+                              "0%": {
+                                opacity: 0,
+                                transform: "translateY(30px)",
+                              },
+                              "100%": {
+                                opacity: 1,
+                                transform: "translateY(0)",
+                              },
+                            },
+                          })}
+                        >
+                          <Box sx={{ 
+                            position: "relative", 
+                            overflow: "hidden",
+                            width: { xs: '100%', sm: 200, md: 240 },
+                            height: { xs: 200, sm: 'auto' },
+                            backgroundColor: "#f8f9fa",
+                          }}>
+                            <CardMedia
+                              component="img"
+                              className="product-image"
+                              image={
+                                product.image_urls && product.image_urls.length > 0
+                                  ? product.image_urls[0].startsWith("http")
+                                    ? product.image_urls[0]
+                                    : `/assets/${product.image_urls[0]}`
+                                  : "/assets/home.png"
+                              }
+                              alt={product.title || "Product image"}
                               sx={{
-                                position: "absolute",
-                                top: 12,
-                                left: 12,
-                                fontWeight: 700,
-                                fontSize: "0.75rem",
-                                height: 28,
-                                borderRadius: 14,
+                                width: "100%",
+                                height: { xs: 200, sm: '100%' },
+                                objectFit: "cover",
+                                transition: "transform 0.5s ease",
+                              }}
+                              onError={handleImageError}
+                            />
+                            
+                            {product.discount && (
+                              <Chip
+                                label={`-${product.discount}%`}
+                                color="error"
+                                size="small"
+                                sx={{
+                                  position: "absolute",
+                                  top: 12,
+                                  left: 12,
+                                  fontWeight: 700,
+                                  fontSize: "0.75rem",
+                                  height: 28,
+                                  borderRadius: 14,
+                                  zIndex: 2,
+                                }}
+                              />
+                            )}
+
+                            <Box 
+                              className="quick-actions"
+                              sx={{ 
+                                position: "absolute", 
+                                top: 12, 
+                                right: 12, 
+                                display: "flex", 
+                                flexDirection: "column", 
+                                gap: 1,
+                                opacity: 0,
+                                transform: "translateX(20px)",
+                                transition: "all 0.3s ease",
                                 zIndex: 2,
                               }}
-                            />
-                          )}
-
-                          <Box 
-                            className="quick-actions"
-                            sx={{ 
-                              position: "absolute", 
-                              top: 12, 
-                              right: 12, 
-                              display: "flex", 
-                              flexDirection: "column", 
-                              gap: 1,
-                              opacity: 0,
-                              transform: "translateX(20px)",
-                              transition: "all 0.3s ease",
-                              zIndex: 2,
-                            }}
-                          >
-                            <IconButton 
-                              sx={{ 
-                                bgcolor: "white", 
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                "&:hover": { 
-                                  bgcolor: "#EC407A",
-                                  color: "white",
-                                  transform: "scale(1.1)",
-                                },
-                                transition: "all 0.2s ease",
-                              }}
-                              onClick={() => openQuickView(product)}
                             >
-                              <VisibilityIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        </Box>
-                        
-                        <CardContent sx={{ 
-                          flexGrow: 1, 
-                          p: 2.5,
-                          display: "flex",
-                          flexDirection: "column",
-                        }}>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 600,
-                              color: "#212529",
-                              fontSize: "1rem",
-                              lineHeight: 1.4,
-                              mb: 1,
-                              height: 56,
-                              overflow: "hidden",
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                            }}
-                          >
-                            {product.title || "Untitled Product"}
-                          </Typography>
-
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ 
-                              mb: 2,
-                              fontSize: "0.875rem",
-                              lineHeight: 1.5,
-                              height: 42,
-                              overflow: "hidden",
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                            }}
-                          >
-                            {product.description || "No description available"}
-                          </Typography>
-
-                          <Box sx={{ 
-                            display: "flex", 
-                            alignItems: "center", 
-                            gap: 1,
-                            mb: 2,
-                          }}>
-                            <StarRating rating={ratings[product.id]?.average || 0} />
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ fontWeight: 500 }}
-                            >
-                              ({ratings[product.id]?.count || 0})
-                            </Typography>
-                          </Box>
-
-                          <Box sx={{ 
-                            mt: "auto",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 1.5,
-                          }}>
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                fontWeight: 700,
-                                color: "#EC407A",
-                                fontSize: "1.5rem",
-                              }}
-                            >
-                              {product.price ? `${product.price} $` : "Price not available"}
-                            </Typography>
-                            
-                            <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-                              <Button
-                                variant="contained"
-                                fullWidth
-                                sx={{
-                                  textTransform: "none",
-                                  borderRadius: 2.5,
-                                  py: 1.2,
-                                  fontWeight: 600,
-                                  fontSize: "0.95rem",
-                                  bgcolor: "#EC407A",
-                                  color: "white",
-                                  boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
-                                  "&:hover": {
-                                    bgcolor: "#d53972",
-                                    boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
-                                    transform: "translateY(-1px)",
+                              <IconButton 
+                                sx={{ 
+                                  bgcolor: "white", 
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                  "&:hover": { 
+                                    bgcolor: "#EC407A",
+                                    color: "white",
+                                    transform: "scale(1.1)",
                                   },
                                   transition: "all 0.2s ease",
                                 }}
+                                onClick={() => openQuickView(product)}
                               >
-                                View Details
-                              </Button>
-                            </Link>
+                                <VisibilityIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
                           </Box>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
+                          
+                          <CardContent sx={{ 
+                            flexGrow: 1, 
+                            p: { xs: 2, sm: 3 },
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                          }}>
+                            <Box>
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "#212529",
+                                  fontSize: { xs: "1rem", sm: "1.1rem" },
+                                  lineHeight: 1.4,
+                                  mb: 1,
+                                }}
+                              >
+                                {product.title || "Untitled Product"}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ 
+                                  mb: 2,
+                                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                                  lineHeight: 1.5,
+                                }}
+                              >
+                                {product.description || "No description available"}
+                              </Typography>
+
+                              <Box sx={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: 1,
+                                mb: 2,
+                              }}>
+                                <StarRating rating={ratings[product.id]?.average || 0} />
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ fontWeight: 500 }}
+                                >
+                                  ({ratings[product.id]?.count || 0})
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box sx={{ 
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              mt: 2,
+                            }}>
+                              <Typography
+                                variant="h5"
+                                sx={{
+                                  fontWeight: 700,
+                                  color: "#EC407A",
+                                  fontSize: { xs: "1.3rem", sm: "1.5rem" },
+                                }}
+                              >
+                                {product.price ? `${product.price} $` : "Price not available"}
+                              </Typography>
+                              
+                              <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    textTransform: "none",
+                                    borderRadius: 2.5,
+                                    py: { xs: 0.8, sm: 1 },
+                                    px: { xs: 2, sm: 3 },
+                                    fontWeight: 600,
+                                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                                    bgcolor: "#EC407A",
+                                    color: "white",
+                                    boxShadow: "0 2px 8px rgba(236, 64, 122, 0.3)",
+                                    "&:hover": {
+                                      bgcolor: "#d53972",
+                                      boxShadow: "0 4px 12px rgba(236, 64, 122, 0.4)",
+                                      transform: "translateY(-1px)",
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  View Details
+                                </Button>
+                              </Link>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
+                  )}
+                  {/* --- END OF MODIFIED SECTION --- */}
+                </>
               )}
             </Box>
           </Box>
@@ -1301,4 +1815,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default CategoryPage; 
