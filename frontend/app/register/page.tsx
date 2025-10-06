@@ -48,7 +48,7 @@ function Register() {
 
       setTimeout(() => {
         router.push("/login");
-      }, 5000);
+      }, 2000);
     } catch (error: any) {
       setSuccessMsg("");
       if (error.response?.data?.error) {
