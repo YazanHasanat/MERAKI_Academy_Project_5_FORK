@@ -1,36 +1,56 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  TextField,
-  Typography,
-  Paper,
-  useTheme,
-  Snackbar,
-  Alert,
-  IconButton,
-  InputAdornment,
-  Fade,
-  CircularProgress,
-  Grid,
-  Divider,
-  Avatar,
-} from '@mui/material';
-import {
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Chat as ChatIcon,
-  Send as SendIcon,
-  Facebook as FacebookIcon,
-  Instagram as InstagramIcon,
-  Close as CloseIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-} from '@mui/icons-material';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+
+// ==== MUI Components ====
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import { useTheme } from '@mui/material/styles';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Fade from '@mui/material/Fade';
+import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
+import Avatar from '@mui/material/Avatar';
+
+// ==== MUI Icons ====
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import ChatIcon from '@mui/icons-material/Chat';
+import SendIcon from '@mui/icons-material/Send';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+
+// ==== TypeScript Interfaces ====
+interface FormData {
+  name: string;
+  email: string;
+  orderNumber: string;
+  message: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  orderNumber?: string;
+  message?: string;
+}
+
+interface Notification {
+  open: boolean;
+  message: string;
+  severity: 'success' | 'error' | 'info' | 'warning';
+}
 
 export default function ContactUsPage() {
   const theme = useTheme();
@@ -40,69 +60,71 @@ export default function ContactUsPage() {
     setMounted(true);
   }, []);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormData>({
     name: '',
     email: '',
     orderNumber: '',
     message: '',
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState({
+  const [notification, setNotification] = useState<Notification>({
     open: false,
     message: '',
     severity: 'success',
   });
 
-  const validateForm = () => {
-    const newErrors = {};
-    
+  // ==== Form Validation ====
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
     if (!form.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!form.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!form.message.trim()) {
       newErrors.message = 'Message is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
+  // ==== Handle Input Changes ====
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    
-    if (errors[name]) {
+
+    if (errors[name as keyof FormErrors]) {
       setErrors({ ...errors, [name]: '' });
     }
   };
 
-  const handleSubmit = async (e) => {
+  // ==== Handle Form Submit ====
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+
+    if (!validateForm()) return;
+
     setIsSubmitting(true);
-    
+
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setNotification({
         open: true,
-        message: 'Your message has been sent successfully! We\'ll get back to you soon.',
+        message: "Your message has been sent successfully! We'll get back to you soon.",
         severity: 'success',
       });
-      
+
       setForm({
         name: '',
         email: '',
@@ -141,17 +163,18 @@ export default function ContactUsPage() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: theme.palette.mode === 'light' 
-            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%)'
-            : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #e94560 100%)',
+          background:
+            theme.palette.mode === 'light'
+              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%)'
+              : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #e94560 100%)',
           backgroundSize: '400% 400%',
           animation: 'gradientShift 15s ease infinite',
           opacity: 0.1,
           zIndex: -1,
         }}
       />
-      
-      {/* Floating Shapes Animation */}
+
+      {/* Floating Shapes */}
       <Box
         sx={{
           position: 'fixed',
@@ -164,9 +187,8 @@ export default function ContactUsPage() {
             content: '""',
             position: 'absolute',
             borderRadius: '50%',
-            background: theme.palette.mode === 'light' 
-              ? 'rgba(103, 126, 234, 0.1)' 
-              : 'rgba(233, 69, 96, 0.1)',
+            background:
+              theme.palette.mode === 'light' ? 'rgba(103, 126, 234, 0.1)' : 'rgba(233, 69, 96, 0.1)',
             animation: 'float 20s infinite ease-in-out',
           },
           '&::before': {
@@ -186,17 +208,8 @@ export default function ContactUsPage() {
         }}
       />
 
-      <Container 
-        maxWidth="xl" 
-        sx={{ 
-          py: { xs: 4, md: 8 }, 
-          px: { xs: 2, md: 4 }, 
-          position: 'relative', 
-          zIndex: 1,
-          minWidth: '100vw'
-        }}
-      >
-        {/* Header with image - MODIFIED SECTION */}
+      <Container maxWidth="xl" sx={{ py: { xs: 4, md: 8 }, px: { xs: 2, md: 4 }, position: 'relative', zIndex: 1, minWidth: '100vw' }}>
+        {/* Header with image */}
         <Fade in={mounted} timeout={1000}>
           <Box
             sx={{
@@ -205,8 +218,7 @@ export default function ContactUsPage() {
               overflow: 'hidden',
               mb: { xs: 4, md: 6 },
               boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-              // تم إزالة الارتفاع الثابت للسماح للصورة بالظهور بالكامل
-              minHeight: { xs: 200, sm: 280, md: 360 }, // تغيير من height إلى minHeight
+              minHeight: { xs: 200, sm: 280, md: 360 },
               transform: mounted ? 'translateY(0)' : 'translateY(-20px)',
               transition: 'transform 0.8s ease-out',
             }}
@@ -217,13 +229,8 @@ export default function ContactUsPage() {
               alt="Kids playing"
               sx={{
                 width: '100%',
-                // تم إزالة الارتفاع الثابت للسماح للصورة بالظهور بالكامل
-                // height: '100%',
-                // تغيير objectFit من 'cover' إلى 'contain' لضمان ظهور الصورة بالكامل
                 objectFit: 'contain',
-                // إضافة ارتفاع تلقائي
                 height: 'auto',
-                // تحديد أقصى ارتفاع للحفاظ على التناسق
                 maxHeight: { xs: 300, sm: 400, md: 500 },
               }}
             />
@@ -248,7 +255,7 @@ export default function ContactUsPage() {
           </Box>
         </Fade>
 
-        {/* Side-by-side cards container using Flexbox */}
+        {/* Cards */}
         <Box
           sx={{
             display: 'flex',
@@ -259,13 +266,8 @@ export default function ContactUsPage() {
             width: '100%',
           }}
         >
-          {/* Send Us A Message - Left Card */}
-          <Box
-            sx={{
-              flex: { xs: '1 1 100%', md: '1 1 45%' },
-              maxWidth: { xs: '100%', md: '600px' },
-            }}
-          >
+          {/* Left Card */}
+          <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 45%' }, maxWidth: { xs: '100%', md: '600px' } }}>
             <Fade in={mounted} timeout={1200}>
               <Paper
                 elevation={8}
@@ -273,9 +275,7 @@ export default function ContactUsPage() {
                   p: { xs: 3, md: 4 },
                   borderRadius: { xs: 2, md: 3 },
                   height: '100%',
-                  background: theme.palette.mode === 'light' 
-                    ? 'rgba(255, 255, 255, 0.95)' 
-                    : 'rgba(30, 30, 30, 0.95)',
+                  background: theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(30,30,30,0.95)',
                   backdropFilter: 'blur(10px)',
                   border: `1px solid ${theme.palette.mode === 'light' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
                   transform: mounted ? 'translateX(0)' : 'translateX(-50px)',
@@ -328,13 +328,6 @@ export default function ContactUsPage() {
                             </Avatar>
                           </InputAdornment>
                         ),
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'primary.main',
-                          },
-                        },
                       }}
                     />
                     <TextField
@@ -412,7 +405,6 @@ export default function ContactUsPage() {
               </Paper>
             </Fade>
           </Box>
-
           {/* Get In Touch - Right Card */}
           <Box
             sx={{
@@ -550,34 +542,21 @@ export default function ContactUsPage() {
           </Box>
         </Box>
 
-        {/* Notification Snackbar */}
-        <Snackbar
-          open={notification.open}
-          autoHideDuration={6000}
-          onClose={handleCloseNotification}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <Alert
-            onClose={handleCloseNotification}
-            severity={notification.severity}
-            sx={{ width: '100%' }}
-            icon={
-              notification.severity === 'success' ? <CheckCircleIcon /> : <ErrorIcon />
-            }
-          >
+       {/* Snackbar */}
+        <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+          <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }} icon={notification.severity === 'success' ? <CheckCircleIcon /> : <ErrorIcon />}>
             {notification.message}
           </Alert>
         </Snackbar>
       </Container>
 
-      {/* Global styles for animations */}
       <style jsx global>{`
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        
+
         @keyframes float {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
           33% { transform: translate(30px, -30px) rotate(120deg); }
