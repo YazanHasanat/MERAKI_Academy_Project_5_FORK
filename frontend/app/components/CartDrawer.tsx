@@ -52,6 +52,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const [updatingItems, setUpdatingItems] = React.useState<Set<number>>(new Set());
   const [myLocation, setMyLocation] = React.useState<any>(null);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
 
   const handleDialogOpen = () => setOpenDialog(true);
   const handleDialogClose = () => setOpenDialog(false);
@@ -64,7 +66,20 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     setSnackbarOpen(false);
   };
 
+  // دالة للتحقق من تسجيل الدخول
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+    return !!token;
+  };
+
   const getcart = async () => {
+    // التحقق من تسجيل الدخول قبل إرسال الطلب
+    if (!checkLoginStatus()) {
+      setCart([]);
+      return;
+    }
+
     try {
       setLoading(true);
       const result = await axios.get("http://localhost:5000/cart", {
@@ -74,7 +89,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       });
       setCart(result.data.products || []);
     } catch (err: any) {
-      console.error("Error fetching cart:", err.message);
+      // تجنب عرض الخطأ في الكونسول إذا كان الخطأ بسبب عدم تسجيل الدخول أو عدم وجود سلة
+      if (err.response?.status !== 401 && err.response?.status !== 403 && err.response?.status !== 404) {
+        console.error("Error fetching cart:", err.message);
+      }
       setCart([]);
     } finally {
       setLoading(false);
@@ -82,6 +100,12 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   };
 
   const getLocationById = async () => {
+    // التحقق من تسجيل الدخول قبل إرسال الطلب
+    if (!checkLoginStatus()) {
+      setMyLocation(null);
+      return;
+    }
+
     try {
       const result = await axios.get("http://localhost:5000/location", {
         headers: {
@@ -93,23 +117,37 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       } else {
         setMyLocation(null);
       }
-    } catch (err) {
-      console.error("Error fetching location:", err);
+    } catch (err: any) {
+      // تجنب عرض الخطأ في الكونسول إذا كان الخطأ بسبب عدم تسجيل الدخول أو عدم وجود موقع
+      if (err.response?.status !== 401 && err.response?.status !== 403 && err.response?.status !== 404) {
+        console.error("Error fetching location:", err);
+      }
       setMyLocation(null);
     }
   };
 
   React.useEffect(() => {
-    if (open) getcart();
+    if (open) {
+      checkLoginStatus();
+      getcart();
+    }
   }, [open]);
 
   React.useEffect(() => {
+    checkLoginStatus();
     getLocationById();
   }, []);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleDeleteItem = async (product_id: number) => {
+    // التحقق من تسجيل الدخول قبل إرسال الطلب
+    if (!checkLoginStatus()) {
+      setSnackbarMessage("Please login to manage your cart");
+      setSnackbarOpen(true);
+      return;
+    }
+
     try {
       // تحديث الحالة محلياً فوراً
       setCart(prevCart => prevCart.filter(item => item.product_id !== product_id));
@@ -120,7 +158,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         },
       });
     } catch (err: any) {
-      console.error("Error deleting item:", err.message);
+      // تجنب عرض الخطأ في الكونسول إذا كان الخطأ بسبب عدم تسجيل الدخول أو عدم وجود المنتج
+      if (err.response?.status !== 401 && err.response?.status !== 403 && err.response?.status !== 404) {
+        console.error("Error deleting item:", err.message);
+      }
       // في حالة الخطأ، أعد جلب البيانات
       getcart();
     }
@@ -128,6 +169,13 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   const handleUpdateQuantity = async (product_id: number, quantity: number) => {
     if (quantity < 1) return;
+    
+    // التحقق من تسجيل الدخول قبل إرسال الطلب
+    if (!checkLoginStatus()) {
+      setSnackbarMessage("Please login to manage your cart");
+      setSnackbarOpen(true);
+      return;
+    }
     
     try {
       // إضافة المنتج إلى قائمة التحديث
@@ -150,7 +198,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         }
       );
     } catch (err: any) {
-      console.error("Error updating quantity:", err.message);
+      // تجنب عرض الخطأ في الكونسول إذا كان الخطأ بسبب عدم تسجيل الدخول أو عدم وجود المنتج
+      if (err.response?.status !== 401 && err.response?.status !== 403 && err.response?.status !== 404) {
+        console.error("Error updating quantity:", err.message);
+      }
       // في حالة الخطأ، أعد جلب البيانات
       getcart();
     } finally {
@@ -164,10 +215,18 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   };
 
   const handleProceedToCheckout = () => {
-    if (!myLocation) {
+    if (!isLoggedIn) {
+      setSnackbarMessage("Please login to proceed to checkout");
       setSnackbarOpen(true);
       return;
     }
+    
+    if (!myLocation) {
+      setSnackbarMessage("Please add a location before proceeding to checkout");
+      setSnackbarOpen(true);
+      return;
+    }
+    
     router.push("/checkout");
     onClose();
   };
@@ -223,7 +282,37 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           {/* Cart Items */}
           <Box sx={{ flexGrow: 1, overflowY: "auto", p: 2 }}>
-            {loading ? (
+            {!isLoggedIn ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  py: 8,
+                }}
+              >
+                <ShoppingBagIcon
+                  sx={{ fontSize: 64, color: "#ccc", mb: 2 }}
+                />
+                <Typography variant="h6" color="text.secondary">
+                  Please login to view your cart
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Login to add products to your cart
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 2, bgcolor: "#EC407A" }}
+                  onClick={() => {
+                    onClose();
+                    router.push("/login");
+                  }}
+                >
+                  Login
+                </Button>
+              </Box>
+            ) : loading ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
                 <Typography>Loading...</Typography>
               </Box>
@@ -246,6 +335,16 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Add some products to get started
                 </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 2, bgcolor: "#EC407A" }}
+                  onClick={() => {
+                    onClose();
+                    router.push("/category/1");
+                  }}
+                >
+                  Browse Products
+                </Button>
               </Box>
             ) : (
               cart.map((item) => (
@@ -390,7 +489,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           </Box>
 
           {/* Footer */}
-          {cart.length > 0 && (
+          {isLoggedIn && cart.length > 0 && (
             <>
               <Divider />
               <Box sx={{ p: 2, bgcolor: "white" }}>
@@ -490,7 +589,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           severity="warning"
           sx={{ backgroundColor: "#EC407A", color: "white" }}
         >
-          Please add a location before proceeding to checkout.
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </>

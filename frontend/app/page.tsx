@@ -22,7 +22,6 @@ import Slider from "react-slick";
 import Loading from "./loading";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import Star from "@mui/icons-material/Star";
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 
@@ -99,7 +98,6 @@ export default function HeroSection() {
     try {
       const result = await axios.get("http://localhost:5000/products/featured");
       setProduct(result.data.products);
-      console.log(result);
     } catch (error) {
       console.log(error);
     }
