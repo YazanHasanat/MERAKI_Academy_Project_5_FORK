@@ -79,7 +79,7 @@ export default function DashboardPage() {
           axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories"),
           axios.get("https://meraki-academy-project-5-xtxg.onrender.com/products"),
           axios.get("https://meraki-academy-project-5-xtxg.onrender.com/orders/info"),
-          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/get"),
+          axios.get("https://meraki-academy-project-5-xtxg.onrender.com/users/get"),
         ]);
 
         setCategories(catRes.data);
