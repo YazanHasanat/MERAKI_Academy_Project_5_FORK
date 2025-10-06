@@ -52,7 +52,7 @@ const CategoryDashBoard: React.FC = () => {
 
   const getAllCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/categories");
+      const response = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories");
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -102,7 +102,7 @@ const CategoryDashBoard: React.FC = () => {
     try {
       const imageUrl = await uploadImage();
       const categoryData = { ...form, image: imageUrl };
-      await axios.post("http://localhost:5000/categories", categoryData, {
+      await axios.post("https://meraki-academy-project-5-xtxg.onrender.com/categories", categoryData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSnackbarMessage("Category added successfully!");
@@ -136,7 +136,7 @@ const CategoryDashBoard: React.FC = () => {
     setLoadingDelete(true);
     try {
       await axios.delete(
-        `http://localhost:5000/categories/${selectedCategoryToDelete}`,
+        `https://meraki-academy-project-5-xtxg.onrender.com/${selectedCategoryToDelete}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

@@ -82,7 +82,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
     try {
       setLoading(true);
-      const result = await axios.get("http://localhost:5000/cart", {
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/cart", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -107,7 +107,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     }
 
     try {
-      const result = await axios.get("http://localhost:5000/location", {
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/location", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -152,7 +152,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       // تحديث الحالة محلياً فوراً
       setCart(prevCart => prevCart.filter(item => item.product_id !== product_id));
       
-      await axios.delete(`http://localhost:5000/cart/item/${product_id}`, {
+      await axios.delete(`https://meraki-academy-project-5-xtxg.onrender.com/cart/item/${product_id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -189,7 +189,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       );
       
       await axios.put(
-        "http://localhost:5000/cart/update",
+        "https://meraki-academy-project-5-xtxg.onrender.com/cart/update",
         { product_id, quantity },
         {
           headers: {

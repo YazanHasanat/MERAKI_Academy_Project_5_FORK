@@ -27,7 +27,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/users/login", {
+      const response = await axios.post("https://meraki-academy-project-5-xtxg.onrender.com/users/login", {
         email,
         password,
       });
@@ -68,7 +68,7 @@ const Login = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:5000/users/google-login",
+        "https://meraki-academy-project-5-xtxg.onrender.com/users/google-login",
         { token },
         { withCredentials: true }
       );

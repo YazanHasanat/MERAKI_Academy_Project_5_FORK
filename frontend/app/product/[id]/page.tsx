@@ -53,7 +53,7 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get<{ product: Product; rating?: number }>(
-          `http://localhost:5000/products/${id}`
+          `https://meraki-academy-project-5-xtxg.onrender.com/products/${id}`
         );
         setProduct(res.data.product);
         setRating(res.data.rating || 0);
@@ -79,7 +79,7 @@ const ProductPage = () => {
       }
 
       await axios.post(
-        "http://localhost:5000/cart/add",
+        "https://meraki-academy-project-5-xtxg.onrender.com/cart/add",
         { product_id: product?.id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -107,7 +107,7 @@ const ProductPage = () => {
     try {
       const newRating = userRating === value ? 0 : value;
       await axios.post(
-        `http://localhost:5000/products/${id}/rating`,
+        `https://meraki-academy-project-5-xtxg.onrender.com/products/${id}/rating`,
         { rating: newRating },
         { headers: { Authorization: `Bearer ${token}` } }
       );

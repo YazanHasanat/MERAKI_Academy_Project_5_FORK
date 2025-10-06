@@ -76,7 +76,7 @@ const UserPage = () => {
 
   const getInformation = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/users/mypage", {
+      const res = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/users/mypage", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setUser(res.data);
@@ -87,7 +87,7 @@ const UserPage = () => {
 
   const getOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/orders/userorders", {
+      const res = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/orders/userorders", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (Array.isArray(res.data)) setOrders(res.data);
@@ -126,7 +126,7 @@ const UserPage = () => {
     if (!selectedUser) return;
     try {
       await axios.put(
-        `http://localhost:5000/users/${selectedUser.id}`,
+        `https://meraki-academy-project-5-xtxg.onrender.com/users/${selectedUser.id}`,
         {
           firstName: formData.firstname,
           lastName: formData.lastname,
@@ -171,7 +171,7 @@ const UserPage = () => {
       const uploadedUrl = response.data.secure_url;
 
       await axios.put(
-        `http://localhost:5000/users/avatar/${user.id}`,
+        `https://meraki-academy-project-5-xtxg.onrender.com/users/avatar/${user.id}`,
         { avatar: uploadedUrl },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

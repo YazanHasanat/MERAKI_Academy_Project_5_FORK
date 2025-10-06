@@ -18,7 +18,7 @@ const locationRouter=require("./routes/userLocationRoute")
 
 //built-in middleware
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
   credentials: true
 }));
 app.use(express.json());

@@ -59,7 +59,7 @@ const CheckoutPage = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "http://localhost:5000/create-payment-intent",
+        "https://meraki-academy-project-5-xtxg.onrender.com/create-payment-intent",
         { amount: Math.round(totalPrice * 100), currency: "usd" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ const CheckoutPage = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/cart", {
+        const res = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCartItems(res.data.products || []);
@@ -99,7 +99,7 @@ const CheckoutPage = () => {
   const clearCart = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete("http://localhost:5000/cart/clear", {
+      await axios.delete("https://meraki-academy-project-5-xtxg.onrender.com/cart/clear", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCartItems([]);
@@ -112,7 +112,7 @@ const CheckoutPage = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/orders",
+        "https://meraki-academy-project-5-xtxg.onrender.com/orders",
         {
           products: cartItems.map(({ product_id, quantity }) => ({
             product_id,
@@ -126,7 +126,7 @@ const CheckoutPage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      await axios.delete("http://localhost:5000/cart/clear", {
+      await axios.delete("https://meraki-academy-project-5-xtxg.onrender.com/cart/clear", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

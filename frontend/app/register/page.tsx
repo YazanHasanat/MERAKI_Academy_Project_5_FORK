@@ -31,7 +31,7 @@ function Register() {
   const handleRegister = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/users/register",
+        "https://meraki-academy-project-5-xtxg.onrender.com/users/register",
         {
           firstName,
           lastName,

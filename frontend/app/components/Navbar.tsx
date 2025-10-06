@@ -95,7 +95,7 @@ export default function Navbar() {
 
     async function fetchCategories() {
       try {
-        const response = await axios.get("http://localhost:5000/categories");
+        const response = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories");
         setCategories(response.data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -108,7 +108,7 @@ export default function Navbar() {
     };
   }, []);
   const getPrcucts = async () => {
-    const results = await axios.get("http://localhost:5000/products");
+    const results = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/products");
     setProducts(results.data.products);
   };
   

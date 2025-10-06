@@ -17,7 +17,7 @@ const OffersPage = () => {
   const fetchOffers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/products/offers/all");
+      const res = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/products/offers/all");
       setOffers(res.data);
     } catch (err) {
       console.error(err);

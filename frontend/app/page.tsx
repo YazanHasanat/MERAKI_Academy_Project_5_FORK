@@ -69,7 +69,7 @@ export default function HeroSection() {
       }
 
       await axios.post(
-        "http://localhost:5000/cart/add",
+        "https://meraki-academy-project-5-xtxg.onrender.com/cart/add",
         { product_id: productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -87,7 +87,7 @@ export default function HeroSection() {
 
   const getAllCategory = async () => {
     try {
-      const result = await axios.get("http://localhost:5000/categories");
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/categories");
       setCategories(result.data);
     } catch (error) {
       console.log(error);
@@ -96,7 +96,7 @@ export default function HeroSection() {
 
   const getFeaturedProducts = async () => {
     try {
-      const result = await axios.get("http://localhost:5000/products/featured");
+      const result = await axios.get("https://meraki-academy-project-5-xtxg.onrender.com/products/featured");
       setProduct(result.data.products);
     } catch (error) {
       console.log(error);
