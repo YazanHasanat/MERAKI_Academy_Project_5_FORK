@@ -18,7 +18,7 @@ const locationRouter=require("./routes/userLocationRoute")
 
 //built-in middleware
 app.use(cors({
-  origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
+  origin: ["http://localhost:3000",  "https://kiddyjoy.vercel.app"],
   credentials: true
 }));
 app.use(express.json());
